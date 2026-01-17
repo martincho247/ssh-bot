@@ -184,7 +184,7 @@ cat > "$CONFIG_FILE" << EOF
     },
     "links": {
         "tutorial": "https://youtube.com",
-        "support": "https://t.me/soporte"
+        "support": "https://wa.me/543435071016"
     },
     "paths": {
         "database": "$DB_FILE",
@@ -729,12 +729,12 @@ client.on('message', async (msg) => {
     // ✅ FIX 3: Enviar mensajes sin error markedUnread
     if (['menu', 'hola', 'start', 'hi'].includes(text)) {
         await client.sendMessage(phone, `╔══════════════════════════════════════╗
-║   🤖 *SSH BOT PRO v8.6*              ║
+║   🚀 *BIENVENIDOS MG VPN*              ║
 ╚══════════════════════════════════════╝
 
 📋 *MENÚ:*
 
-🆓 *1* - Prueba GRATIS (2h)  ⚡
+⌛️ *1* - Prueba GRATIS (2h)
 💰 *2* - Planes premium
 👤 *3* - Mis cuentas
 💳 *4* - Estado de pago
@@ -762,7 +762,7 @@ client.on('message', async (msg) => {
 
 👤 Usuario: *${username}*
 🔑 Contraseña: *${password}*
-⏰ Duración: 2 horas  ⚡
+⏰ Duración: 2 horas 
 🔌 Conexión: 1
 
 📱 *PARA CONECTAR:*
@@ -778,26 +778,26 @@ client.on('message', async (msg) => {
         }
     }
     else if (text === '2') {
-        await client.sendMessage(phone, `💎 *PLANES PREMIUM*
+        await client.sendMessage(phone, `💎 *PLANES INTERNET*
 
-🥉 *7 días* - $${config.prices.price_7d} ARS
+🌐 *7 días* - $${config.prices.price_7d} ARS
    1 conexión
-   _comprar7_
+   _1_
 
-🥈 *15 días* - $${config.prices.price_15d} ARS
+🌐 *15 días* - $${config.prices.price_15d} ARS
    1 conexión
-   _comprar15_
+   _2_
 
-🥇 *30 días* - $${config.prices.price_30d} ARS
+🌐 *30 días* - $${config.prices.price_30d} ARS
    1 conexión
-   _comprar30_
+   _3_
 
 💳 Pago: MercadoPago
 ⚡ Activación: 2-5 min
 
 Escribe el comando`, { sendSeen: false });
     }
-    else if (['comprar7', 'comprar15', 'comprar30'].includes(text)) {
+    else if (['1', '2', '3'].includes(text)) {
         config = loadConfig();
         
         console.log(chalk.yellow(`🔑 Verificando token MP...`));
