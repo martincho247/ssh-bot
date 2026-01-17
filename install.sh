@@ -739,13 +739,13 @@ client.on('message', async (msg) => {
 📋 *MENÚ:*
 
 ⌛️ *1* - Prueba GRATIS (2h)
-💰 *plan* - Planes premium
+💰 *2* - Planes premium
 👤 *3* - Mis cuentas
 💳 *4* - Estado de pago
 📱 *5* - Descargar APP
 🆘 *6* - Soporte
 
-💬 Responde con el número o comando`, { sendSeen: false });
+💬 Responde con el número`, { sendSeen: false });
     }
     else if (text === '1') {
         if (!(await canCreateTest(phone))) {
