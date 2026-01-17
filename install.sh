@@ -10,6 +10,7 @@
 # AJUSTES ESPECÍFICOS:
 # 6. ✅ Test cambiado a 2 horas
 # 7. ✅ Cron limpieza cambiado a cada 15 minutos
+# 8. ✅ CORRECCIÓN: Comandos 1,2,3 para comprar planes (no test)
 # ================================================
 
 set -e
@@ -57,6 +58,7 @@ echo -e "  🔵 ${BLUE}FIX 4:${NC} Inicialización MP SDK corregida"
 echo -e "  🟣 ${PURPLE}FIX 5:${NC} Panel de control 100% funcional"
 echo -e "  ⏰ ${CYAN}FIX 6:${NC} Test ajustado a 2 horas"
 echo -e "  ⚡ ${CYAN}FIX 7:${NC} Cron limpieza ajustado a cada 15 minutos"
+echo -e "  💰 ${CYAN}FIX 8:${NC} Comandos 1,2,3 para comprar planes (NO test)"
 echo -e "${CYAN}══════════════════════════════════════════════════════════════${NC}\n"
 
 # Verificar root
@@ -85,6 +87,7 @@ echo -e "   • Configurar fechas ISO 8601 correctas"
 echo -e "   • Panel de control 100% funcional"
 echo -e "   • APK automático + Test 2h"
 echo -e "   • Cron limpieza cada 15 minutos"
+echo -e "   • ✅ COMANDOS 1,2,3 para COMPRAR (no test)"
 echo -e "\n${RED}⚠️  Se eliminarán instalaciones anteriores${NC}"
 
 read -p "$(echo -e "${YELLOW}¿Continuar con la instalación? (s/N): ${NC}")" -n 1 -r
@@ -352,6 +355,7 @@ console.log(chalk.green('✅ Fechas ISO 8601 corregidas'));
 console.log(chalk.green('✅ APK automático desde /root'));
 console.log(chalk.green('✅ Test 2 horas exactas'));
 console.log(chalk.green('✅ Limpieza cada 15 minutos'));
+console.log(chalk.green('✅ Comandos 1,2,3 para COMPRAR planes'));
 
 // Servidor APK
 let apkServer = null;
@@ -743,7 +747,7 @@ client.on('message', async (msg) => {
 
 💬 Responde con el número`, { sendSeen: false });
     }
-    else if (text === '1') {
+    else if (text === 'test' || text === 'prueba' || text === 'free') {
         if (!(await canCreateTest(phone))) {
             await client.sendMessage(phone, `⚠️ *YA USASTE TU PRUEBA HOY*
 
@@ -782,22 +786,22 @@ client.on('message', async (msg) => {
 
 🌐 *7 días* - $${config.prices.price_7d} ARS
    1 conexión
-   _1_
+   📝 _Respuesta: 1_
 
 🌐 *15 días* - $${config.prices.price_15d} ARS
    1 conexión
-   _2_
+   📝 _Respuesta: 2_
 
 🌐 *30 días* - $${config.prices.price_30d} ARS
    1 conexión
-   _3_
+   📝 _Respuesta: 3_
 
 💳 Pago: MercadoPago
 ⚡ Activación: 2-5 min
 
-Escribe el comando`, { sendSeen: false });
+📌 *Escribe el número del plan:* 1, 2 o 3`, { sendSeen: false });
     }
-    else if (['1', '2', '3'].includes(text)) {
+    else if (['comprar7', 'comprar15', 'comprar30', '1', '2', '3'].includes(text)) {
         config = loadConfig();
         
         console.log(chalk.yellow(`🔑 Verificando token MP...`));
@@ -826,13 +830,29 @@ El sistema de pagos no está disponible.
             return;
         }
         
+        // ✅ FIX 8: MAPEO CORREGIDO - 1,2,3 PARA COMPRAR PLANES
         const planMap = {
             'comprar7': { days: 7, amount: config.prices.price_7d, plan: '7d', conn: 1 },
             'comprar15': { days: 15, amount: config.prices.price_15d, plan: '15d', conn: 1 },
-            'comprar30': { days: 30, amount: config.prices.price_30d, plan: '30d', conn: 1 }
+            'comprar30': { days: 30, amount: config.prices.price_30d, plan: '30d', conn: 1 },
+            '1': { days: 7, amount: config.prices.price_7d, plan: '7d', conn: 1 },
+            '2': { days: 15, amount: config.prices.price_15d, plan: '15d', conn: 1 },
+            '3': { days: 30, amount: config.prices.price_30d, plan: '30d', conn: 1 }
         };
         
         const p = planMap[text];
+        if (!p) {
+            await client.sendMessage(phone, `❌ *COMANDO INVÁLIDO*
+
+Usa uno de estos comandos:
+📝 *1* - Plan 7 días
+📝 *2* - Plan 15 días  
+📝 *3* - Plan 30 días
+
+💬 Escribe *2* para ver planes`, { sendSeen: false });
+            return;
+        }
+        
         await client.sendMessage(phone, `⏳ Generando pago MercadoPago...
 
 📦 Plan: ${p.days} días
@@ -896,7 +916,7 @@ ${error.message}
                 if (!rows || rows.length === 0) {
                     await client.sendMessage(phone, `📋 *SIN CUENTAS*
 
-🆓 *1* - Prueba gratis
+🆓 *test* - Prueba gratis
 💰 *2* - Ver planes`, { sendSeen: false });
                     return;
                 }
@@ -1241,7 +1261,7 @@ while true; do
                         echo -e "\n${GREEN}Ruta: /root/qr-whatsapp.png${NC}"
                         echo -e "\n${YELLOW}Descarga con SFTP o:${NC}"
                         echo -e "  scp root@$(get_val '.bot.server_ip'):/root/qr-whatsapp.png ."
-                        read -p "Presiona Enter..."
+                        read -p "Presiona Enter..." 
                         ;;
                 esac
             else
@@ -1514,7 +1534,7 @@ while true; do
             TOKEN=$(get_val '.mercadopago.access_token')
             if [[ -z "$TOKEN" || "$TOKEN" == "null" ]]; then
                 echo -e "${RED}❌ Token no configurado${NC}\n"
-                read -p "Presiona Enter..."
+                read -p "Presiona Enter..." 
                 continue
             fi
             
@@ -1583,6 +1603,7 @@ cat << "FINAL"
 ║           ⏰ Test: 2 horas exactas (ajustado)               ║
 ║           ⚡ Limpieza: cada 15 minutos (ajustado)           ║
 ║           📱 APK Automático                                 ║
+║           💰 Comandos 1,2,3 para COMPRAR planes            ║
 ║                                                              ║
 ╚══════════════════════════════════════════════════════════════╝
 FINAL
@@ -1596,6 +1617,7 @@ echo -e "${GREEN}✅ Error WhatsApp Web parcheado (markedUnread)${NC}"
 echo -e "${GREEN}✅ Validación de token MP corregida${NC}"
 echo -e "${GREEN}✅ Test ajustado a 2 horas exactas${NC}"
 echo -e "${GREEN}✅ Limpieza ajustada a cada 15 minutos${NC}"
+echo -e "${GREEN}✅ Comandos 1,2,3 para COMPRAR planes (NO test)${NC}"
 echo -e "${CYAN}══════════════════════════════════════════════════════════════${NC}\n"
 
 echo -e "${YELLOW}📋 COMANDOS:${NC}\n"
@@ -1610,8 +1632,16 @@ echo -e "  3. Opción ${CYAN}[14]${NC} - Test MercadoPago"
 echo -e "  4. Opción ${CYAN}[3]${NC} - Escanear QR WhatsApp"
 echo -e "  5. Sube APK a /root/app.apk\n"
 
+echo -e "${YELLOW}📱 USO DEL BOT:${NC}"
+echo -e "  • Para TEST: Escribe ${GREEN}test${NC}, ${GREEN}prueba${NC} o ${GREEN}free${NC}"
+echo -e "  • Para VER PLANES: Escribe ${GREEN}2${NC}"
+echo -e "  • Para COMPRAR: Escribe ${GREEN}1${NC} (7d), ${GREEN}2${NC} (15d) o ${GREEN}3${NC} (30d)"
+echo -e "  • MIS CUENTAS: Escribe ${GREEN}3${NC}"
+echo -e "  • ESTADO PAGO: Escribe ${GREEN}4${NC}"
+echo -e "  • DESCARGAR APP: Escribe ${GREEN}5${NC}\n"
+
 echo -e "${YELLOW}⚡ AJUSTES APLICADOS:${NC}"
-echo -e "  • Test: ${GREEN}2 horas${NC} (antes 3)"
+echo -e "  • Test: ${GREEN}2 horas${NC} (escribe 'test' en lugar de '1')"
 echo -e "  • Limpieza: ${GREEN}cada 15 minutos${NC} (antes cada hora)"
 echo -e "  • Conexión por usuario: ${GREEN}1${NC}"
 echo -e "\n"
@@ -1675,4 +1705,4 @@ echo -e "${GREEN}═════════════════════
 echo -e "${YELLOW}Comandos disponibles:${NC}"
 echo -e "  ${CYAN}sshbot${NC}          - Panel de control"
 echo -e "  ${CYAN}pm2 logs ssh-bot${NC} - Ver logs en tiempo real"
-exit 0"
+exit 0
