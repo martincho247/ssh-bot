@@ -1,16 +1,19 @@
 #!/bin/bash
 # ================================================
-# SSH BOT PRO v8.6 - TODOS LOS FIXES APLICADOS
+# SSH BOT PRO v8.7 - HWID SUPPORT ADDED
 # Correcciones aplicadas:
 # 1. ✅ Validación token MercadoPago FIXED
 # 2. ✅ Fechas ISO 8601 correctas (MP SDK v2.x)
 # 3. ✅ Parche error markedUnread de WhatsApp Web
 # 4. ✅ Inicialización MP SDK corregida
 # 5. ✅ Panel de control funcionando 100%
+# NUEVAS FUNCIONALIDADES:
+# 6. ✅ HWID Support - Clientes envían HWID
+# 7. ✅ Bot envía archivo hc correspondiente
+# 8. ✅ Sistema de archivos HWID organizado
 # AJUSTES ESPECÍFICOS:
-# 6. ✅ Test cambiado a 2 horas
-# 7. ✅ Cron limpieza cambiado a cada 15 minutos
-# 8. ✅ CORRECCIÓN: Comandos 1,2,3 para comprar planes (no test)
+# 9. ✅ Test cambiado a 2 horas
+# 10. ✅ Cron limpieza cambiado a cada 15 minutos
 # ================================================
 
 set -e
@@ -39,18 +42,24 @@ cat << "BANNER"
 ║     ╚══════╝╚══════╝╚═╝  ╚═╝    ╚═════╝  ╚═════╝    ╚═╝     ║
 ╠══════════════════════════════════════════════════════════════╣
 ║                                                              ║
-║           🚀 SSH BOT PRO v8.6 - ALL FIXES APPLIED           ║
-║               💳 MercadoPago SDK v2.x FULLY FIXED           ║
+║           🚀 SSH BOT PRO v8.7 - HWID SUPPORT ADDED          ║
+║               📋 Clientes envían HWID                       ║
+║               📁 Bot responde con archivo hc                ║
+║               💾 Sistema organizado de HWID                 ║
+║               💳 MercadoPago SDK v2.x FULLY FIXED          ║
 ║               📅 ISO 8601 Dates Corrected                   ║
-║               🔑 Token Validation Fixed                      ║
-║               🤖 WhatsApp markedUnread Patched              ║
-║               📱 APK Auto + 2h Test                         ║
+║               🔑 Token Validation Fixed                     ║
+║               🤖 WhatsApp markedUnread Patched             ║
+║               📱 APK Auto + 2h Test + HWID                 ║
 ║                                                              ║
 ╚══════════════════════════════════════════════════════════════╝
 BANNER
 echo -e "${NC}"
 
-echo -e "${GREEN}✅ CORRECCIONES APLICADAS EN ESTA VERSIÓN:${NC}"
+echo -e "${GREEN}✅ FUNCIONALIDADES AGREGADAS EN ESTA VERSIÓN:${NC}"
+echo -e "  🆕 ${GREEN}HWID 1:${NC} Clientes pueden enviar su HWID"
+echo -e "  🆕 ${GREEN}HWID 2:${NC} Bot envía archivo hc correspondiente"
+echo -e "  🆕 ${GREEN}HWID 3:${NC} Sistema de gestión de archivos HWID"
 echo -e "  🔴 ${RED}FIX 1:${NC} Validación token MP corregida (regex fija)"
 echo -e "  🟡 ${YELLOW}FIX 2:${NC} Fechas ISO 8601 formato correcto para MP v2.x"
 echo -e "  🟢 ${GREEN}FIX 3:${NC} Parche error 'markedUnread' de WhatsApp Web"
@@ -58,7 +67,6 @@ echo -e "  🔵 ${BLUE}FIX 4:${NC} Inicialización MP SDK corregida"
 echo -e "  🟣 ${PURPLE}FIX 5:${NC} Panel de control 100% funcional"
 echo -e "  ⏰ ${CYAN}FIX 6:${NC} Test ajustado a 2 horas"
 echo -e "  ⚡ ${CYAN}FIX 7:${NC} Cron limpieza ajustado a cada 15 minutos"
-echo -e "  💰 ${CYAN}FIX 8:${NC} Comandos 1,2,3 para comprar planes (NO test)"
 echo -e "${CYAN}══════════════════════════════════════════════════════════════${NC}\n"
 
 # Verificar root
@@ -81,13 +89,14 @@ echo -e "${GREEN}✅ IP detectada: ${CYAN}$SERVER_IP${NC}\n"
 # Confirmar instalación
 echo -e "${YELLOW}⚠️  ESTE INSTALADOR HARÁ:${NC}"
 echo -e "   • Instalar Node.js 20.x + Chrome"
-echo -e "   • Crear SSH Bot Pro v8.6 CON TODOS LOS FIXES"
+echo -e "   • Crear SSH Bot Pro v8.7 CON SOPORTE HWID"
+echo -e "   • Sistema HWID: Cliente envía HWID → Bot envía hc"
+echo -e "   • Directorio organizado /opt/ssh-bot/hwid/"
 echo -e "   • Aplicar parche error WhatsApp Web"
 echo -e "   • Configurar fechas ISO 8601 correctas"
 echo -e "   • Panel de control 100% funcional"
-echo -e "   • APK automático + Test 2h"
+echo -e "   • APK automático + Test 2h + HWID"
 echo -e "   • Cron limpieza cada 15 minutos"
-echo -e "   • ✅ COMANDOS 1,2,3 para COMPRAR (no test)"
 echo -e "\n${RED}⚠️  Se eliminarán instalaciones anteriores${NC}"
 
 read -p "$(echo -e "${YELLOW}¿Continuar con la instalación? (s/N): ${NC}")" -n 1 -r
@@ -143,12 +152,13 @@ npm install -g pm2 --silent > /dev/null 2>&1
 echo -e "${GREEN}✅ Dependencias instaladas${NC}"
 
 # ================================================
-# PREPARAR ESTRUCTURA
+# PREPARAR ESTRUCTURA CON HWID SUPPORT
 # ================================================
-echo -e "\n${CYAN}${BOLD}📁 CREANDO ESTRUCTURA...${NC}"
+echo -e "\n${CYAN}${BOLD}📁 CREANDO ESTRUCTURA CON HWID SUPPORT...${NC}"
 
 INSTALL_DIR="/opt/ssh-bot"
 USER_HOME="/root/ssh-bot"
+HWID_DIR="$INSTALL_DIR/hwid"
 DB_FILE="$INSTALL_DIR/data/users.db"
 CONFIG_FILE="$INSTALL_DIR/config/config.json"
 
@@ -159,19 +169,19 @@ pm2 flush 2>/dev/null || true
 rm -rf "$INSTALL_DIR" "$USER_HOME" 2>/dev/null || true
 rm -rf /root/.wwebjs_auth /root/.wwebjs_cache 2>/dev/null || true
 
-# Crear directorios
-mkdir -p "$INSTALL_DIR"/{data,config,qr_codes,logs}
+# Crear directorios incluyendo HWID
+mkdir -p "$INSTALL_DIR"/{data,config,qr_codes,logs,hwid/pending,hwid/processed,hwid/archives}
 mkdir -p "$USER_HOME"
 mkdir -p /root/.wwebjs_auth
 chmod -R 755 "$INSTALL_DIR"
 chmod -R 700 /root/.wwebjs_auth
 
-# Crear configuración
+# Crear configuración con HWID
 cat > "$CONFIG_FILE" << EOF
 {
     "bot": {
         "name": "SSH Bot Pro",
-        "version": "8.6-ALL-FIXES",
+        "version": "8.7-HWID-SUPPORT",
         "server_ip": "$SERVER_IP"
     },
     "prices": {
@@ -185,19 +195,26 @@ cat > "$CONFIG_FILE" << EOF
         "access_token": "",
         "enabled": false
     },
+    "hwid": {
+        "enabled": true,
+        "path": "$HWID_DIR",
+        "max_file_size_mb": 10,
+        "allowed_extensions": ["txt", "hc", "key", "dat"]
+    },
     "links": {
         "tutorial": "https://youtube.com",
-        "support": "https://wa.me/543435071016"
+        "support": "https://t.me/soporte"
     },
     "paths": {
         "database": "$DB_FILE",
         "chromium": "/usr/bin/google-chrome",
-        "qr_codes": "$INSTALL_DIR/qr_codes"
+        "qr_codes": "$INSTALL_DIR/qr_codes",
+        "hwid": "$HWID_DIR"
     }
 }
 EOF
 
-# Crear base de datos
+# Crear base de datos con tabla HWID
 sqlite3 "$DB_FILE" << 'SQL'
 CREATE TABLE users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -231,6 +248,15 @@ CREATE TABLE payments (
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     approved_at DATETIME
 );
+CREATE TABLE hwid_requests (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    phone TEXT,
+    hwid TEXT,
+    status TEXT DEFAULT 'pending',
+    file_sent TEXT,
+    sent_at DATETIME,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
 CREATE TABLE logs (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     type TEXT,
@@ -241,14 +267,52 @@ CREATE TABLE logs (
 CREATE INDEX idx_users_phone ON users(phone);
 CREATE INDEX idx_users_status ON users(status);
 CREATE INDEX idx_payments_status ON payments(status);
+CREATE INDEX idx_hwid_phone ON hwid_requests(phone);
+CREATE INDEX idx_hwid_status ON hwid_requests(status);
 SQL
 
-echo -e "${GREEN}✅ Estructura creada${NC}"
+# Crear archivos de ejemplo en HWID directory
+echo -e "${YELLOW}📁 Creando archivos HWID de ejemplo...${NC}"
+# Crear algunos archivos hc de ejemplo
+for i in {1..5}; do
+    echo "Ejemplo de contenido para hc_${i}.hc" > "$HWID_DIR/archives/hc_${i}.hc"
+    echo "HWID-EXAMPLE-${i}-$(date +%s)" > "$HWID_DIR/archives/hwid_${i}.txt"
+done
+
+# Crear archivo README para HWID
+cat > "$HWID_DIR/README.txt" << 'HWIDREADME'
+==========================================
+SISTEMA HWID - SSH BOT PRO v8.7
+==========================================
+
+ESTRUCTURA DE DIRECTORIOS:
+/hwid/
+  ├── pending/      # HWIDs pendientes de procesar
+  ├── processed/    # HWIDs ya procesados
+  └── archives/     # Archivos hc disponibles
+
+INSTRUCCIONES:
+1. Los clientes envían su HWID por WhatsApp
+2. El sistema busca archivo hc correspondiente
+3. Se envía el archivo al cliente automáticamente
+
+FORMATO DE HWID RECOMENDADO:
+- HWID-XXXXXXXXXXXX
+- UUID-like: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+- Cualquier cadena única del cliente
+
+ARCHIVOS HC:
+- Deben nombrarse: HWID_<valor>.hc
+- Ejemplo: HWID_ABC123.hc
+- Tamaño máximo: 10MB
+HWIDREADME
+
+echo -e "${GREEN}✅ Estructura creada con soporte HWID${NC}"
 
 # ================================================
-# CREAR BOT CON TODOS LOS FIXES
+# CREAR BOT CON HWID SUPPORT
 # ================================================
-echo -e "\n${CYAN}${BOLD}🤖 CREANDO BOT CON TODOS LOS FIXES...${NC}"
+echo -e "\n${CYAN}${BOLD}🤖 CREANDO BOT CON SOPORTE HWID...${NC}"
 
 cd "$USER_HOME"
 
@@ -256,7 +320,7 @@ cd "$USER_HOME"
 cat > package.json << 'PKGEOF'
 {
     "name": "ssh-bot-pro",
-    "version": "8.6.0",
+    "version": "8.7.0",
     "main": "bot.js",
     "dependencies": {
         "whatsapp-web.js": "^1.24.0",
@@ -282,8 +346,8 @@ find node_modules/whatsapp-web.js -name "Client.js" -type f -exec sed -i 's/cons
 
 echo -e "${GREEN}✅ Parche markedUnread aplicado${NC}"
 
-# Crear bot.js CON TODOS LOS FIXES (INCLUYENDO AJUSTES DE 2h Y CRON 15min)
-echo -e "${YELLOW}📝 Creando bot.js con todos los fixes...${NC}"
+# Crear bot.js CON SOPORTE HWID
+echo -e "${YELLOW}📝 Creando bot.js con soporte HWID...${NC}"
 
 cat > "bot.js" << 'BOTEOF'
 const { Client, LocalAuth, MessageMedia } = require('whatsapp-web.js');
@@ -346,16 +410,17 @@ let mpEnabled = initMercadoPago();
 moment.locale('es');
 
 console.log(chalk.cyan.bold('\n╔══════════════════════════════════════════════════════════════╗'));
-console.log(chalk.cyan.bold('║      🤖 SSH BOT PRO v8.6 - ALL FIXES APPLIED                ║'));
+console.log(chalk.cyan.bold('║      🤖 SSH BOT PRO v8.7 - HWID SUPPORT ADDED                ║'));
+console.log(chalk.cyan.bold('║      📋 Clientes envían HWID → Bot envía hc                 ║'));
 console.log(chalk.cyan.bold('╚══════════════════════════════════════════════════════════════╝\n'));
 console.log(chalk.yellow(`📍 IP: ${config.bot.server_ip}`));
 console.log(chalk.yellow(`💳 MercadoPago: ${mpEnabled ? '✅ SDK v2.x ACTIVO' : '❌ NO CONFIGURADO'}`));
 console.log(chalk.green('✅ WhatsApp Web parcheado (no markedUnread error)'));
+console.log(chalk.green('✅ Soporte HWID activado'));
 console.log(chalk.green('✅ Fechas ISO 8601 corregidas'));
 console.log(chalk.green('✅ APK automático desde /root'));
 console.log(chalk.green('✅ Test 2 horas exactas'));
 console.log(chalk.green('✅ Limpieza cada 15 minutos'));
-console.log(chalk.green('✅ Comandos 1,2,3 para COMPRAR planes'));
 
 // Servidor APK
 let apkServer = null;
@@ -407,8 +472,151 @@ function startAPKServer(apkPath) {
     });
 }
 
+// 🔧 FUNCIONES HWID
+async function processHWID(phone, hwid) {
+    try {
+        console.log(chalk.cyan(`🔍 Procesando HWID: ${hwid.substring(0, 30)}...`));
+        
+        // Guardar solicitud en BD
+        db.run('INSERT INTO hwid_requests (phone, hwid, status) VALUES (?, ?, "pending")', 
+            [phone, hwid], function(err) {
+                if (err) console.error(chalk.red('❌ Error guardando HWID:'), err.message);
+            });
+        
+        // Buscar archivo hc correspondiente
+        const hwidDir = config.paths.hwid;
+        const archivesDir = path.join(hwidDir, 'archives');
+        
+        // Opciones de nombres de archivo
+        const possibleFiles = [
+            `HWID_${hwid}.hc`,
+            `HWID_${hwid}.txt`,
+            `hwid_${hwid}.hc`,
+            `hwid_${hwid}.txt`,
+            `${hwid}.hc`,
+            `${hwid}.txt`,
+            // Buscar cualquier archivo que contenga el HWID
+        ];
+        
+        let foundFile = null;
+        
+        // Buscar en archivos existentes
+        for (const fileName of possibleFiles) {
+            const filePath = path.join(archivesDir, fileName);
+            if (fs.existsSync(filePath)) {
+                foundFile = filePath;
+                break;
+            }
+        }
+        
+        // Si no encuentra por nombre exacto, buscar archivos que contengan el HWID
+        if (!foundFile) {
+            const files = fs.readdirSync(archivesDir).filter(f => 
+                f.includes('.hc') || f.includes('.txt') || f.includes('.key') || f.includes('.dat')
+            );
+            
+            for (const file of files) {
+                if (file.toLowerCase().includes(hwid.toLowerCase())) {
+                    foundFile = path.join(archivesDir, file);
+                    break;
+                }
+            }
+        }
+        
+        if (foundFile) {
+            const stats = fs.statSync(foundFile);
+            const fileSizeMB = stats.size / (1024 * 1024);
+            
+            if (fileSizeMB > config.hwid.max_file_size_mb) {
+                console.log(chalk.red(`❌ Archivo muy grande: ${fileSizeMB.toFixed(2)}MB`));
+                return {
+                    success: false,
+                    error: `Archivo muy grande (${fileSizeMB.toFixed(2)}MB). Límite: ${config.hwid.max_file_size_mb}MB`
+                };
+            }
+            
+            console.log(chalk.green(`✅ Archivo encontrado: ${path.basename(foundFile)} (${fileSizeMB.toFixed(2)}MB)`));
+            
+            // Actualizar estado en BD
+            db.run('UPDATE hwid_requests SET status = "sent", file_sent = ?, sent_at = CURRENT_TIMESTAMP WHERE phone = ? AND hwid = ? AND status = "pending"',
+                [path.basename(foundFile), phone, hwid]);
+            
+            return {
+                success: true,
+                filePath: foundFile,
+                fileName: path.basename(foundFile),
+                fileSize: stats.size,
+                fileSizeMB: fileSizeMB.toFixed(2)
+            };
+        } else {
+            console.log(chalk.yellow(`⚠️ Archivo no encontrado para HWID: ${hwid}`));
+            
+            // Mover HWID a pendientes
+            const pendingFile = path.join(hwidDir, 'pending', `HWID_${phone}_${Date.now()}.txt`);
+            fs.writeFileSync(pendingFile, `Phone: ${phone}\nHWID: ${hwid}\nTime: ${new Date().toISOString()}`);
+            
+            // Actualizar estado en BD
+            db.run('UPDATE hwid_requests SET status = "not_found" WHERE phone = ? AND hwid = ? AND status = "pending"',
+                [phone, hwid]);
+            
+            return {
+                success: false,
+                error: 'Archivo hc no encontrado para este HWID',
+                hwid: hwid,
+                pendingFile: pendingFile
+            };
+        }
+    } catch (error) {
+        console.error(chalk.red('❌ Error procesando HWID:'), error.message);
+        
+        db.run('INSERT INTO logs (type, message, data) VALUES ("hwid_error", ?, ?)',
+            [error.message, JSON.stringify({ phone, hwid, stack: error.stack })]);
+        
+        return {
+            success: false,
+            error: `Error interno: ${error.message}`
+        };
+    }
+}
+
+async function sendHWIDFile(phone, filePath, fileName) {
+    try {
+        console.log(chalk.cyan(`📤 Enviando archivo HWID: ${fileName}`));
+        
+        const media = MessageMedia.fromFilePath(filePath);
+        await client.sendMessage(phone, media, {
+            caption: `📁 *ARCHIVO HC ENCONTRADO*\n\n✅ HWID verificado correctamente\n📄 Archivo: ${fileName}\n\n💡 Guarda este archivo en la ubicación requerida por la aplicación.`,
+            sendSeen: false
+        });
+        
+        console.log(chalk.green(`✅ Archivo HWID enviado: ${fileName}`));
+        return true;
+    } catch (error) {
+        console.error(chalk.red('❌ Error enviando archivo HWID:'), error.message);
+        
+        // Intentar enviar como texto si el archivo es pequeño
+        try {
+            const content = fs.readFileSync(filePath, 'utf8');
+            if (content.length < 1000) { // Solo si es pequeño
+                await client.sendMessage(phone, `📄 *CONTENIDO DEL ARCHIVO HC*\n\n\`\`\`\n${content}\n\`\`\``, { sendSeen: false });
+                console.log(chalk.yellow(`⚠️ Archivo enviado como texto (${content.length} chars)`));
+                return true;
+            }
+        } catch (e) {
+            console.error(chalk.red('❌ Error leyendo archivo:'), e.message);
+        }
+        
+        return false;
+    }
+}
+
+// Función para manejar solicitudes HWID del menú
+async function handleHWIDRequest(phone) {
+    await client.sendMessage(phone, `🔧 *ENVÍA TU HWID*\n\nPor favor, envía tu HWID (Hardware ID) para recibir el archivo hc correspondiente.\n\n📝 *Formato:*\n- Puede ser cualquier cadena única\n- Ejemplo: HWID-ABC123XYZ\n- UUID: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx\n\n💡 Envía solo el HWID, sin texto adicional.`, { sendSeen: false });
+}
+
 const client = new Client({
-    authStrategy: new LocalAuth({dataPath: '/root/.wwebjs_auth', clientId: 'ssh-bot-v86'}),
+    authStrategy: new LocalAuth({dataPath: '/root/.wwebjs_auth', clientId: 'ssh-bot-v87'}),
     puppeteer: {
         headless: true,
         executablePath: config.paths.chromium,
@@ -730,24 +938,82 @@ client.on('message', async (msg) => {
     config = loadConfig();
     console.log(chalk.cyan(`📩 [${phone.split('@')[0]}]: ${text.substring(0, 30)}`));
     
-    // ✅ FIX 3: Enviar mensajes sin error markedUnread
+    // ✅ DETECTAR HWID (puede ser cualquier cadena que parezca un HWID)
+    const hwidPatterns = [
+        /^HWID[-_]/i,
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i, // UUID
+        /^[0-9a-f]{16,}$/i, // HEX largo
+        /^[A-Z0-9]{12,}$/i // Cadena alfanumérica larga
+    ];
+    
+    let isHWID = false;
+    let hwidValue = text;
+    
+    for (const pattern of hwidPatterns) {
+        if (pattern.test(text)) {
+            isHWID = true;
+            break;
+        }
+    }
+    
+    // También considerar cadenas largas (>8 caracteres) como posible HWID
+    if (!isHWID && text.length > 8 && !['menu', 'hola', 'start', 'hi', '1', '2', '3', '4', '5', '6', '7'].includes(text)) {
+        // Verificar si no es un comando conocido
+        const knownCommands = ['comprar7', 'comprar15', 'comprar30'];
+        if (!knownCommands.includes(text)) {
+            isHWID = true;
+        }
+    }
+    
+    // ✅ MANEJAR HWID
+    if (isHWID) {
+        console.log(chalk.yellow(`🔍 Posible HWID detectado: ${text.substring(0, 30)}...`));
+        
+        await client.sendMessage(phone, `⏳ *PROCESANDO HWID*\n\nBuscando archivo hc para:\n\`${text}\`\n\nPor favor espera...`, { sendSeen: false });
+        
+        const result = await processHWID(phone, text);
+        
+        if (result.success) {
+            await client.sendMessage(phone, `✅ *HWID ENCONTRADO*\n\n📁 Archivo: ${result.fileName}\n📊 Tamaño: ${result.fileSizeMB} MB\n\n⏳ Enviando archivo...`, { sendSeen: false });
+            
+            const sent = await sendHWIDFile(phone, result.filePath, result.fileName);
+            
+            if (sent) {
+                await client.sendMessage(phone, `🎉 *ARCHIVO HC ENVIADO*\n\n✅ Archivo enviado exitosamente\n📄 Nombre: ${result.fileName}\n\n💡 *INSTRUCCIONES:*\n1. Guarda el archivo en la ubicación requerida\n2. Reinicia la aplicación si es necesario\n3. ¡Disfruta del servicio!\n\n¿Necesitas ayuda? Escribe *6*`, { sendSeen: false });
+            } else {
+                await client.sendMessage(phone, `❌ *ERROR AL ENVIAR ARCHIVO*\n\nNo se pudo enviar el archivo.\n\n💡 *SOLUCIÓN:*\n1. Verifica tu conexión\n2. Intenta nuevamente\n3. Contacta soporte (Escribe *6*)`, { sendSeen: false });
+            }
+        } else {
+            await client.sendMessage(phone, `❌ *HWID NO ENCONTRADO*\n\nNo se encontró un archivo hc para:\n\`${text}\`\n\n💡 *POSIBLES SOLUCIONES:*\n1. Verifica que el HWID sea correcto\n2. Contacta al administrador\n3. Espera a que se genere tu archivo hc\n\n🆘 Soporte: *Escribe 6*`, { sendSeen: false });
+            
+            // Notificar al administrador
+            const adminMessage = `⚠️ *HWID NO ENCONTRADO*\n\n👤 Cliente: ${phone.split('@')[0]}\n🔧 HWID: ${text}\n⏰ Hora: ${moment().format('DD/MM HH:mm')}\n\n📁 Revisar en: ${config.paths.hwid}/pending/`;
+            // Aquí puedes enviar a un administrador específico si lo deseas
+        }
+        
+        return;
+    }
+    
+    // ✅ MENÚ PRINCIPAL
     if (['menu', 'hola', 'start', 'hi'].includes(text)) {
         await client.sendMessage(phone, `╔══════════════════════════════════════╗
-║   🚀 *BIENVENIDOS MG VPN*              ║
+║   🤖 *SSH BOT PRO v8.7*              ║
+║   🔧 *SOPORTE HWID ACTIVADO*         ║
 ╚══════════════════════════════════════╝
 
 📋 *MENÚ:*
 
-⌛️ *1* - Prueba GRATIS (2h)
+🆓 *1* - Prueba GRATIS (2h)  ⚡
 💰 *2* - Planes premium
 👤 *3* - Mis cuentas
 💳 *4* - Estado de pago
 📱 *5* - Descargar APP
-🆘 *6* - Soporte
+🔧 *6* - Soporte HWID
+🆘 *7* - Soporte Técnico
 
-💬 Responde con el número`, { sendSeen: false });
+💬 *Envía tu HWID directamente o elige una opción*`, { sendSeen: false });
     }
-    else if (text === 'test' || text === 'prueba' || text === 'free') {
+    else if (text === '1') {
         if (!(await canCreateTest(phone))) {
             await client.sendMessage(phone, `⚠️ *YA USASTE TU PRUEBA HOY*
 
@@ -766,7 +1032,7 @@ client.on('message', async (msg) => {
 
 👤 Usuario: *${username}*
 🔑 Contraseña: *${password}*
-⏰ Duración: 2 horas 
+⏰ Duración: 2 horas  ⚡
 🔌 Conexión: 1
 
 📱 *PARA CONECTAR:*
@@ -782,26 +1048,26 @@ client.on('message', async (msg) => {
         }
     }
     else if (text === '2') {
-        await client.sendMessage(phone, `💎 *PLANES INTERNET*
+        await client.sendMessage(phone, `💎 *PLANES PREMIUM*
 
-🌐 *7 días* - $${config.prices.price_7d} ARS
+🥉 *7 días* - $${config.prices.price_7d} ARS
    1 conexión
-   📝 _Respuesta: 1_
+   _comprar7_
 
-🌐 *15 días* - $${config.prices.price_15d} ARS
+🥈 *15 días* - $${config.prices.price_15d} ARS
    1 conexión
-   📝 _Respuesta: 2_
+   _comprar15_
 
-🌐 *30 días* - $${config.prices.price_30d} ARS
+🥇 *30 días* - $${config.prices.price_30d} ARS
    1 conexión
-   📝 _Respuesta: 3_
+   _comprar30_
 
 💳 Pago: MercadoPago
 ⚡ Activación: 2-5 min
 
-📌 *Escribe el número del plan:* 1, 2 o 3`, { sendSeen: false });
+Escribe el comando`, { sendSeen: false });
     }
-    else if (['comprar7', 'comprar15', 'comprar30', '1', '2', '3'].includes(text)) {
+    else if (['comprar7', 'comprar15', 'comprar30'].includes(text)) {
         config = loadConfig();
         
         console.log(chalk.yellow(`🔑 Verificando token MP...`));
@@ -811,7 +1077,7 @@ client.on('message', async (msg) => {
 
 El administrador debe configurar MercadoPago primero.
 
-💬 Soporte: *Escribe 6*`, { sendSeen: false });
+💬 Soporte: *Escribe 7*`, { sendSeen: false });
             return;
         }
         
@@ -826,33 +1092,17 @@ El administrador debe configurar MercadoPago primero.
 
 El sistema de pagos no está disponible.
 
-💬 Contacta soporte: *Escribe 6*`, { sendSeen: false });
+💬 Contacta soporte: *Escribe 7*`, { sendSeen: false });
             return;
         }
         
-        // ✅ FIX 8: MAPEO CORREGIDO - 1,2,3 PARA COMPRAR PLANES
         const planMap = {
             'comprar7': { days: 7, amount: config.prices.price_7d, plan: '7d', conn: 1 },
             'comprar15': { days: 15, amount: config.prices.price_15d, plan: '15d', conn: 1 },
-            'comprar30': { days: 30, amount: config.prices.price_30d, plan: '30d', conn: 1 },
-            '1': { days: 7, amount: config.prices.price_7d, plan: '7d', conn: 1 },
-            '2': { days: 15, amount: config.prices.price_15d, plan: '15d', conn: 1 },
-            '3': { days: 30, amount: config.prices.price_30d, plan: '30d', conn: 1 }
+            'comprar30': { days: 30, amount: config.prices.price_30d, plan: '30d', conn: 1 }
         };
         
         const p = planMap[text];
-        if (!p) {
-            await client.sendMessage(phone, `❌ *COMANDO INVÁLIDO*
-
-Usa uno de estos comandos:
-📝 *1* - Plan 7 días
-📝 *2* - Plan 15 días  
-📝 *3* - Plan 30 días
-
-💬 Escribe *2* para ver planes`, { sendSeen: false });
-            return;
-        }
-        
         await client.sendMessage(phone, `⏳ Generando pago MercadoPago...
 
 📦 Plan: ${p.days} días
@@ -899,7 +1149,7 @@ Detalles: ${payment.error}
 
 Por favor, intenta de nuevo en unos minutos o contacta soporte.
 
-💬 Soporte: *Escribe 6*`, { sendSeen: false });
+💬 Soporte: *Escribe 7*`, { sendSeen: false });
             }
         } catch (error) {
             console.error(chalk.red('❌ Error en compra:'), error);
@@ -907,7 +1157,7 @@ Por favor, intenta de nuevo en unos minutos o contacta soporte.
 
 ${error.message}
 
-💬 Contacta soporte: *Escribe 6*`, { sendSeen: false });
+💬 Contacta soporte: *Escribe 7*`, { sendSeen: false });
         }
     }
     else if (text === '3') {
@@ -916,7 +1166,7 @@ ${error.message}
                 if (!rows || rows.length === 0) {
                     await client.sendMessage(phone, `📋 *SIN CUENTAS*
 
-🆓 *test* - Prueba gratis
+🆓 *1* - Prueba gratis
 💰 *2* - Ver planes`, { sendSeen: false });
                     return;
                 }
@@ -1068,12 +1318,20 @@ ${config.links.support}
         }
     }
     else if (text === '6') {
+        // Opción HWID específica
+        await handleHWIDRequest(phone);
+    }
+    else if (text === '7') {
         await client.sendMessage(phone, `🆘 *SOPORTE TÉCNICO*
 
 📞 Canal de soporte:
 ${config.links.support}
 
 ⏰ Horario: 9AM - 10PM
+
+🔧 *SOPORTE HWID:*
+- Envía tu HWID directamente
+- O escribe *6* para instrucciones
 
 💬 Escribe "menu" para volver al inicio`, { sendSeen: false });
     }
@@ -1085,7 +1343,7 @@ cron.schedule('*/2 * * * *', () => {
     checkPendingPayments();
 });
 
-// ✅ AJUSTE: Limpiar usuarios expirados cada 15 minutos (antes cada hora)
+// ✅ AJUSTE: Limpiar usuarios expirados cada 15 minutos
 cron.schedule('*/15 * * * *', async () => {
     const now = moment().format('YYYY-MM-DD HH:mm:ss');
     console.log(chalk.yellow(`🧹 Limpiando usuarios expirados cada 15 minutos (${now})...`));
@@ -1140,12 +1398,12 @@ console.log(chalk.green('\n🚀 Inicializando bot...\n'));
 client.initialize();
 BOTEOF
 
-echo -e "${GREEN}✅ Bot creado con todos los fixes${NC}"
+echo -e "${GREEN}✅ Bot creado con soporte HWID${NC}"
 
 # ================================================
-# CREAR PANEL CON VALIDACIÓN FIXED (FIX 1)
+# CREAR PANEL CON GESTIÓN HWID
 # ================================================
-echo -e "\n${CYAN}${BOLD}🎛️  CREANDO PANEL DE CONTROL CON VALIDACIÓN FIXED...${NC}"
+echo -e "\n${CYAN}${BOLD}🎛️  CREANDO PANEL DE CONTROL CON GESTIÓN HWID...${NC}"
 
 cat > /usr/local/bin/sshbot << 'PANELEOF'
 #!/bin/bash
@@ -1153,6 +1411,7 @@ RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'; CYAN='\033[0;36m'; BL
 
 DB="/opt/ssh-bot/data/users.db"
 CONFIG="/opt/ssh-bot/config/config.json"
+HWID_DIR="/opt/ssh-bot/hwid"
 
 get_val() { jq -r "$1" "$CONFIG" 2>/dev/null; }
 set_val() { local t=$(mktemp); jq "$1 = $2" "$CONFIG" > "$t" && mv "$t" "$CONFIG"; }
@@ -1160,9 +1419,10 @@ set_val() { local t=$(mktemp); jq "$1 = $2" "$CONFIG" > "$t" && mv "$t" "$CONFIG
 show_header() {
     clear
     echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
-    echo -e "${CYAN}║              🎛️  PANEL SSH BOT PRO v8.6                    ║${NC}"
-    echo -e "${CYAN}║               💳 MercadoPago SDK v2.x ALL FIXES            ║${NC}"
-    echo -e "${CYAN}║               ⏰ Test: 2h | ⚡ Limpieza: 15min              ║${NC}"
+    echo -e "${CYAN}║              🎛️  PANEL SSH BOT PRO v8.7                    ║${NC}"
+    echo -e "${CYAN}║               🔧 HWID SUPPORT ACTIVADO                     ║${NC}"
+    echo -e "${CYAN}║               💳 MercadoPago SDK v2.x ALL FIXES           ║${NC}"
+    echo -e "${CYAN}║               ⏰ Test: 2h | ⚡ Limpieza: 15min             ║${NC}"
     echo -e "${CYAN}╚══════════════════════════════════════════════════════════════╝${NC}\n"
 }
 
@@ -1171,6 +1431,7 @@ while true; do
     
     TOTAL_USERS=$(sqlite3 "$DB" "SELECT COUNT(*) FROM users" 2>/dev/null || echo "0")
     ACTIVE_USERS=$(sqlite3 "$DB" "SELECT COUNT(*) FROM users WHERE status=1" 2>/dev/null || echo "0")
+    HWID_REQUESTS=$(sqlite3 "$DB" "SELECT COUNT(*) FROM hwid_requests" 2>/dev/null || echo "0")
     
     STATUS=$(pm2 jlist 2>/dev/null | jq -r '.[] | select(.name=="ssh-bot") | .pm2_env.status' 2>/dev/null || echo "stopped")
     if [[ "$STATUS" == "online" ]]; then
@@ -1194,9 +1455,15 @@ while true; do
         APK_FOUND="${RED}❌ NO ENCONTRADO${NC}"
     fi
     
+    # Contar archivos HWID
+    HWID_FILES=$(find "$HWID_DIR/archives" -name "*.hc" -o -name "*.txt" 2>/dev/null | wc -l)
+    HWID_PENDING=$(find "$HWID_DIR/pending" -name "*.txt" 2>/dev/null | wc -l)
+    
     echo -e "${YELLOW}📊 ESTADO DEL SISTEMA${NC}"
     echo -e "  Bot: $BOT_STATUS"
     echo -e "  Usuarios: ${CYAN}$ACTIVE_USERS/$TOTAL_USERS${NC} activos/total"
+    echo -e "  HWID: ${CYAN}$HWID_FILES archivos | $HWID_PENDING pendientes${NC}"
+    echo -e "  Solicitudes HWID: ${CYAN}$HWID_REQUESTS${NC}"
     echo -e "  MercadoPago: $MP_STATUS"
     echo -e "  APK: $APK_FOUND"
     echo -e "  Test: ${GREEN}2 horas${NC} | Limpieza: ${GREEN}cada 15 min${NC}"
@@ -1214,11 +1481,12 @@ while true; do
     echo -e "${CYAN}[7]${NC}  💰  Cambiar precios"
     echo -e "${CYAN}[8]${NC}  🔑  Configurar MercadoPago"
     echo -e "${CYAN}[9]${NC}  📱  Gestionar APK"
-    echo -e "${CYAN}[10]${NC} 📊  Ver estadísticas"
-    echo -e "${CYAN}[11]${NC} ⚙️   Ver configuración"
-    echo -e "${CYAN}[12]${NC} 📝  Ver logs"
-    echo -e "${CYAN}[13]${NC} 🔧  Reparar bot"
-    echo -e "${CYAN}[14]${NC} 🧪  Test MercadoPago"
+    echo -e "${CYAN}[10]${NC} 🔧  GESTIONAR HWID"
+    echo -e "${CYAN}[11]${NC} 📊  Ver estadísticas"
+    echo -e "${CYAN}[12]${NC} ⚙️   Ver configuración"
+    echo -e "${CYAN}[13]${NC} 📝  Ver logs"
+    echo -e "${CYAN}[14]${NC} 🔧  Reparar bot"
+    echo -e "${CYAN}[15]${NC} 🧪  Test MercadoPago"
     echo -e "${CYAN}[0]${NC}  🚪  Salir"
     echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     
@@ -1266,7 +1534,7 @@ while true; do
                 esac
             else
                 echo -e "${YELLOW}⚠️  QR no generado aún${NC}\n"
-                echo -e "${CYAN}Ejecuta opción 1 o 13 para generar QR${NC}\n"
+                echo -e "${CYAN}Ejecuta opción 1 o 14 para generar QR${NC}\n"
                 read -p "¿Ver logs? (s/N): " VER
                 [[ "$VER" == "s" ]] && pm2 logs ssh-bot --lines 50
             fi
@@ -1388,7 +1656,7 @@ while true; do
                 echo ""
                 read -p "Pega el Access Token: " NEW_TOKEN
                 
-                # ✅ FIX 1: VALIDACIÓN CORREGIDA (acepta cualquier token que empiece con APP_USR- o TEST-)
+                # ✅ VALIDACIÓN CORREGIDA
                 if [[ "$NEW_TOKEN" =~ ^APP_USR- ]] || [[ "$NEW_TOKEN" =~ ^TEST- ]]; then
                     set_val '.mercadopago.access_token' "\"$NEW_TOKEN\""
                     set_val '.mercadopago.enabled' "true"
@@ -1446,6 +1714,113 @@ while true; do
         10)
             clear
             echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
+            echo -e "${CYAN}║                     🔧 GESTIONAR HWID                       ║${NC}"
+            echo -e "${CYAN}╚══════════════════════════════════════════════════════════════╝${NC}\n"
+            
+            echo -e "${YELLOW}📁 Directorio HWID: $HWID_DIR${NC}"
+            echo -e "${CYAN}Estructura:${NC}"
+            echo -e "  ${HWID_DIR}/"
+            echo -e "  ├── archives/     # Archivos hc disponibles"
+            echo -e "  ├── pending/      # HWIDs pendientes"
+            echo -e "  └── processed/    # HWIDs procesados\n"
+            
+            echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+            echo -e "${CYAN}[1]${NC}  📋  Listar archivos hc"
+            echo -e "${CYAN}[2]${NC}  📥  Subir archivo hc"
+            echo -e "${CYAN}[3]${NC}  🔍  Ver HWIDs pendientes"
+            echo -e "${CYAN}[4]${NC}  📊  Ver estadísticas HWID"
+            echo -e "${CYAN}[5]${NC}  🗑️   Limpiar HWIDs antiguos"
+            echo -e "${CYAN}[6]${NC}  📝  Ver solicitudes en BD"
+            echo -e "${CYAN}[0]${NC}  ↩️   Volver"
+            echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+            
+            read -p "Selecciona: " HWID_OPT
+            
+            case $HWID_OPT in
+                1)
+                    echo -e "\n${GREEN}📁 ARCHIVOS HC DISPONIBLES:${NC}"
+                    find "$HWID_DIR/archives" -type f 2>/dev/null | while read f; do
+                        size=$(du -h "$f" | cut -f1)
+                        echo -e "  📄 $(basename "$f") (${size})"
+                    done
+                    echo -e "\n${YELLOW}Total: $(find "$HWID_DIR/archives" -type f 2>/dev/null | wc -l) archivos${NC}"
+                    read -p "Presiona Enter..."
+                    ;;
+                2)
+                    echo -e "\n${YELLOW}📥 SUBIR ARCHIVO HC${NC}"
+                    echo -e "Archivos actuales en /root:"
+                    ls -la /root/*.hc /root/*.txt 2>/dev/null || echo "No hay archivos .hc o .txt"
+                    echo ""
+                    read -p "Ruta del archivo (ej: /root/hc_123.hc): " FILE_PATH
+                    
+                    if [[ -f "$FILE_PATH" ]]; then
+                        read -p "Nombre para guardar (dejar en blanco para nombre original): " NEW_NAME
+                        if [[ -z "$NEW_NAME" ]]; then
+                            NEW_NAME=$(basename "$FILE_PATH")
+                        fi
+                        
+                        cp "$FILE_PATH" "$HWID_DIR/archives/$NEW_NAME"
+                        echo -e "${GREEN}✅ Archivo subido: $NEW_NAME${NC}"
+                        echo -e "Ubicación: $HWID_DIR/archives/$NEW_NAME"
+                    else
+                        echo -e "${RED}❌ Archivo no encontrado${NC}"
+                    fi
+                    read -p "Presiona Enter..."
+                    ;;
+                3)
+                    echo -e "\n${YELLOW}🔍 HWIDs PENDIENTES:${NC}"
+                    find "$HWID_DIR/pending" -type f 2>/dev/null | while read f; do
+                        echo -e "\n📄 $(basename "$f"):"
+                        cat "$f" 2>/dev/null || echo "Vacío"
+                    done
+                    echo -e "\n${YELLOW}Total: $HWID_PENDING pendientes${NC}"
+                    read -p "Presiona Enter..."
+                    ;;
+                4)
+                    echo -e "\n${YELLOW}📊 ESTADÍSTICAS HWID:${NC}"
+                    TOTAL_FILES=$(find "$HWID_DIR/archives" -type f 2>/dev/null | wc -l)
+                    PENDING_FILES=$(find "$HWID_DIR/pending" -type f 2>/dev/null | wc -l)
+                    PROCESSED_FILES=$(find "$HWID_DIR/processed" -type f 2>/dev/null | wc -l)
+                    
+                    echo -e "  Archivos HC: ${CYAN}$TOTAL_FILES${NC}"
+                    echo -e "  HWIDs pendientes: ${YELLOW}$PENDING_FILES${NC}"
+                    echo -e "  HWIDs procesados: ${GREEN}$PROCESSED_FILES${NC}"
+                    
+                    # Estadísticas de BD
+                    echo -e "\n${YELLOW}📊 BASE DE DATOS:${NC}"
+                    sqlite3 "$DB" "SELECT 'Total: ' || COUNT(*) || ' | Enviados: ' || SUM(CASE WHEN status='sent' THEN 1 ELSE 0 END) || ' | No encontrados: ' || SUM(CASE WHEN status='not_found' THEN 1 ELSE 0 END) FROM hwid_requests" 2>/dev/null || echo "Error BD"
+                    
+                    read -p "Presiona Enter..."
+                    ;;
+                5)
+                    echo -e "\n${YELLOW}🧹 LIMPIAR HWIDs ANTIGUOS${NC}"
+                    echo -e "Esta acción eliminará:"
+                    echo -e "  1. HWIDs pendientes > 7 días"
+                    echo -e "  2. HWIDs procesados > 30 días"
+                    echo -e "  3. Logs antiguos"
+                    
+                    read -p "¿Continuar? (s/N): " CLEAN_CONF
+                    if [[ "$CLEAN_CONF" == "s" ]]; then
+                        # Eliminar pendientes antiguos
+                        find "$HWID_DIR/pending" -type f -mtime +7 -delete 2>/dev/null
+                        # Eliminar procesados antiguos
+                        find "$HWID_DIR/processed" -type f -mtime +30 -delete 2>/dev/null
+                        # Limpiar BD
+                        sqlite3 "$DB" "DELETE FROM hwid_requests WHERE created_at < datetime('now', '-30 days')" 2>/dev/null
+                        echo -e "${GREEN}✅ Limpieza completada${NC}"
+                    fi
+                    read -p "Presiona Enter..."
+                    ;;
+                6)
+                    echo -e "\n${YELLOW}📝 SOLICITUDES HWID EN BD:${NC}"
+                    sqlite3 -column -header "$DB" "SELECT id, substr(phone,1,12) as tel, substr(hwid,1,20) as hwid, status, file_sent, datetime(created_at) as fecha FROM hwid_requests ORDER BY created_at DESC LIMIT 10" 2>/dev/null || echo "Error BD"
+                    read -p "Presiona Enter..."
+                    ;;
+            esac
+            ;;
+        11)
+            clear
+            echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
             echo -e "${CYAN}║                     📊 ESTADÍSTICAS                         ║${NC}"
             echo -e "${CYAN}╚══════════════════════════════════════════════════════════════╝${NC}\n"
             
@@ -1454,6 +1829,9 @@ while true; do
             
             echo -e "\n${YELLOW}💰 PAGOS:${NC}"
             sqlite3 "$DB" "SELECT 'Pendientes: ' || SUM(CASE WHEN status='pending' THEN 1 ELSE 0 END) || ' | Aprobados: ' || SUM(CASE WHEN status='approved' THEN 1 ELSE 0 END) || ' | Total: $' || printf('%.2f', SUM(CASE WHEN status='approved' THEN amount ELSE 0 END)) FROM payments"
+            
+            echo -e "\n${YELLOW}🔧 HWID:${NC}"
+            sqlite3 "$DB" "SELECT 'Solicitudes: ' || COUNT(*) || ' | Enviados: ' || SUM(CASE WHEN status='sent' THEN 1 ELSE 0 END) || ' | Pendientes: ' || SUM(CASE WHEN status='pending' THEN 1 ELSE 0 END) FROM hwid_requests"
             
             echo -e "\n${YELLOW}📅 HOY:${NC}"
             TODAY=$(date +%Y-%m-%d)
@@ -1464,7 +1842,7 @@ while true; do
             
             read -p "\nPresiona Enter..."
             ;;
-        11)
+        12)
             clear
             echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
             echo -e "${CYAN}║                     ⚙️  CONFIGURACIÓN                        ║${NC}"
@@ -1479,6 +1857,14 @@ while true; do
             echo -e "  15d: $(get_val '.prices.price_15d') ARS (1 conexión)"
             echo -e "  30d: $(get_val '.prices.price_30d') ARS (1 conexión)"
             echo -e "  Test: $(get_val '.prices.test_hours') horas (1 conexión)"
+            
+            echo -e "\n${YELLOW}🔧 HWID:${NC}"
+            HWID_ENABLED=$(get_val '.hwid.enabled')
+            HWID_PATH=$(get_val '.hwid.path')
+            HWID_MAX_SIZE=$(get_val '.hwid.max_file_size_mb')
+            echo -e "  Estado: ${GREEN}${HWID_ENABLED}${NC}"
+            echo -e "  Ruta: ${HWID_PATH}"
+            echo -e "  Tamaño máximo: ${HWID_MAX_SIZE} MB"
             
             echo -e "\n${YELLOW}💳 MERCADOPAGO:${NC}"
             MP_TOKEN=$(get_val '.mercadopago.access_token')
@@ -1496,11 +1882,11 @@ while true; do
             
             read -p "\nPresiona Enter..."
             ;;
-        12)
+        13)
             echo -e "\n${YELLOW}📝 Logs (Ctrl+C para salir)...${NC}\n"
             pm2 logs ssh-bot --lines 100
             ;;
-        13)
+        14)
             clear
             echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
             echo -e "${CYAN}║                     🔧 REPARAR BOT                          ║${NC}"
@@ -1525,7 +1911,7 @@ while true; do
             fi
             read -p "Presiona Enter..."
             ;;
-        14)
+        15)
             clear
             echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
             echo -e "${CYAN}║                 🧪 TEST MERCADOPAGO SDK v2.x                ║${NC}"
@@ -1534,7 +1920,7 @@ while true; do
             TOKEN=$(get_val '.mercadopago.access_token')
             if [[ -z "$TOKEN" || "$TOKEN" == "null" ]]; then
                 echo -e "${RED}❌ Token no configurado${NC}\n"
-                read -p "Presiona Enter..." 
+                read -p "Presiona Enter..."
                 continue
             fi
             
@@ -1571,7 +1957,7 @@ done
 PANELEOF
 
 chmod +x /usr/local/bin/sshbot
-echo -e "${GREEN}✅ Panel creado con validación fixed${NC}"
+echo -e "${GREEN}✅ Panel creado con gestión HWID${NC}"
 
 # ================================================
 # INICIAR BOT
@@ -1593,31 +1979,33 @@ echo -e "${GREEN}${BOLD}"
 cat << "FINAL"
 ╔══════════════════════════════════════════════════════════════╗
 ║                                                              ║
-║      🎉 INSTALACIÓN COMPLETADA - ALL FIXES APPLIED 🎉       ║
+║      🎉 INSTALACIÓN COMPLETADA - HWID SUPPORT ADDED 🎉      ║
 ║                                                              ║
-║         SSH BOT PRO v8.6 - TODOS LOS FIXES APLICADOS        ║
+║         SSH BOT PRO v8.7 - SOPORTE HWID ACTIVADO            ║
+║           🔧 Clientes envían HWID → Bot envía hc            ║
+║           📁 Sistema organizado de archivos HWID            ║
 ║           💳 MercadoPago SDK v2.x FULLY FIXED               ║
 ║           📅 Fechas ISO 8601 corregidas                     ║
 ║           🤖 WhatsApp markedUnread parcheado                ║
 ║           🔑 Validación token corregida                     ║
 ║           ⏰ Test: 2 horas exactas (ajustado)               ║
 ║           ⚡ Limpieza: cada 15 minutos (ajustado)           ║
-║           📱 APK Automático                                 ║
-║           💰 Comandos 1,2,3 para COMPRAR planes            ║
+║           📱 APK Automático + HWID Support                  ║
 ║                                                              ║
 ╚══════════════════════════════════════════════════════════════╝
 FINAL
 echo -e "${NC}"
 
 echo -e "${CYAN}══════════════════════════════════════════════════════════════${NC}"
-echo -e "${GREEN}✅ Bot instalado con TODOS los fixes aplicados${NC}"
-echo -e "${GREEN}✅ Panel de control con validación corregida${NC}"
+echo -e "${GREEN}✅ Bot instalado con SOPORTE HWID${NC}"
+echo -e "${GREEN}✅ Clientes pueden enviar HWID directamente${NC}"
+echo -e "${GREEN}✅ Sistema busca y envía archivo hc automáticamente${NC}"
+echo -e "${GREEN}✅ Panel de control con gestión HWID completa${NC}"
 echo -e "${GREEN}✅ Fechas ISO 8601 corregidas para MP v2.x${NC}"
 echo -e "${GREEN}✅ Error WhatsApp Web parcheado (markedUnread)${NC}"
 echo -e "${GREEN}✅ Validación de token MP corregida${NC}"
 echo -e "${GREEN}✅ Test ajustado a 2 horas exactas${NC}"
 echo -e "${GREEN}✅ Limpieza ajustada a cada 15 minutos${NC}"
-echo -e "${GREEN}✅ Comandos 1,2,3 para COMPRAR planes (NO test)${NC}"
 echo -e "${CYAN}══════════════════════════════════════════════════════════════${NC}\n"
 
 echo -e "${YELLOW}📋 COMANDOS:${NC}\n"
@@ -1625,31 +2013,41 @@ echo -e "  ${GREEN}sshbot${NC}           - Panel de control"
 echo -e "  ${GREEN}pm2 logs ssh-bot${NC} - Ver logs"
 echo -e "  ${GREEN}pm2 restart ssh-bot${NC} - Reiniciar\n"
 
-echo -e "${YELLOW}🔧 CONFIGURACIÓN:${NC}\n"
+echo -e "${YELLOW}🔧 CONFIGURACIÓN HWID:${NC}\n"
+echo -e "  1. Sube archivos hc a: ${CYAN}$HWID_DIR/archives/${NC}"
+echo -e "  2. Nombra archivos como: ${CYAN}HWID_<valor>.hc${NC}"
+echo -e "  3. Ejemplo: HWID_ABC123.hc, HWID_DEF456.txt"
+echo -e "  4. Los clientes envían su HWID por WhatsApp\n"
+
+echo -e "${YELLOW}⚡ FLUJO HWID:${NC}"
+echo -e "  1. Cliente envía HWID → Bot busca archivo"
+echo -e "  2. Si encuentra: Envía archivo hc"
+echo -e "  3. Si no encuentra: Guarda como pendiente"
+echo -e "  4. Panel opción ${CYAN}[10]${NC} para gestionar HWID\n"
+
+echo -e "${YELLOW}📊 DIRECTORIOS HWID:${NC}"
+echo -e "  ${CYAN}$HWID_DIR/archives/${NC}    - Archivos hc disponibles"
+echo -e "  ${CYAN}$HWID_DIR/pending/${NC}     - HWIDs pendientes"
+echo -e "  ${CYAN}$HWID_DIR/processed/${NC}   - HWIDs procesados\n"
+
+echo -e "${YELLOW}🔧 CONFIGURACIÓN GENERAL:${NC}\n"
 echo -e "  1. Ejecuta: ${GREEN}sshbot${NC}"
 echo -e "  2. Opción ${CYAN}[8]${NC} - Configurar MercadoPago"
-echo -e "  3. Opción ${CYAN}[14]${NC} - Test MercadoPago"
+echo -e "  3. Opción ${CYAN}[15]${NC} - Test MercadoPago"
 echo -e "  4. Opción ${CYAN}[3]${NC} - Escanear QR WhatsApp"
 echo -e "  5. Sube APK a /root/app.apk\n"
 
-echo -e "${YELLOW}📱 USO DEL BOT:${NC}"
-echo -e "  • Para TEST: Escribe ${GREEN}test${NC}, ${GREEN}prueba${NC} o ${GREEN}free${NC}"
-echo -e "  • Para VER PLANES: Escribe ${GREEN}2${NC}"
-echo -e "  • Para COMPRAR: Escribe ${GREEN}1${NC} (7d), ${GREEN}2${NC} (15d) o ${GREEN}3${NC} (30d)"
-echo -e "  • MIS CUENTAS: Escribe ${GREEN}3${NC}"
-echo -e "  • ESTADO PAGO: Escribe ${GREEN}4${NC}"
-echo -e "  • DESCARGAR APP: Escribe ${GREEN}5${NC}\n"
-
 echo -e "${YELLOW}⚡ AJUSTES APLICADOS:${NC}"
-echo -e "  • Test: ${GREEN}2 horas${NC} (escribe 'test' en lugar de '1')"
+echo -e "  • Test: ${GREEN}2 horas${NC} (antes 3)"
 echo -e "  • Limpieza: ${GREEN}cada 15 minutos${NC} (antes cada hora)"
 echo -e "  • Conexión por usuario: ${GREEN}1${NC}"
-echo -e "\n"
+echo -e "  • HWID Support: ${GREEN}ACTIVADO${NC}\n"
 
 echo -e "${YELLOW}📊 INFO:${NC}"
 echo -e "  IP: ${CYAN}$SERVER_IP${NC}"
 echo -e "  BD: ${CYAN}$DB_FILE${NC}"
-echo -e "  Config: ${CYAN}$CONFIG_FILE${NC}\n"
+echo -e "  Config: ${CYAN}$CONFIG_FILE${NC}"
+echo -e "  HWID Dir: ${CYAN}$HWID_DIR${NC}\n"
 
 echo -e "${CYAN}══════════════════════════════════════════════════════════════${NC}\n"
 
@@ -1661,10 +2059,10 @@ if [[ $REPLY =~ ^[Ss]$ ]]; then
     /usr/local/bin/sshbot
 else
     echo -e "\n${YELLOW}💡 Ejecuta: ${GREEN}sshbot${NC}\n"
-    echo -e "${RED}⚠️  Recuerda configurar MercadoPago (opción 8)${NC}\n"
+    echo -e "${RED}⚠️  Recuerda subir archivos hc a $HWID_DIR/archives/${NC}\n"
 fi
 
-echo -e "${GREEN}${BOLD}¡Instalación exitosa con todos los fixes y ajustes! 🚀${NC}\n"
+echo -e "${GREEN}${BOLD}¡Instalación exitosa con soporte HWID! 🚀${NC}\n"
 
 # ================================================
 # AUTO-DESTRUCCIÓN DEL SCRIPT (SEGURIDAD)
