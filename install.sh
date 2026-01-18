@@ -789,15 +789,15 @@ client.on('message', async (msg) => {
     else if (text === '2') {
         await client.sendMessage(phone, `💎 *PLANES INTERNET*
 
-🥉 *7 días* - $${config.prices.price_7d} ARS
+🗓 *7 días* - $${config.prices.price_7d} ARS
    1 conexión
-   📝 _Escribe: *comprar7*_
+     _Escribe: *comprar7*_
 
-🥈 *15 días* - $${config.prices.price_15d} ARS
+🗓 *15 días* - $${config.prices.price_15d} ARS
    1 conexión
-   📝 _Escribe: *comprar15*_
+     _Escribe: *comprar15*_
 
-🥇 *30 días* - $${config.prices.price_30d} ARS
+🗓 *30 días* - $${config.prices.price_30d} ARS
    1 conexión
    📝 _Escribe: *comprar30*_
 
