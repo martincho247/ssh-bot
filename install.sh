@@ -189,7 +189,7 @@ cat > "$CONFIG_FILE" << EOF
     },
     "links": {
         "tutorial": "https://youtube.com",
-        "support": "https://t.me/soporte"
+        "support": "https://wa.me/543435071016"
     },
     "paths": {
         "database": "$DB_FILE",
