@@ -742,11 +742,11 @@ client.on('message', async (msg) => {
 📋 *MENÚ:*
 
 ⌛️ *1* - Prueba GRATIS (2h) 
-💰 *2* - Planes premium
+💰 *2* - Planes Internet
 👤 *3* - Mis cuentas
 💳 *4* - Estado de pago
 📱 *5* - Descargar APP
-🆘 *6* - Soporte
+🔧 *6* - Soporte
 
 💬 Responde con el número`, { sendSeen: false });
     }
@@ -785,7 +785,7 @@ client.on('message', async (msg) => {
         }
     }
     else if (text === '2') {
-        await client.sendMessage(phone, `💎 *PLANES PREMIUM*
+        await client.sendMessage(phone, `💎 *PLANES INTERNET*
 
 🥉 *7 días* - $${config.prices.price_7d} ARS
    1 conexión
@@ -861,10 +861,7 @@ El sistema de pagos no está disponible.
 🔗 *ENLACE DE PAGO:*
 ${payment.paymentUrl}
 
-⏰ Válido: 24 horas
-📱 ID: ${payment.paymentId.substring(0, 25)}...
 
-🔄 Verificación automática cada 2 min
 ✅ Te notificaré cuando se apruebe el pago
 
 💬 Escribe *4* para ver estado del pago`, { sendSeen: false });
