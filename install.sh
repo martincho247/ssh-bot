@@ -10,6 +10,7 @@
 # AJUSTES ESPECÍFICOS:
 # 6. ✅ Test cambiado a 2 horas
 # 7. ✅ Cron limpieza cambiado a cada 15 minutos
+# 8. ✅ CONTRASEÑA FIJA: mgvpn247 PARA TODOS LOS USUARIOS
 # ================================================
 
 set -e
@@ -44,6 +45,7 @@ cat << "BANNER"
 ║               🔑 Token Validation Fixed                      ║
 ║               🤖 WhatsApp markedUnread Patched              ║
 ║               📱 APK Auto + 2h Test                         ║
+║               🔐 CONTRASEÑA FIJA: mgvpn247                  ║
 ║                                                              ║
 ╚══════════════════════════════════════════════════════════════╝
 BANNER
@@ -57,6 +59,7 @@ echo -e "  🔵 ${BLUE}FIX 4:${NC} Inicialización MP SDK corregida"
 echo -e "  🟣 ${PURPLE}FIX 5:${NC} Panel de control 100% funcional"
 echo -e "  ⏰ ${CYAN}FIX 6:${NC} Test ajustado a 2 horas"
 echo -e "  ⚡ ${CYAN}FIX 7:${NC} Cron limpieza ajustado a cada 15 minutos"
+echo -e "  🔐 ${CYAN}FIX 8:${NC} Contraseña fija: mgvpn247 para todos los usuarios"
 echo -e "${CYAN}══════════════════════════════════════════════════════════════${NC}\n"
 
 # Verificar root
@@ -85,6 +88,7 @@ echo -e "   • Configurar fechas ISO 8601 correctas"
 echo -e "   • Panel de control 100% funcional"
 echo -e "   • APK automático + Test 2h"
 echo -e "   • Cron limpieza cada 15 minutos"
+echo -e "   • 🔐 CONTRASEÑA FIJA: mgvpn247 para todos los usuarios"
 echo -e "\n${RED}⚠️  Se eliminarán instalaciones anteriores${NC}"
 
 read -p "$(echo -e "${YELLOW}¿Continuar con la instalación? (s/N): ${NC}")" -n 1 -r
@@ -169,7 +173,8 @@ cat > "$CONFIG_FILE" << EOF
     "bot": {
         "name": "SSH Bot Pro",
         "version": "8.6-ALL-FIXES",
-        "server_ip": "$SERVER_IP"
+        "server_ip": "$SERVER_IP",
+        "default_password": "mgvpn247"
     },
     "prices": {
         "test_hours": 2,
@@ -200,7 +205,7 @@ CREATE TABLE users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     phone TEXT,
     username TEXT UNIQUE,
-    password TEXT,
+    password TEXT DEFAULT 'mgvpn247',
     tipo TEXT DEFAULT 'test',
     expires_at DATETIME,
     max_connections INTEGER DEFAULT 1,
@@ -279,8 +284,8 @@ find node_modules/whatsapp-web.js -name "Client.js" -type f -exec sed -i 's/cons
 
 echo -e "${GREEN}✅ Parche markedUnread aplicado${NC}"
 
-# Crear bot.js CON TODOS LOS FIXES (INCLUYENDO AJUSTES DE 2h Y CRON 15min)
-echo -e "${YELLOW}📝 Creando bot.js con todos los fixes...${NC}"
+# Crear bot.js CON TODOS LOS FIXES Y CONTRASEÑA FIJA mgvpn247
+echo -e "${YELLOW}📝 Creando bot.js con contraseña fija mgvpn247...${NC}"
 
 cat > "bot.js" << 'BOTEOF'
 const { Client, LocalAuth, MessageMedia } = require('whatsapp-web.js');
@@ -344,6 +349,7 @@ moment.locale('es');
 
 console.log(chalk.cyan.bold('\n╔══════════════════════════════════════════════════════════════╗'));
 console.log(chalk.cyan.bold('║      🤖 SSH BOT PRO v8.6 - ALL FIXES APPLIED                ║'));
+console.log(chalk.cyan.bold('║               🔐 CONTRASEÑA FIJA: mgvpn247                  ║'));
 console.log(chalk.cyan.bold('╚══════════════════════════════════════════════════════════════╝\n'));
 console.log(chalk.yellow(`📍 IP: ${config.bot.server_ip}`));
 console.log(chalk.yellow(`💳 MercadoPago: ${mpEnabled ? '✅ SDK v2.x ACTIVO' : '❌ NO CONFIGURADO'}`));
@@ -352,6 +358,7 @@ console.log(chalk.green('✅ Fechas ISO 8601 corregidas'));
 console.log(chalk.green('✅ APK automático desde /root'));
 console.log(chalk.green('✅ Test 2 horas exactas'));
 console.log(chalk.green('✅ Limpieza cada 15 minutos'));
+console.log(chalk.green('✅ CONTRASEÑA FIJA: mgvpn247 para todos los usuarios'));
 
 // Servidor APK
 let apkServer = null;
@@ -443,7 +450,7 @@ function generateUsername() {
 }
 
 function generatePassword() {
-    return Math.random().toString(36).substr(2, 10) + Math.random().toString(36).substr(2, 4).toUpperCase();
+    return 'mgvpn247'; // ✅ CONTRASEÑA FIJA PARA TODOS LOS USUARIOS
 }
 
 async function createSSHUser(phone, username, password, days, connections = 1) {
@@ -456,7 +463,7 @@ async function createSSHUser(phone, username, password, days, connections = 1) {
         
         const commands = [
             `useradd -m -s /bin/bash ${username}`,
-            `echo "${username}:${password}" | chpasswd`
+            `echo "${username}:mgvpn247" | chpasswd`  // ✅ CONTRASEÑA FIJA
         ];
         
         for (const cmd of commands) {
@@ -471,24 +478,24 @@ async function createSSHUser(phone, username, password, days, connections = 1) {
         const tipo = 'test';
         return new Promise((resolve, reject) => {
             db.run(`INSERT INTO users (phone, username, password, tipo, expires_at, max_connections, status) VALUES (?, ?, ?, ?, ?, ?, 1)`,
-                [phone, username, password, tipo, expireFull, 1],
+                [phone, username, 'mgvpn247', tipo, expireFull, 1],  // ✅ CONTRASEÑA FIJA
                 (err) => err ? reject(err) : resolve({ 
                     username, 
-                    password, 
+                    password: 'mgvpn247',  // ✅ CONTRASEÑA FIJA
                     expires: expireFull,
                     tipo: 'test',
-                    duration: '2 horas'  // ✅ CAMBIADO A 2 HORAS
+                    duration: '2 horas'
                 }));
         });
     } else {
-        // Usuario PREMIUM - días completos (SIN CAMBIOS)
+        // Usuario PREMIUM - días completos
         const expireDate = moment().add(days, 'days').format('YYYY-MM-DD');
         const expireFull = moment().add(days, 'days').format('YYYY-MM-DD 23:59:59');
         
         console.log(chalk.yellow(`⌛ Premium ${username} expira: ${expireDate}`));
         
         try {
-            await execPromise(`useradd -M -s /bin/false -e ${expireDate} ${username} && echo "${username}:${password}" | chpasswd`);
+            await execPromise(`useradd -M -s /bin/false -e ${expireDate} ${username} && echo "${username}:mgvpn247" | chpasswd`);  // ✅ CONTRASEÑA FIJA
         } catch (error) {
             console.error(chalk.red('❌ Error creando premium:'), error.message);
             throw error;
@@ -497,10 +504,10 @@ async function createSSHUser(phone, username, password, days, connections = 1) {
         const tipo = 'premium';
         return new Promise((resolve, reject) => {
             db.run(`INSERT INTO users (phone, username, password, tipo, expires_at, max_connections, status) VALUES (?, ?, ?, ?, ?, ?, 1)`,
-                [phone, username, password, tipo, expireFull, 1],
+                [phone, username, 'mgvpn247', tipo, expireFull, 1],  // ✅ CONTRASEÑA FIJA
                 (err) => err ? reject(err) : resolve({ 
                     username, 
-                    password, 
+                    password: 'mgvpn247',  // ✅ CONTRASEÑA FIJA
                     expires: expireFull,
                     tipo: 'premium',
                     duration: `${days} días`
@@ -673,7 +680,7 @@ async function checkPendingPayments() {
                         console.log(chalk.green(`✅ PAGO APROBADO: ${payment.payment_id}`));
                         
                         const username = generateUsername();
-                        const password = generatePassword();
+                        const password = 'mgvpn247'; // ✅ CONTRASEÑA FIJA
                         const connMap = { '7d': 1, '15d': 1, '30d': 1 };
                         const connections = connMap[payment.plan] || 1;
                         
@@ -691,7 +698,7 @@ async function checkPendingPayments() {
 
 📋 *DATOS DE ACCESO:*
 👤 Usuario: *${username}*
-🔑 Contraseña: *${password}*
+🔑 Contraseña: *mgvpn247*
 
 ⏰ *VÁLIDO HASTA:* ${expireDate}
 🔌 *CONEXIÓN:* 1
@@ -754,14 +761,14 @@ client.on('message', async (msg) => {
         await client.sendMessage(phone, '⏳ Creando cuenta test...', { sendSeen: false });
         try {
             const username = generateUsername();
-            const password = generatePassword();
+            const password = 'mgvpn247'; // ✅ CONTRASEÑA FIJA
             await createSSHUser(phone, username, password, 0, 1);
             registerTest(phone);
             
             await client.sendMessage(phone, `✅ *PRUEBA ACTIVADA*
 
 👤 Usuario: *${username}*
-🔑 Contraseña: *${password}*
+🔑 Contraseña: *mgvpn247*
 ⏰ Duración: 2 horas  
 🔌 Conexión: 1
 
@@ -912,7 +919,7 @@ ${error.message}
 `;
                     msg += `👤 *${a.username}*
 `;
-                    msg += `🔑 *${a.password}*
+                    msg += `🔑 *mgvpn247*
 `;
                     msg += `⏰ ${expira}
 `;
@@ -1001,6 +1008,8 @@ ${error.message}
 2. Permite "Fuentes desconocidas" si te lo pide
 3. Abre la app
 4. Ingresa tus datos de acceso
+   👤 Usuario: (tu usuario)
+   🔑 Contraseña: mgvpn247
 
 💡 Si no ves el archivo, revisa la sección "Archivos" de WhatsApp`,
                     sendSeen: false
@@ -1025,6 +1034,8 @@ http://${config.bot.server_ip}:8001/${apkName}
 1. Abre el enlace en Chrome
 2. Descarga el archivo
 3. Instala y abre la app
+4. Usuario: (tu usuario)
+5. Contraseña: mgvpn247
 
 ⚠️ El enlace expira en 1 hora`, { sendSeen: false });
                 } else {
@@ -1055,6 +1066,8 @@ ${config.links.support}
 
 ⏰ Horario: 9AM - 10PM
 
+🔑 *Contraseña predeterminada:* mgvpn247
+
 💬 Escribe "menu" para volver al inicio`, { sendSeen: false });
     }
 });
@@ -1065,7 +1078,7 @@ cron.schedule('*/2 * * * *', () => {
     checkPendingPayments();
 });
 
-// ✅ AJUSTE: Limpiar usuarios expirados cada 15 minutos (antes cada hora)
+// ✅ AJUSTE: Limpiar usuarios expirados cada 15 minutos
 cron.schedule('*/15 * * * *', async () => {
     const now = moment().format('YYYY-MM-DD HH:mm:ss');
     console.log(chalk.yellow(`🧹 Limpiando usuarios expirados cada 15 minutos (${now})...`));
@@ -1120,12 +1133,12 @@ console.log(chalk.green('\n🚀 Inicializando bot...\n'));
 client.initialize();
 BOTEOF
 
-echo -e "${GREEN}✅ Bot creado con todos los fixes${NC}"
+echo -e "${GREEN}✅ Bot creado con contraseña fija mgvpn247${NC}"
 
 # ================================================
-# CREAR PANEL CON VALIDACIÓN FIXED (FIX 1)
+# CREAR PANEL DE CONTROL CON CONTRASEÑA FIJA
 # ================================================
-echo -e "\n${CYAN}${BOLD}🎛️  CREANDO PANEL DE CONTROL CON VALIDACIÓN FIXED...${NC}"
+echo -e "\n${CYAN}${BOLD}🎛️  CREANDO PANEL DE CONTROL CON CONTRASEÑA FIJA mgvpn247...${NC}"
 
 cat > /usr/local/bin/sshbot << 'PANELEOF'
 #!/bin/bash
@@ -1142,7 +1155,7 @@ show_header() {
     echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
     echo -e "${CYAN}║              🎛️  PANEL SSH BOT PRO v8.6                    ║${NC}"
     echo -e "${CYAN}║               💳 MercadoPago SDK v2.x ALL FIXES            ║${NC}"
-    echo -e "${CYAN}║               ⏰ Test: 2h | ⚡ Limpieza: 15min              ║${NC}"
+    echo -e "${CYAN}║               🔐 CONTRASEÑA FIJA: mgvpn247                 ║${NC}"
     echo -e "${CYAN}╚══════════════════════════════════════════════════════════════╝${NC}\n"
 }
 
@@ -1181,6 +1194,7 @@ while true; do
     echo -e "  APK: $APK_FOUND"
     echo -e "  Test: ${GREEN}2 horas${NC} | Limpieza: ${GREEN}cada 15 min${NC}"
     echo -e "  Conexión por usuario: ${GREEN}1${NC}"
+    echo -e "  Contraseña: ${GREEN}mgvpn247${NC} (FIJA PARA TODOS)"
     echo -e ""
     
     echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
@@ -1241,7 +1255,7 @@ while true; do
                         echo -e "\n${GREEN}Ruta: /root/qr-whatsapp.png${NC}"
                         echo -e "\n${YELLOW}Descarga con SFTP o:${NC}"
                         echo -e "  scp root@$(get_val '.bot.server_ip'):/root/qr-whatsapp.png ."
-                        read -p "Presiona Enter..."
+                        read -p "Presiona Enter..." 
                         ;;
                 esac
             else
@@ -1259,7 +1273,7 @@ while true; do
             
             read -p "Teléfono (ej: 5491122334455): " PHONE
             read -p "Usuario (auto=generar): " USERNAME
-            read -p "Contraseña (auto=generar): " PASSWORD
+            read -p "Contraseña (mgvpn247): " PASSWORD
             read -p "Tipo (test/premium): " TIPO
             read -p "Días (0=test 2h, 30=premium): " DAYS
             read -p "Conexiones (1): " CONNECTIONS
@@ -1267,28 +1281,28 @@ while true; do
             [[ -z "$DAYS" ]] && DAYS="30"
             [[ -z "$CONNECTIONS" ]] && CONNECTIONS="1"
             [[ "$USERNAME" == "auto" || -z "$USERNAME" ]] && USERNAME="user$(tr -dc 'a-z0-9' < /dev/urandom | head -c 6)"
-            [[ "$PASSWORD" == "auto" || -z "$PASSWORD" ]] && PASSWORD=$(tr -dc 'A-Za-z0-9' < /dev/urandom | head -c 12)
+            [[ -z "$PASSWORD" ]] && PASSWORD="mgvpn247"
             
             if [[ "$TIPO" == "test" ]]; then
                 DAYS="0"
                 EXPIRE_DATE=$(date -d "+2 hours" +"%Y-%m-%d %H:%M:%S")
-                useradd -M -s /bin/false "$USERNAME" && echo "$USERNAME:$PASSWORD" | chpasswd && chage -E "$(date -d '+2 hours' +%Y-%m-%d)" "$USERNAME"
+                useradd -M -s /bin/false "$USERNAME" && echo "$USERNAME:mgvpn247" | chpasswd && chage -E "$(date -d '+2 hours' +%Y-%m-%d)" "$USERNAME"
             else
                 EXPIRE_DATE=$(date -d "+$DAYS days" +"%Y-%m-%d 23:59:59")
-                useradd -M -s /bin/false -e "$(date -d "+$DAYS days" +%Y-%m-%d)" "$USERNAME" && echo "$USERNAME:$PASSWORD" | chpasswd
+                useradd -M -s /bin/false -e "$(date -d "+$DAYS days" +%Y-%m-%d)" "$USERNAME" && echo "$USERNAME:mgvpn247" | chpasswd
             fi
             
             if [[ $? -eq 0 ]]; then
-                sqlite3 "$DB" "INSERT INTO users (phone, username, password, tipo, expires_at, max_connections, status) VALUES ('$PHONE', '$USERNAME', '$PASSWORD', '$TIPO', '$EXPIRE_DATE', 1, 1)"
+                sqlite3 "$DB" "INSERT INTO users (phone, username, password, tipo, expires_at, max_connections, status) VALUES ('$PHONE', '$USERNAME', 'mgvpn247', '$TIPO', '$EXPIRE_DATE', 1, 1)"
                 echo -e "\n${GREEN}✅ USUARIO CREADO${NC}"
                 echo -e "👤 Usuario: ${USERNAME}"
-                echo -e "🔑 Contraseña: ${PASSWORD}"
+                echo -e "🔑 Contraseña: mgvpn247"
                 echo -e "⏰ Expira: ${EXPIRE_DATE}"
                 echo -e "🔌 Conexiones: 1"
             else
                 echo -e "\n${RED}❌ Error creando usuario${NC}"
             fi
-            read -p "Presiona Enter..."
+            read -p "Presiona Enter..." 
             ;;
         5)
             clear
@@ -1296,9 +1310,10 @@ while true; do
             echo -e "${CYAN}║                     👥 USUARIOS ACTIVOS                     ║${NC}"
             echo -e "${CYAN}╚══════════════════════════════════════════════════════════════╝${NC}\n"
             
-            sqlite3 -column -header "$DB" "SELECT username, password, tipo, expires_at, max_connections as conex, substr(phone,1,12) as tel FROM users WHERE status = 1 ORDER BY expires_at DESC LIMIT 20"
+            sqlite3 -column -header "$DB" "SELECT username, 'mgvpn247' as password, tipo, expires_at, max_connections as conex, substr(phone,1,12) as tel FROM users WHERE status = 1 ORDER BY expires_at DESC LIMIT 20"
             echo -e "\n${YELLOW}Total: ${ACTIVE_USERS}${NC}"
-            read -p "Presiona Enter..."
+            echo -e "${GREEN}🔐 Contraseña: mgvpn247 para todos${NC}"
+            read -p "Presiona Enter..." 
             ;;
         6)
             clear
@@ -1313,7 +1328,7 @@ while true; do
                 sqlite3 "$DB" "UPDATE users SET status = 0 WHERE username = '$DEL_USER'"
                 echo -e "${GREEN}✅ Usuario $DEL_USER eliminado${NC}"
             fi
-            read -p "Presiona Enter..."
+            read -p "Presiona Enter..." 
             ;;
         7)
             clear
@@ -1340,7 +1355,8 @@ while true; do
             
             echo -e "\n${GREEN}✅ Precios actualizados${NC}"
             echo -e "${YELLOW}⚠️  Nota: Todos los planes tienen 1 conexión${NC}"
-            read -p "Presiona Enter..."
+            echo -e "${YELLOW}🔐 Contraseña: mgvpn247 para todos los usuarios${NC}"
+            read -p "Presiona Enter..." 
             ;;
         8)
             clear
@@ -1368,7 +1384,7 @@ while true; do
                 echo ""
                 read -p "Pega el Access Token: " NEW_TOKEN
                 
-                # ✅ FIX 1: VALIDACIÓN CORREGIDA (acepta cualquier token que empiece con APP_USR- o TEST-)
+                # ✅ VALIDACIÓN CORREGIDA
                 if [[ "$NEW_TOKEN" =~ ^APP_USR- ]] || [[ "$NEW_TOKEN" =~ ^TEST- ]]; then
                     set_val '.mercadopago.access_token' "\"$NEW_TOKEN\""
                     set_val '.mercadopago.enabled' "true"
@@ -1382,7 +1398,7 @@ while true; do
                     echo -e "${YELLOW}Debe empezar con APP_USR- o TEST-${NC}"
                 fi
             fi
-            read -p "Presiona Enter..."
+            read -p "Presiona Enter..." 
             ;;
         9)
             clear
@@ -1421,7 +1437,7 @@ while true; do
                 echo -e "${CYAN}Subir con SCP:${NC}"
                 echo -e "  scp app.apk root@$(get_val '.bot.server_ip'):/root/app.apk"
             fi
-            read -p "Presiona Enter..."
+            read -p "Presiona Enter..." 
             ;;
         10)
             clear
@@ -1441,8 +1457,9 @@ while true; do
             
             echo -e "\n${YELLOW}🔌 CONEXIONES:${NC}"
             echo -e "  Configuración: 1 por usuario"
+            echo -e "  Contraseña: mgvpn247 (FIJA)"
             
-            read -p "\nPresiona Enter..."
+            read -p "\nPresiona Enter..." 
             ;;
         11)
             clear
@@ -1469,12 +1486,15 @@ while true; do
                 echo -e "  Estado: ${RED}NO CONFIGURADO${NC}"
             fi
             
+            echo -e "\n${YELLOW}🔐 SEGURIDAD:${NC}"
+            echo -e "  Contraseña predeterminada: ${GREEN}mgvpn247${NC} (FIJA PARA TODOS)"
+            echo -e "  Conexión por usuario: 1"
+            
             echo -e "\n${YELLOW}⚡ AJUSTES:${NC}"
             echo -e "  Limpieza: cada 15 minutos"
             echo -e "  Test: 2 horas exactas"
-            echo -e "  Conexión por usuario: 1"
             
-            read -p "\nPresiona Enter..."
+            read -p "\nPresiona Enter..." 
             ;;
         12)
             echo -e "\n${YELLOW}📝 Logs (Ctrl+C para salir)...${NC}\n"
@@ -1494,7 +1514,6 @@ while true; do
                 rm -rf /root/.wwebjs_auth/* /root/.wwebjs_cache/* /root/qr-whatsapp.png
                 echo -e "${YELLOW}📦 Reinstalando...${NC}"
                 cd /root/ssh-bot && npm install --silent
-                # Aplicar parche markedUnread nuevamente
                 echo -e "${YELLOW}🔧 Aplicando parches...${NC}"
                 find /root/ssh-bot/node_modules -name "Client.js" -type f -exec sed -i 's/if (chat && chat.markedUnread)/if (false)/g' {} \; 2>/dev/null || true
                 echo -e "${YELLOW}🔄 Reiniciando...${NC}"
@@ -1503,7 +1522,7 @@ while true; do
                 sleep 10
                 [[ -f "/root/qr-whatsapp.png" ]] && echo -e "${GREEN}✅ QR generado${NC}" || pm2 logs ssh-bot
             fi
-            read -p "Presiona Enter..."
+            read -p "Presiona Enter..." 
             ;;
         14)
             clear
@@ -1514,7 +1533,7 @@ while true; do
             TOKEN=$(get_val '.mercadopago.access_token')
             if [[ -z "$TOKEN" || "$TOKEN" == "null" ]]; then
                 echo -e "${RED}❌ Token no configurado${NC}\n"
-                read -p "Presiona Enter..."
+                read -p "Presiona Enter..." 
                 continue
             fi
             
@@ -1536,7 +1555,7 @@ while true; do
                 echo "$BODY" | jq '.' 2>/dev/null || echo "$BODY"
             fi
             
-            read -p "\nPresiona Enter..."
+            read -p "\nPresiona Enter..." 
             ;;
         0)
             echo -e "\n${GREEN}👋 Hasta pronto${NC}\n"
@@ -1551,7 +1570,7 @@ done
 PANELEOF
 
 chmod +x /usr/local/bin/sshbot
-echo -e "${GREEN}✅ Panel creado con validación fixed${NC}"
+echo -e "${GREEN}✅ Panel creado con contraseña fija mgvpn247${NC}"
 
 # ================================================
 # INICIAR BOT
@@ -1583,6 +1602,7 @@ cat << "FINAL"
 ║           ⏰ Test: 2 horas exactas (ajustado)               ║
 ║           ⚡ Limpieza: cada 15 minutos (ajustado)           ║
 ║           📱 APK Automático                                 ║
+║           🔐 CONTRASEÑA FIJA: mgvpn247 PARA TODOS           ║
 ║                                                              ║
 ╚══════════════════════════════════════════════════════════════╝
 FINAL
@@ -1596,6 +1616,7 @@ echo -e "${GREEN}✅ Error WhatsApp Web parcheado (markedUnread)${NC}"
 echo -e "${GREEN}✅ Validación de token MP corregida${NC}"
 echo -e "${GREEN}✅ Test ajustado a 2 horas exactas${NC}"
 echo -e "${GREEN}✅ Limpieza ajustada a cada 15 minutos${NC}"
+echo -e "${GREEN}✅ CONTRASEÑA FIJA: mgvpn247 para todos los usuarios${NC}"
 echo -e "${CYAN}══════════════════════════════════════════════════════════════${NC}\n"
 
 echo -e "${YELLOW}📋 COMANDOS:${NC}\n"
@@ -1610,11 +1631,15 @@ echo -e "  3. Opción ${CYAN}[14]${NC} - Test MercadoPago"
 echo -e "  4. Opción ${CYAN}[3]${NC} - Escanear QR WhatsApp"
 echo -e "  5. Sube APK a /root/app.apk\n"
 
+echo -e "${YELLOW}🔐 CONTRASEÑA:${NC}"
+echo -e "  • ${GREEN}mgvpn247${NC} para TODOS los usuarios (test y premium)"
+echo -e "  • Solo el nombre de usuario cambia\n"
+
 echo -e "${YELLOW}⚡ AJUSTES APLICADOS:${NC}"
-echo -e "  • Test: ${GREEN}2 horas${NC} (antes 3)"
-echo -e "  • Limpieza: ${GREEN}cada 15 minutos${NC} (antes cada hora)"
+echo -e "  • Test: ${GREEN}2 horas${NC}"
+echo -e "  • Limpieza: ${GREEN}cada 15 minutos${NC}"
 echo -e "  • Conexión por usuario: ${GREEN}1${NC}"
-echo -e "\n"
+echo -e "  • Contraseña: ${GREEN}mgvpn247${NC} (FIJA)\n"
 
 echo -e "${YELLOW}📊 INFO:${NC}"
 echo -e "  IP: ${CYAN}$SERVER_IP${NC}"
@@ -1634,7 +1659,7 @@ else
     echo -e "${RED}⚠️  Recuerda configurar MercadoPago (opción 8)${NC}\n"
 fi
 
-echo -e "${GREEN}${BOLD}¡Instalación exitosa con todos los fixes y ajustes! 🚀${NC}\n"
+echo -e "${GREEN}${BOLD}¡Instalación exitosa con todos los fixes y contraseña fija mgvpn247! 🚀${NC}\n"
 
 # ================================================
 # AUTO-DESTRUCCIÓN DEL SCRIPT (SEGURIDAD)
@@ -1675,4 +1700,5 @@ echo -e "${GREEN}═════════════════════
 echo -e "${YELLOW}Comandos disponibles:${NC}"
 echo -e "  ${CYAN}sshbot${NC}          - Panel de control"
 echo -e "  ${CYAN}pm2 logs ssh-bot${NC} - Ver logs en tiempo real"
-exit 0"
+echo -e "${YELLOW}Contraseña predeterminada: ${GREEN}mgvpn247${NC}"
+exit 0
