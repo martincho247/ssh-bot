@@ -705,8 +705,9 @@ async function checkPendingPayments() {
 
 📱 *INSTALACIÓN:*
 1. Descarga la app (Escribe *5*)
-2. Ingresa tus datos
-3. ¡Conéctate automáticamente!
+2. Seleccionar servidor
+3. Ingresar Usuario y Contraseña
+4. ¡Conéctate automáticamente!
 
 🎊 ¡Disfruta del servicio premium!
 
@@ -739,7 +740,7 @@ client.on('message', async (msg) => {
 ║   🚀 *HOLA BOT MGVPN*              ║
 ╚══════════════════════════════════════╝
 
-📋 *MENÚ:*
+📋 *MENU:*
 
 ⌛️ *1* - Prueba GRATIS (2h) 
 💰 *2* - Planes Internet
@@ -774,8 +775,9 @@ client.on('message', async (msg) => {
 
 📱 *PARA CONECTAR:*
 1. Descarga la app (Escribe *5*)
-2. Ingresa usuario y contraseña
-3. ¡Listo!
+2. Selecionar servidor
+3. Ingresa usuario y contraseña
+4. ¡Listo!
 
 💎 ¿Te gustó? *Escribe 2*`, { sendSeen: false });
             
