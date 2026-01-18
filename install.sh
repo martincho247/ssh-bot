@@ -799,7 +799,7 @@ client.on('message', async (msg) => {
 
 🗓 *30 días* - $${config.prices.price_30d} ARS
    1 conexión
-   📝 _Escribe: *comprar30*_
+     _Escribe: *comprar30*_
 
 💳 Pago: MercadoPago
 ⚡ Activación: 2-5 min
