@@ -1,22 +1,16 @@
 #!/bin/bash
 # ================================================
-# SSH BOT PRO v8.7 - MULTI-SERVER EDITION
-# ✅ TODOS LOS FIXES APLICADOS + MULTI SERVIDORES
+# SSH BOT PRO v8.6 - TODOS LOS FIXES APLICADOS
 # Correcciones aplicadas:
 # 1. ✅ Validación token MercadoPago FIXED
 # 2. ✅ Fechas ISO 8601 correctas (MP SDK v2.x)
 # 3. ✅ Parche error markedUnread de WhatsApp Web
 # 4. ✅ Inicialización MP SDK corregida
 # 5. ✅ Panel de control funcionando 100%
-# NUEVAS FUNCIONALIDADES:
-# 6. ✅ SOPORTE PARA 3 SERVIDORES/VPS
-# 7. ✅ Balanceo automático de usuarios
-# 8. ✅ Panel de control con selección de servidor
-# 9. ✅ Información de conexión por servidor
 # AJUSTES ESPECÍFICOS:
-# 10. ✅ CONTRASEÑA FIJA: mgvpn247 PARA TODOS LOS USUARIOS
-# 11. ✅ Test cambiado a 2 horas
-# 12. ✅ Cron limpieza cambiado a cada 15 minutos
+# 6. ✅ Test cambiado a 2 horas
+# 7. ✅ Cron limpieza cambiado a cada 15 minutos
+# 8. ✅ CONTRASEÑA FIJA: mgvpn247 PARA TODOS LOS USUARIOS
 # ================================================
 
 set -e
@@ -28,7 +22,6 @@ YELLOW='\033[1;33m'
 CYAN='\033[0;36m'
 BLUE='\033[0;34m'
 PURPLE='\033[0;35m'
-ORANGE='\033[0;33m'
 BOLD='\033[1m'
 NC='\033[0m'
 
@@ -46,30 +39,27 @@ cat << "BANNER"
 ║     ╚══════╝╚══════╝╚═╝  ╚═╝    ╚═════╝  ╚═════╝    ╚═╝     ║
 ╠══════════════════════════════════════════════════════════════╣
 ║                                                              ║
-║         🚀 SSH BOT PRO v8.7 - MULTI SERVER EDITION         ║
+║           🚀 SSH BOT PRO v8.6 - ALL FIXES APPLIED           ║
 ║               💳 MercadoPago SDK v2.x FULLY FIXED           ║
 ║               📅 ISO 8601 Dates Corrected                   ║
 ║               🔑 Token Validation Fixed                      ║
 ║               🤖 WhatsApp markedUnread Patched              ║
-║               ⚡ SOPORTE PARA 3 SERVIDORES/VPS              ║
+║               📱 APK Auto + 2h Test                         ║
 ║               🔐 CONTRASEÑA FIJA: mgvpn247                  ║
 ║                                                              ║
 ╚══════════════════════════════════════════════════════════════╝
 BANNER
 echo -e "${NC}"
 
-echo -e "${GREEN}✅ CARACTERÍSTICAS DE ESTA VERSIÓN:${NC}"
+echo -e "${GREEN}✅ CORRECCIONES APLICADAS EN ESTA VERSIÓN:${NC}"
 echo -e "  🔴 ${RED}FIX 1:${NC} Validación token MP corregida (regex fija)"
 echo -e "  🟡 ${YELLOW}FIX 2:${NC} Fechas ISO 8601 formato correcto para MP v2.x"
 echo -e "  🟢 ${GREEN}FIX 3:${NC} Parche error 'markedUnread' de WhatsApp Web"
 echo -e "  🔵 ${BLUE}FIX 4:${NC} Inicialización MP SDK corregida"
 echo -e "  🟣 ${PURPLE}FIX 5:${NC} Panel de control 100% funcional"
-echo -e "  ⚡ ${ORANGE}FIX 6:${NC} SOPORTE PARA 3 SERVIDORES"
-echo -e "  ⚙️  ${CYAN}FIX 7:${NC} Balanceo automático de usuarios"
-echo -e "  📊 ${CYAN}FIX 8:${NC} Estadísticas por servidor"
-echo -e "  ⏰ ${CYAN}FIX 9:${NC} Test ajustado a 2 horas"
-echo -e "  ⚡ ${CYAN}FIX 10:${NC} Cron limpieza ajustado a cada 15 minutos"
-echo -e "  🔐 ${CYAN}FIX 11:${NC} Contraseña fija: mgvpn247 para todos los usuarios"
+echo -e "  ⏰ ${CYAN}FIX 6:${NC} Test ajustado a 2 horas"
+echo -e "  ⚡ ${CYAN}FIX 7:${NC} Cron limpieza ajustado a cada 15 minutos"
+echo -e "  🔐 ${CYAN}FIX 8:${NC} Contraseña fija: mgvpn247 para todos los usuarios"
 echo -e "${CYAN}══════════════════════════════════════════════════════════════${NC}\n"
 
 # Verificar root
@@ -79,119 +69,23 @@ if [[ $EUID -ne 0 ]]; then
     exit 1
 fi
 
-# Detectar IP local
-echo -e "${CYAN}${BOLD}🔍 DETECTANDO IP DEL SERVIDOR LOCAL...${NC}"
-LOCAL_IP=$(hostname -I | awk '{print $1}' | grep -E '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+')
-if [[ -z "$LOCAL_IP" ]]; then
-    LOCAL_IP="127.0.0.1"
-fi
-echo -e "${GREEN}✅ IP local detectada: ${CYAN}$LOCAL_IP${NC}"
-
-# Configurar múltiples servidores
-echo -e "\n${CYAN}${BOLD}🌐 CONFIGURACIÓN DE MÚLTIPLES SERVIDORES${NC}"
-echo -e "${YELLOW}Ingresa la información de tus 3 servidores/VPS:${NC}\n"
-
-declare -A SERVER_CONFIGS
-
-# Servidor 1 (local)
-echo -e "${GREEN}📡 SERVIDOR 1 (LOCAL):${NC}"
-read -p "  Nombre del servidor [VPN1]: " SERVER1_NAME
-SERVER1_NAME=${SERVER1_NAME:-VPN1}
-read -p "  IP del servidor [$LOCAL_IP]: " SERVER1_IP
-SERVER1_IP=${SERVER1_IP:-$LOCAL_IP}
-read -p "  Puerto SSH [22]: " SERVER1_PORT
-SERVER1_PORT=${SERVER1_PORT:-22}
-read -p "  Usuario root? (s/N) [s]: " SERVER1_ROOT
-SERVER1_ROOT=${SERVER1_ROOT:-s}
-if [[ $SERVER1_ROOT =~ ^[Ss]$ ]]; then
-    SERVER1_USER="root"
-else
-    read -p "  Usuario SSH: " SERVER1_USER
-fi
-read -p "  Contraseña SSH (mgvpn247): " SERVER1_PASS
-SERVER1_PASS=${SERVER1_PASS:-mgvpn247}
-read -p "  Ciudad/Región [Buenos Aires]: " SERVER1_LOCATION
-SERVER1_LOCATION=${SERVER1_LOCATION:-Buenos Aires}
-
-SERVER_CONFIGS[1]="name:$SERVER1_NAME|ip:$SERVER1_IP|port:$SERVER1_PORT|user:$SERVER1_USER|pass:$SERVER1_PASS|location:$SERVER1_LOCATION"
-
-# Servidor 2
-echo -e "\n${GREEN}📡 SERVIDOR 2:${NC}"
-read -p "  Nombre del servidor [VPN2]: " SERVER2_NAME
-SERVER2_NAME=${SERVER2_NAME:-VPN2}
-read -p "  IP del servidor: " SERVER2_IP
-read -p "  Puerto SSH [22]: " SERVER2_PORT
-SERVER2_PORT=${SERVER2_PORT:-22}
-read -p "  Usuario SSH [root]: " SERVER2_USER
-SERVER2_USER=${SERVER2_USER:-root}
-read -p "  Contraseña SSH (mgvpn247): " SERVER2_PASS
-SERVER2_PASS=${SERVER2_PASS:-mgvpn247}
-read -p "  Ciudad/Región [Miami]: " SERVER2_LOCATION
-SERVER2_LOCATION=${SERVER2_LOCATION:-Miami}
-
-SERVER_CONFIGS[2]="name:$SERVER2_NAME|ip:$SERVER2_IP|port:$SERVER2_PORT|user:$SERVER2_USER|pass:$SERVER2_PASS|location:$SERVER2_LOCATION"
-
-# Servidor 3
-echo -e "\n${GREEN}📡 SERVIDOR 3:${NC}"
-read -p "  Nombre del servidor [VPN3]: " SERVER3_NAME
-SERVER3_NAME=${SERVER3_NAME:-VPN3}
-read -p "  IP del servidor: " SERVER3_IP
-read -p "  Puerto SSH [22]: " SERVER3_PORT
-SERVER3_PORT=${SERVER3_PORT:-22}
-read -p "  Usuario SSH [root]: " SERVER3_USER
-SERVER3_USER=${SERVER3_USER:-root}
-read -p "  Contraseña SSH (mgvpn247): " SERVER3_PASS
-SERVER3_PASS=${SERVER3_PASS:-mgvpn247}
-read -p "  Ciudad/Región [Madrid]: " SERVER3_LOCATION
-SERVER3_LOCATION=${SERVER3_LOCATION:-Madrid}
-
-SERVER_CONFIGS[3]="name:$SERVER3_NAME|ip:$SERVER3_IP|port:$SERVER3_PORT|user:$SERVER3_USER|pass:$SERVER3_PASS|location:$SERVER3_LOCATION"
-
-# Verificar conexión a servidores remotos
-echo -e "\n${YELLOW}🔄 Verificando conexión a servidores remotos...${NC}"
-
-# Instalar sshpass si no está
-if ! command -v sshpass &> /dev/null; then
-    apt-get install -y sshpass > /dev/null 2>&1
+# Detectar IP
+echo -e "${CYAN}${BOLD}🔍 DETECTANDO IP DEL SERVIDOR...${NC}"
+SERVER_IP=$(curl -4 -s --max-time 10 ifconfig.me 2>/dev/null || hostname -I | awk '{print $1}' || echo "127.0.0.1")
+if [[ -z "$SERVER_IP" || "$SERVER_IP" == "127.0.0.1" ]]; then
+    echo -e "${RED}❌ No se pudo obtener IP pública${NC}"
+    read -p "📝 Ingresa la IP del servidor manualmente: " SERVER_IP
 fi
 
-for i in 2 3; do
-    eval $(echo ${SERVER_CONFIGS[$i]} | sed 's/|/ /g' | while read -r pair; do
-        key=$(echo $pair | cut -d: -f1)
-        value=$(echo $pair | cut -d: -f2)
-        echo "server${i}_${key}=\"$value\""
-    done)
-    
-    echo -ne "  ${server${i}_name} (${server${i}_ip})... "
-    
-    # Probar conexión SSH
-    if timeout 5 sshpass -p "${server${i}_pass}" ssh -p "${server${i}_port}" -o StrictHostKeyChecking=no -o ConnectTimeout=5 "${server${i}_user}@${server${i}_ip}" "echo 'OK'" &>/dev/null; then
-        echo -e "${GREEN}✅ Conectado${NC}"
-    else
-        echo -e "${RED}❌ Error de conexión${NC}"
-        echo -e "${YELLOW}⚠️  Asegúrate de que:${NC}"
-        echo -e "   - El servidor ${server${i}_ip} esté encendido"
-        echo -e "   - SSH esté activo en puerto ${server${i}_port}"
-        echo -e "   - Las credenciales sean correctas"
-        echo -e "   - El firewall permita conexiones SSH"
-        read -p "¿Continuar de todas formas? (s/N): " -n 1 -r
-        echo
-        if [[ ! $REPLY =~ ^[Ss]$ ]]; then
-            echo -e "${RED}❌ Instalación cancelada${NC}"
-            exit 1
-        fi
-    fi
-done
+echo -e "${GREEN}✅ IP detectada: ${CYAN}$SERVER_IP${NC}\n"
 
 # Confirmar instalación
-echo -e "\n${YELLOW}⚠️  ESTE INSTALADOR HARÁ:${NC}"
+echo -e "${YELLOW}⚠️  ESTE INSTALADOR HARÁ:${NC}"
 echo -e "   • Instalar Node.js 20.x + Chrome"
-echo -e "   • Crear SSH Bot Pro v8.7 MULTI-SERVER"
-echo -e "   • Configurar 3 servidores/VPS"
+echo -e "   • Crear SSH Bot Pro v8.6 CON TODOS LOS FIXES"
 echo -e "   • Aplicar parche error WhatsApp Web"
 echo -e "   • Configurar fechas ISO 8601 correctas"
 echo -e "   • Panel de control 100% funcional"
-echo -e "   • Balanceo automático de usuarios"
 echo -e "   • APK automático + Test 2h"
 echo -e "   • Cron limpieza cada 15 minutos"
 echo -e "   • 🔐 CONTRASEÑA FIJA: mgvpn247 para todos los usuarios"
@@ -221,7 +115,7 @@ apt-get install -y -qq \
     ca-certificates gnupg \
     software-properties-common \
     libgbm-dev libxshmfence-dev \
-    sshpass at parallel \
+    sshpass at \
     > /dev/null 2>&1
 
 # Habilitar servicio 'at'
@@ -250,15 +144,14 @@ npm install -g pm2 --silent > /dev/null 2>&1
 echo -e "${GREEN}✅ Dependencias instaladas${NC}"
 
 # ================================================
-# PREPARAR ESTRUCTURA MULTI-SERVER
+# PREPARAR ESTRUCTURA
 # ================================================
-echo -e "\n${CYAN}${BOLD}📁 CREANDO ESTRUCTURA MULTI-SERVER...${NC}"
+echo -e "\n${CYAN}${BOLD}📁 CREANDO ESTRUCTURA...${NC}"
 
 INSTALL_DIR="/opt/ssh-bot"
 USER_HOME="/root/ssh-bot"
 DB_FILE="$INSTALL_DIR/data/users.db"
 CONFIG_FILE="$INSTALL_DIR/config/config.json"
-SERVERS_FILE="$INSTALL_DIR/config/servers.json"
 
 # Limpiar instalaciones anteriores
 echo -e "${YELLOW}🧹 Limpiando instalaciones anteriores...${NC}"
@@ -268,70 +161,20 @@ rm -rf "$INSTALL_DIR" "$USER_HOME" 2>/dev/null || true
 rm -rf /root/.wwebjs_auth /root/.wwebjs_cache 2>/dev/null || true
 
 # Crear directorios
-mkdir -p "$INSTALL_DIR"/{data,config,qr_codes,logs,scripts}
+mkdir -p "$INSTALL_DIR"/{data,config,qr_codes,logs}
 mkdir -p "$USER_HOME"
 mkdir -p /root/.wwebjs_auth
 chmod -R 755 "$INSTALL_DIR"
 chmod -R 700 /root/.wwebjs_auth
 
-# Crear archivo de configuración de servidores
-cat > "$SERVERS_FILE" << EOF
-{
-    "servers": [
-        {
-            "id": 1,
-            "name": "$SERVER1_NAME",
-            "ip": "$SERVER1_IP",
-            "port": $SERVER1_PORT,
-            "user": "$SERVER1_USER",
-            "password": "$SERVER1_PASS",
-            "location": "$SERVER1_LOCATION",
-            "enabled": true,
-            "weight": 10,
-            "current_users": 0,
-            "max_users": 100,
-            "type": "local"
-        },
-        {
-            "id": 2,
-            "name": "$SERVER2_NAME",
-            "ip": "$SERVER2_IP",
-            "port": $SERVER2_PORT,
-            "user": "$SERVER2_USER",
-            "password": "$SERVER2_PASS",
-            "location": "$SERVER2_LOCATION",
-            "enabled": true,
-            "weight": 10,
-            "current_users": 0,
-            "max_users": 100,
-            "type": "remote"
-        },
-        {
-            "id": 3,
-            "name": "$SERVER3_NAME",
-            "ip": "$SERVER3_IP",
-            "port": $SERVER3_PORT,
-            "user": "$SERVER3_USER",
-            "password": "$SERVER3_PASS",
-            "location": "$SERVER3_LOCATION",
-            "enabled": true,
-            "weight": 10,
-            "current_users": 0,
-            "max_users": 100,
-            "type": "remote"
-        }
-    ]
-}
-EOF
-
-# Crear configuración principal
+# Crear configuración
 cat > "$CONFIG_FILE" << EOF
 {
     "bot": {
-        "name": "SSH Bot Pro Multi-Server",
-        "version": "8.7-MULTI-SERVER",
-        "default_password": "mgvpn247",
-        "auto_balance": true
+        "name": "SSH Bot Pro",
+        "version": "8.6-ALL-FIXES",
+        "server_ip": "$SERVER_IP",
+        "default_password": "mgvpn247"
     },
     "prices": {
         "test_hours": 2,
@@ -351,38 +194,27 @@ cat > "$CONFIG_FILE" << EOF
     "paths": {
         "database": "$DB_FILE",
         "chromium": "/usr/bin/google-chrome",
-        "qr_codes": "$INSTALL_DIR/qr_codes",
-        "servers_config": "$SERVERS_FILE"
-    },
-    "settings": {
-        "auto_assign_server": true,
-        "user_can_choose_server": true,
-        "default_server": 1,
-        "cleanup_interval": "15m",
-        "max_connections_per_user": 1
+        "qr_codes": "$INSTALL_DIR/qr_codes"
     }
 }
 EOF
 
-# Crear base de datos actualizada
+# Crear base de datos
 sqlite3 "$DB_FILE" << 'SQL'
 CREATE TABLE users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     phone TEXT,
-    username TEXT,
+    username TEXT UNIQUE,
     password TEXT DEFAULT 'mgvpn247',
-    server_id INTEGER DEFAULT 1,
     tipo TEXT DEFAULT 'test',
     expires_at DATETIME,
     max_connections INTEGER DEFAULT 1,
     status INTEGER DEFAULT 1,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE(username, server_id)
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 CREATE TABLE daily_tests (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     phone TEXT,
-    server_id INTEGER,
     date DATE,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(phone, date)
@@ -394,7 +226,6 @@ CREATE TABLE payments (
     plan TEXT,
     days INTEGER,
     amount REAL,
-    server_id INTEGER DEFAULT 1,
     status TEXT DEFAULT 'pending',
     payment_url TEXT,
     qr_code TEXT,
@@ -411,231 +242,23 @@ CREATE TABLE logs (
 );
 CREATE INDEX idx_users_phone ON users(phone);
 CREATE INDEX idx_users_status ON users(status);
-CREATE INDEX idx_users_server ON users(server_id);
 CREATE INDEX idx_payments_status ON payments(status);
 SQL
 
-# Crear script para ejecución remota
-cat > "$INSTALL_DIR/scripts/remote_exec.sh" << 'REMOTE_EOF'
-#!/bin/bash
-# Script para ejecutar comandos en servidores remotos
-
-SERVER_ID=$1
-COMMAND=$2
-CONFIG_FILE="/opt/ssh-bot/config/servers.json"
-
-if [[ ! -f "$CONFIG_FILE" ]]; then
-    echo "ERROR: Config file not found"
-    exit 1
-fi
-
-# Extraer configuración del servidor
-SERVER_CONFIG=$(jq -r ".servers[] | select(.id == $SERVER_ID)" "$CONFIG_FILE")
-
-if [[ -z "$SERVER_CONFIG" ]]; then
-    echo "ERROR: Server $SERVER_ID not found"
-    exit 1
-fi
-
-IP=$(echo "$SERVER_CONFIG" | jq -r '.ip')
-PORT=$(echo "$SERVER_CONFIG" | jq -r '.port')
-USER=$(echo "$SERVER_CONFIG" | jq -r '.user')
-PASS=$(echo "$SERVER_CONFIG" | jq -r '.password')
-
-if [[ "$IP" == "null" ]] || [[ "$USER" == "null" ]]; then
-    echo "ERROR: Invalid server configuration"
-    exit 1
-fi
-
-# Si es el servidor local
-if [[ "$SERVER_ID" == "1" ]] && [[ "$IP" == "$(hostname -I | awk '{print $1}')" ]]; then
-    eval "$COMMAND"
-    exit $?
-fi
-
-# Para servidor remoto
-if [[ -z "$PASS" ]] || [[ "$PASS" == "null" ]]; then
-    # Sin contraseña (usando keys)
-    ssh -p "$PORT" -o StrictHostKeyChecking=no -o ConnectTimeout=10 "$USER@$IP" "$COMMAND"
-else
-    # Con contraseña (usando sshpass)
-    sshpass -p "$PASS" ssh -p "$PORT" -o StrictHostKeyChecking=no -o ConnectTimeout=10 "$USER@$IP" "$COMMAND"
-fi
-REMOTE_EOF
-
-chmod +x "$INSTALL_DIR/scripts/remote_exec.sh"
-
-# Crear script de sincronización
-cat > "$INSTALL_DIR/scripts/sync_servers.sh" << 'SYNC_EOF'
-#!/bin/bash
-# Script para sincronizar usuarios entre servidores
-
-CONFIG_FILE="/opt/ssh-bot/config/config.json"
-SERVERS_FILE="/opt/ssh-bot/config/servers.json"
-DB_FILE="/opt/ssh-bot/data/users.db"
-
-if [[ ! -f "$SERVERS_FILE" ]]; then
-    echo "Servers config not found"
-    exit 1
-fi
-
-# Obtener lista de servidores habilitados
-SERVERS=$(jq -r '.servers[] | select(.enabled == true) | .id' "$SERVERS_FILE")
-
-for SERVER_ID in $SERVERS; do
-    if [[ "$SERVER_ID" == "1" ]]; then
-        continue  # Saltar servidor local (ya tenemos los datos)
-    fi
-    
-    echo "Sincronizando servidor $SERVER_ID..."
-    
-    # Extraer configuración del servidor
-    SERVER_CONFIG=$(jq -r ".servers[] | select(.id == $SERVER_ID)" "$SERVERS_FILE")
-    IP=$(echo "$SERVER_CONFIG" | jq -r '.ip')
-    PORT=$(echo "$SERVER_CONFIG" | jq -r '.port')
-    USER=$(echo "$SERVER_CONFIG" | jq -r '.user')
-    PASS=$(echo "$SERVER_CONFIG" | jq -r '.password')
-    
-    # Obtener usuarios del servidor remoto
-    if [[ "$PASS" != "null" ]] && [[ -n "$PASS" ]]; then
-        REMOTE_USERS=$(sshpass -p "$PASS" ssh -p "$PORT" -o StrictHostKeyChecking=no "$USER@$IP" "cat /etc/passwd | cut -d: -f1" 2>/dev/null)
-    else
-        REMOTE_USERS=$(ssh -p "$PORT" -o StrictHostKeyChecking=no "$USER@$IP" "cat /etc/passwd | cut -d: -f1" 2>/dev/null)
-    fi
-    
-    if [[ -n "$REMOTE_USERS" ]]; then
-        # Actualizar contador en servidores.json
-        USER_COUNT=$(echo "$REMOTE_USERS" | wc -l)
-        jq --argjson id "$SERVER_ID" --argjson count "$USER_COUNT" \
-           '.servers |= map(if .id == $id then .current_users = $count else . end)' \
-           "$SERVERS_FILE" > /tmp/servers_temp.json && mv /tmp/servers_temp.json "$SERVERS_FILE"
-    fi
-done
-
-echo "Sincronización completada"
-SYNC_EOF
-
-chmod +x "$INSTALL_DIR/scripts/sync_servers.sh"
-
-echo -e "${GREEN}✅ Estructura multi-server creada${NC}"
+echo -e "${GREEN}✅ Estructura creada${NC}"
 
 # ================================================
-# FUNCIÓN PARA CREAR USUARIOS EN SERVIDORES REMOTOS
+# CREAR BOT CON TODOS LOS FIXES
 # ================================================
-echo -e "\n${CYAN}${BOLD}🔧 CONFIGURANDO SCRIPTS PARA SERVIDORES REMOTOS...${NC}"
-
-# Crear script de creación de usuario remoto
-cat > "$INSTALL_DIR/scripts/create_remote_user.sh" << 'CREATE_EOF'
-#!/bin/bash
-# Crea usuario en servidor remoto
-
-SERVER_ID=$1
-USERNAME=$2
-PASSWORD=$3
-DAYS=$4
-
-CONFIG_FILE="/opt/ssh-bot/config/servers.json"
-
-if [[ ! -f "$CONFIG_FILE" ]]; then
-    echo "ERROR: Config file not found"
-    exit 1
-fi
-
-SERVER_CONFIG=$(jq -r ".servers[] | select(.id == $SERVER_ID)" "$CONFIG_FILE")
-
-if [[ -z "$SERVER_CONFIG" ]]; then
-    echo "ERROR: Server $SERVER_ID not found"
-    exit 1
-fi
-
-IP=$(echo "$SERVER_CONFIG" | jq -r '.ip')
-PORT=$(echo "$SERVER_CONFIG" | jq -r '.port')
-USER=$(echo "$SERVER_CONFIG" | jq -r '.user')
-PASS=$(echo "$SERVER_CONFIG" | jq -r '.password')
-
-# Comando para crear usuario
-if [[ "$DAYS" -eq "0" ]]; then
-    # Usuario TEST - 2 horas
-    EXPIRE_DATE=$(date -d "+2 hours" +"%Y-%m-%d")
-    CREATE_CMD="useradd -m -s /bin/bash $USERNAME && echo '$USERNAME:$PASSWORD' | chpasswd"
-else
-    # Usuario PREMIUM
-    EXPIRE_DATE=$(date -d "+$DAYS days" +"%Y-%m-%d")
-    CREATE_CMD="useradd -M -s /bin/false -e $EXPIRE_DATE $USERNAME && echo '$USERNAME:$PASSWORD' | chpasswd"
-fi
-
-# Ejecutar en servidor remoto
-if [[ "$PASS" != "null" ]] && [[ -n "$PASS" ]]; then
-    sshpass -p "$PASS" ssh -p "$PORT" -o StrictHostKeyChecking=no "$USER@$IP" "$CREATE_CMD"
-else
-    ssh -p "$PORT" -o StrictHostKeyChecking=no "$USER@$IP" "$CREATE_CMD"
-fi
-
-EXIT_CODE=$?
-
-if [[ $EXIT_CODE -eq 0 ]]; then
-    echo "SUCCESS:$EXPIRE_DATE"
-else
-    echo "ERROR:Failed to create user"
-fi
-CREATE_EOF
-
-chmod +x "$INSTALL_DIR/scripts/create_remote_user.sh"
-
-# Crear script para eliminar usuario remoto
-cat > "$INSTALL_DIR/scripts/delete_remote_user.sh" << 'DELETE_EOF'
-#!/bin/bash
-# Elimina usuario en servidor remoto
-
-SERVER_ID=$1
-USERNAME=$2
-
-CONFIG_FILE="/opt/ssh-bot/config/servers.json"
-
-if [[ ! -f "$CONFIG_FILE" ]]; then
-    echo "ERROR: Config file not found"
-    exit 1
-fi
-
-SERVER_CONFIG=$(jq -r ".servers[] | select(.id == $SERVER_ID)" "$CONFIG_FILE")
-
-if [[ -z "$SERVER_CONFIG" ]]; then
-    echo "ERROR: Server $SERVER_ID not found"
-    exit 1
-fi
-
-IP=$(echo "$SERVER_CONFIG" | jq -r '.ip')
-PORT=$(echo "$SERVER_CONFIG" | jq -r '.port')
-USER=$(echo "$SERVER_CONFIG" | jq -r '.user')
-PASS=$(echo "$SERVER_CONFIG" | jq -r '.password')
-
-DELETE_CMD="pkill -u $USERNAME 2>/dev/null || true; userdel -f $USERNAME 2>/dev/null || true"
-
-if [[ "$PASS" != "null" ]] && [[ -n "$PASS" ]]; then
-    sshpass -p "$PASS" ssh -p "$PORT" -o StrictHostKeyChecking=no "$USER@$IP" "$DELETE_CMD"
-else
-    ssh -p "$PORT" -o StrictHostKeyChecking=no "$USER@$IP" "$DELETE_CMD"
-fi
-
-echo "User deletion command executed"
-DELETE_EOF
-
-chmod +x "$INSTALL_DIR/scripts/delete_remote_user.sh"
-
-echo -e "${GREEN}✅ Scripts para servidores remotos creados${NC}"
-
-# ================================================
-# CREAR BOT MULTI-SERVER CON TODOS LOS FIXES
-# ================================================
-echo -e "\n${CYAN}${BOLD}🤖 CREANDO BOT MULTI-SERVER CON TODOS LOS FIXES...${NC}"
+echo -e "\n${CYAN}${BOLD}🤖 CREANDO BOT CON TODOS LOS FIXES...${NC}"
 
 cd "$USER_HOME"
 
 # package.json con MercadoPago SDK correcto
 cat > package.json << 'PKGEOF'
 {
-    "name": "ssh-bot-pro-multi",
-    "version": "8.7.0",
+    "name": "ssh-bot-pro",
+    "version": "8.6.0",
     "main": "bot.js",
     "dependencies": {
         "whatsapp-web.js": "^1.24.0",
@@ -661,8 +284,8 @@ find node_modules/whatsapp-web.js -name "Client.js" -type f -exec sed -i 's/cons
 
 echo -e "${GREEN}✅ Parche markedUnread aplicado${NC}"
 
-# Crear bot.js MULTI-SERVER CON TODOS LOS FIXES
-echo -e "${YELLOW}📝 Creando bot.js multi-server...${NC}"
+# Crear bot.js CON TODOS LOS FIXES Y CONTRASEÑA FIJA mgvpn247
+echo -e "${YELLOW}📝 Creando bot.js con contraseña fija mgvpn247...${NC}"
 
 cat > "bot.js" << 'BOTEOF'
 const { Client, LocalAuth, MessageMedia } = require('whatsapp-web.js');
@@ -670,7 +293,7 @@ const qrcodeTerminal = require('qrcode-terminal');
 const QRCode = require('qrcode');
 const moment = require('moment');
 const sqlite3 = require('sqlite3').verbose();
-const { exec, spawn } = require('child_process');
+const { exec } = require('child_process');
 const util = require('util');
 const chalk = require('chalk');
 const cron = require('node-cron');
@@ -685,13 +308,7 @@ function loadConfig() {
     return require('/opt/ssh-bot/config/config.json');
 }
 
-function loadServers() {
-    delete require.cache[require.resolve('/opt/ssh-bot/config/servers.json')];
-    return require('/opt/ssh-bot/config/servers.json');
-}
-
 let config = loadConfig();
-let serversConfig = loadServers();
 const db = new sqlite3.Database(config.paths.database);
 
 // ✅ FIX 4: MERCADOPAGO SDK V2.X - INICIALIZACIÓN CORRECTA
@@ -704,11 +321,13 @@ function initMercadoPago() {
         try {
             const { MercadoPagoConfig, Preference } = require('mercadopago');
             
+            // ✅ Cliente SDK v2.x
             mpClient = new MercadoPagoConfig({ 
                 accessToken: config.mercadopago.access_token,
                 options: { timeout: 5000, idempotencyKey: true }
             });
             
+            // ✅ Cliente de preferencias
             mpPreference = new Preference(mpClient);
             
             console.log(chalk.green('✅ MercadoPago SDK v2.x ACTIVO'));
@@ -729,106 +348,17 @@ let mpEnabled = initMercadoPago();
 moment.locale('es');
 
 console.log(chalk.cyan.bold('\n╔══════════════════════════════════════════════════════════════╗'));
-console.log(chalk.cyan.bold('║      🤖 SSH BOT PRO v8.7 - MULTI SERVER EDITION            ║'));
+console.log(chalk.cyan.bold('║      🤖 SSH BOT PRO v8.6 - ALL FIXES APPLIED                ║'));
 console.log(chalk.cyan.bold('║               🔐 CONTRASEÑA FIJA: mgvpn247                  ║'));
-console.log(chalk.cyan.bold('║               ⚡ 3 SERVIDORES CONFIGURADOS                  ║'));
 console.log(chalk.cyan.bold('╚══════════════════════════════════════════════════════════════╝\n'));
-
-// Mostrar servidores configurados
-console.log(chalk.yellow('📡 SERVIDORES CONFIGURADOS:'));
-serversConfig.servers.forEach(server => {
-    if (server.enabled) {
-        const status = server.type === 'local' ? '🏠 LOCAL' : '🌐 REMOTO';
-        console.log(chalk.cyan(`  ${server.id}. ${server.name} - ${server.ip} (${server.location}) ${status}`));
-    }
-});
-
-console.log(chalk.yellow(`\n📍 IP LOCAL: ${serversConfig.servers[0].ip}`));
+console.log(chalk.yellow(`📍 IP: ${config.bot.server_ip}`));
 console.log(chalk.yellow(`💳 MercadoPago: ${mpEnabled ? '✅ SDK v2.x ACTIVO' : '❌ NO CONFIGURADO'}`));
 console.log(chalk.green('✅ WhatsApp Web parcheado (no markedUnread error)'));
 console.log(chalk.green('✅ Fechas ISO 8601 corregidas'));
-console.log(chalk.green('✅ Balanceo automático entre 3 servidores'));
 console.log(chalk.green('✅ APK automático desde /root'));
 console.log(chalk.green('✅ Test 2 horas exactas'));
 console.log(chalk.green('✅ Limpieza cada 15 minutos'));
 console.log(chalk.green('✅ CONTRASEÑA FIJA: mgvpn247 para todos los usuarios'));
-
-// ✅ FUNCIÓN PARA OBTENER MEJOR SERVIDOR (BALANCEO)
-function getBestServer() {
-    const servers = serversConfig.servers.filter(s => s.enabled);
-    
-    if (servers.length === 0) {
-        return serversConfig.servers[0]; // Fallback al primer servidor
-    }
-    
-    // Balancear por menor cantidad de usuarios
-    return servers.reduce((prev, current) => 
-        (prev.current_users < current.current_users) ? prev : current
-    );
-}
-
-// ✅ FUNCIÓN PARA CREAR USUARIO EN SERVIDOR ESPECÍFICO
-async function createUserOnServer(serverId, username, password, days) {
-    const server = serversConfig.servers.find(s => s.id === serverId);
-    
-    if (!server) {
-        throw new Error(`Servidor ${serverId} no encontrado`);
-    }
-    
-    if (server.type === 'local') {
-        // Crear usuario local
-        if (days === 0) {
-            const expireDate = moment().add(2, 'hours').format('YYYY-MM-DD HH:mm:ss');
-            await execPromise(`useradd -m -s /bin/bash ${username} && echo "${username}:${password}" | chpasswd`);
-            return { success: true, expireDate };
-        } else {
-            const expireDate = moment().add(days, 'days').format('YYYY-MM-DD');
-            await execPromise(`useradd -M -s /bin/false -e ${expireDate} ${username} && echo "${username}:${password}" | chpasswd`);
-            return { success: true, expireDate };
-        }
-    } else {
-        // Crear usuario remoto usando script
-        return new Promise((resolve, reject) => {
-            const scriptPath = '/opt/ssh-bot/scripts/create_remote_user.sh';
-            const child = spawn('bash', [scriptPath, serverId, username, password, days]);
-            
-            let output = '';
-            child.stdout.on('data', (data) => {
-                output += data.toString();
-            });
-            
-            child.stderr.on('data', (data) => {
-                console.error(chalk.red(`Error remoto: ${data}`));
-            });
-            
-            child.on('close', (code) => {
-                if (code === 0 && output.includes('SUCCESS:')) {
-                    const expireDate = output.split(':')[1].trim();
-                    resolve({ success: true, expireDate });
-                } else {
-                    reject(new Error(`Error creando usuario en ${server.name}: ${output}`));
-                }
-            });
-        });
-    }
-}
-
-// ✅ FUNCIÓN PARA ELIMINAR USUARIO DE SERVIDOR
-async function deleteUserFromServer(serverId, username) {
-    const server = serversConfig.servers.find(s => s.id === serverId);
-    
-    if (!server) {
-        console.error(chalk.red(`Servidor ${serverId} no encontrado para eliminar usuario`));
-        return;
-    }
-    
-    if (server.type === 'local') {
-        await execPromise(`pkill -u ${username} 2>/dev/null || true; userdel -f ${username} 2>/dev/null || true`);
-    } else {
-        const scriptPath = '/opt/ssh-bot/scripts/delete_remote_user.sh';
-        await execPromise(`bash ${scriptPath} ${serverId} ${username}`);
-    }
-}
 
 // Servidor APK
 let apkServer = null;
@@ -862,7 +392,7 @@ function startAPKServer(apkPath) {
             });
             
             apkServer.listen(8001, '0.0.0.0', () => {
-                console.log(chalk.green(`✅ Servidor APK: http://${serversConfig.servers[0].ip}:8001/`));
+                console.log(chalk.green(`✅ Servidor APK: http://${config.bot.server_ip}:8001/`));
                 resolve(true);
             });
             
@@ -881,7 +411,7 @@ function startAPKServer(apkPath) {
 }
 
 const client = new Client({
-    authStrategy: new LocalAuth({dataPath: '/root/.wwebjs_auth', clientId: 'ssh-bot-v87'}),
+    authStrategy: new LocalAuth({dataPath: '/root/.wwebjs_auth', clientId: 'ssh-bot-v86'}),
     puppeteer: {
         headless: true,
         executablePath: config.paths.chromium,
@@ -923,61 +453,66 @@ function generatePassword() {
     return 'mgvpn247'; // ✅ CONTRASEÑA FIJA PARA TODOS LOS USUARIOS
 }
 
-async function createSSHUser(phone, username, password, days, serverId = null) {
-    if (!serverId) {
-        // Seleccionar mejor servidor automáticamente
-        const bestServer = getBestServer();
-        serverId = bestServer.id;
-    }
-    
-    const server = serversConfig.servers.find(s => s.id === serverId);
-    
-    if (!server) {
-        throw new Error('No hay servidores disponibles');
-    }
-    
-    const tipo = days === 0 ? 'test' : 'premium';
-    
-    try {
-        // Crear usuario en el servidor seleccionado
-        const result = await createUserOnServer(serverId, username, password, days);
+async function createSSHUser(phone, username, password, days, connections = 1) {
+    if (days === 0) {
+        // ✅ USUARIO TEST - 2 HORAS EXACTAS (AJUSTADO)
+        const expireFull = moment().add(2, 'hours').format('YYYY-MM-DD HH:mm:ss');
+        const expireDate = moment().add(2, 'hours').format('YYYY-MM-DD');
         
-        if (!result.success) {
-            throw new Error('Error creando usuario en servidor');
+        console.log(chalk.yellow(`⌛ Test ${username} expira: ${expireFull} (2 horas)`));
+        
+        const commands = [
+            `useradd -m -s /bin/bash ${username}`,
+            `echo "${username}:mgvpn247" | chpasswd`  // ✅ CONTRASEÑA FIJA
+        ];
+        
+        for (const cmd of commands) {
+            try {
+                await execPromise(cmd);
+            } catch (error) {
+                console.error(chalk.red(`❌ Error: ${cmd}`), error.message);
+                throw error;
+            }
         }
         
-        const expireFull = days === 0 ? 
-            moment().add(2, 'hours').format('YYYY-MM-DD HH:mm:ss') :
-            moment().add(days, 'days').format('YYYY-MM-DD 23:59:59');
-        
-        // Guardar en base de datos
-        await new Promise((resolve, reject) => {
-            db.run(`INSERT INTO users (phone, username, password, server_id, tipo, expires_at, max_connections, status) VALUES (?, ?, ?, ?, ?, ?, ?, 1)`,
-                [phone, username, password, serverId, tipo, expireFull, 1],
-                (err) => err ? reject(err) : resolve()
-            );
+        const tipo = 'test';
+        return new Promise((resolve, reject) => {
+            db.run(`INSERT INTO users (phone, username, password, tipo, expires_at, max_connections, status) VALUES (?, ?, ?, ?, ?, ?, 1)`,
+                [phone, username, 'mgvpn247', tipo, expireFull, 1],  // ✅ CONTRASEÑA FIJA
+                (err) => err ? reject(err) : resolve({ 
+                    username, 
+                    password: 'mgvpn247',  // ✅ CONTRASEÑA FIJA
+                    expires: expireFull,
+                    tipo: 'test',
+                    duration: '2 horas'
+                }));
         });
+    } else {
+        // Usuario PREMIUM - días completos
+        const expireDate = moment().add(days, 'days').format('YYYY-MM-DD');
+        const expireFull = moment().add(days, 'days').format('YYYY-MM-DD 23:59:59');
         
-        // Actualizar contador de usuarios del servidor
-        server.current_users = (server.current_users || 0) + 1;
+        console.log(chalk.yellow(`⌛ Premium ${username} expira: ${expireDate}`));
         
-        return {
-            username,
-            password,
-            expires: expireFull,
-            tipo,
-            duration: days === 0 ? '2 horas' : `${days} días`,
-            server: {
-                id: server.id,
-                name: server.name,
-                ip: server.ip,
-                location: server.location
-            }
-        };
+        try {
+            await execPromise(`useradd -M -s /bin/false -e ${expireDate} ${username} && echo "${username}:mgvpn247" | chpasswd`);  // ✅ CONTRASEÑA FIJA
+        } catch (error) {
+            console.error(chalk.red('❌ Error creando premium:'), error.message);
+            throw error;
+        }
         
-    } catch (error) {
-        console.error(chalk.red(`❌ Error creando usuario en ${server.name}:`), error.message);
-        throw error;
+        const tipo = 'premium';
+        return new Promise((resolve, reject) => {
+            db.run(`INSERT INTO users (phone, username, password, tipo, expires_at, max_connections, status) VALUES (?, ?, ?, ?, ?, ?, 1)`,
+                [phone, username, 'mgvpn247', tipo, expireFull, 1],  // ✅ CONTRASEÑA FIJA
+                (err) => err ? reject(err) : resolve({ 
+                    username, 
+                    password: 'mgvpn247',  // ✅ CONTRASEÑA FIJA
+                    expires: expireFull,
+                    tipo: 'premium',
+                    duration: `${days} días`
+                }));
+        });
     }
 }
 
@@ -989,68 +524,207 @@ function canCreateTest(phone) {
     });
 }
 
-function registerTest(phone, serverId) {
-    db.run('INSERT OR IGNORE INTO daily_tests (phone, server_id, date) VALUES (?, ?, ?)', 
-        [phone, serverId, moment().format('YYYY-MM-DD')]);
+function registerTest(phone) {
+    db.run('INSERT OR IGNORE INTO daily_tests (phone, date) VALUES (?, ?)', [phone, moment().format('YYYY-MM-DD')]);
 }
 
-// ✅ FUNCIÓN PARA MOSTRAR SERVIDORES DISPONIBLES
-function getServersList() {
-    const enabledServers = serversConfig.servers.filter(s => s.enabled);
-    
-    let message = '📡 *SERVIDORES DISPONIBLES:*\n\n';
-    
-    enabledServers.forEach((server, index) => {
-        const usersInfo = `👥 ${server.current_users || 0}/${server.max_users}`;
-        const serverType = server.type === 'local' ? '🏠' : '🌐';
+// ✅ FIX 2: MERCADOPAGO SDK V2.X - FECHAS ISO 8601 CORREGIDAS
+async function createMercadoPagoPayment(phone, plan, days, amount, connections) {
+    try {
+        config = loadConfig();
         
-        message += `*${server.id}. ${server.name} ${serverType}*\n`;
-        message += `📍 ${server.location}\n`;
-        message += `🟢 ${server.ip}\n`;
-        message += `${usersInfo} usuarios\n\n`;
-    });
-    
-    message += `💡 *Recomendado:* ${getBestServer().name}\n`;
-    message += `🔐 *Contraseña:* mgvpn247`;
-    
-    return message;
-}
-
-// ✅ FUNCIÓN PARA MOSTRAR INFO DE CONEXIÓN POR SERVIDOR
-function getConnectionInfo(serverId) {
-    const server = serversConfig.servers.find(s => s.id === serverId);
-    
-    if (!server) {
-        return null;
+        // ✅ Verificar token
+        if (!config.mercadopago.access_token || config.mercadopago.access_token === '') {
+            console.log(chalk.red('❌ Token MP vacío'));
+            return { success: false, error: 'MercadoPago no configurado - Token vacío' };
+        }
+        
+        // ✅ Reinicializar si es necesario
+        if (!mpPreference) {
+            console.log(chalk.yellow('🔄 Reinicializando MercadoPago...'));
+            mpEnabled = initMercadoPago();
+            if (!mpEnabled || !mpPreference) {
+                return { success: false, error: 'No se pudo inicializar MercadoPago' };
+            }
+        }
+        
+        const phoneClean = phone.split('@')[0];
+        const paymentId = `PREMIUM-${phoneClean}-${plan}-${Date.now()}`;
+        
+        console.log(chalk.cyan(`🔄 Creando pago MP: ${paymentId}`));
+        
+        // ✅ FIX 2: FECHA ISO 8601 CORRECTA PARA SDK v2.x
+        const expirationDate = moment().add(24, 'hours');
+        const isoDate = expirationDate.toISOString();
+        
+        // ✅ PREFERENCIA CON SDK V2.X - FECHAS CORREGIDAS
+        const preferenceData = {
+            items: [{
+                title: `SERVICIO PREMIUM ${days} DÍAS`,
+                description: `Acceso completo por ${days} días`,
+                quantity: 1,
+                currency_id: config.prices.currency || 'ARS',
+                unit_price: parseFloat(amount)
+            }],
+            external_reference: paymentId,
+            expires: true,
+            expiration_date_from: moment().toISOString(),
+            expiration_date_to: isoDate,
+            back_urls: {
+                success: `https://wa.me/${phoneClean}?text=Pago%20exitoso`,
+                failure: `https://wa.me/${phoneClean}?text=Pago%20fallido`,
+                pending: `https://wa.me/${phoneClean}?text=Pago%20pendiente`
+            },
+            auto_return: 'approved',
+            statement_descriptor: 'SERVICIO PREMIUM',
+            notification_url: `http://${config.bot.server_ip}:3000/webhook`
+        };
+        
+        console.log(chalk.yellow(`📦 Producto: ${preferenceData.items[0].title}`));
+        console.log(chalk.yellow(`💰 Monto: $${amount} ${config.prices.currency}`));
+        console.log(chalk.yellow(`📅 Expiración ISO 8601: ${isoDate}`));
+        
+        // ✅ CREAR PREFERENCIA CON SDK V2.X
+        const response = await mpPreference.create({ body: preferenceData });
+        
+        console.log(chalk.cyan('📄 Respuesta MP recibida'));
+        
+        if (response && response.id) {
+            const paymentUrl = response.init_point;
+            const qrPath = `${config.paths.qr_codes}/${paymentId}.png`;
+            
+            // Generar QR
+            await QRCode.toFile(qrPath, paymentUrl, { 
+                width: 400,
+                margin: 1,
+                color: {
+                    dark: '#000000',
+                    light: '#FFFFFF'
+                }
+            });
+            
+            // Guardar en BD
+            db.run(
+                `INSERT INTO payments (payment_id, phone, plan, days, amount, status, payment_url, qr_code, preference_id) VALUES (?, ?, ?, ?, ?, 'pending', ?, ?, ?)`,
+                [paymentId, phone, plan, days, amount, paymentUrl, qrPath, response.id],
+                (err) => {
+                    if (err) {
+                        console.error(chalk.red('❌ Error guardando en BD:'), err.message);
+                    }
+                }
+            );
+            
+            console.log(chalk.green(`✅ Pago creado exitosamente`));
+            console.log(chalk.cyan(`🔗 URL: ${paymentUrl.substring(0, 50)}...`));
+            console.log(chalk.cyan(`📱 Preference ID: ${response.id}`));
+            
+            return { 
+                success: true, 
+                paymentId, 
+                paymentUrl, 
+                qrPath,
+                preferenceId: response.id
+            };
+        }
+        
+        throw new Error('Respuesta inválida de MercadoPago - sin ID de preferencia');
+        
+    } catch (error) {
+        console.error(chalk.red('❌ Error MercadoPago:'), error.message);
+        
+        // Log detallado
+        if (error.cause) {
+            console.error(chalk.red('📄 Causa:'), JSON.stringify(error.cause, null, 2));
+        }
+        if (error.response) {
+            console.error(chalk.red('📄 Respuesta:'), JSON.stringify(error.response, null, 2));
+        }
+        
+        // Guardar log en BD
+        db.run(
+            `INSERT INTO logs (type, message, data) VALUES ('mp_error', ?, ?)`,
+            [error.message, JSON.stringify({ stack: error.stack, cause: error.cause })]
+        );
+        
+        return { success: false, error: error.message };
     }
-    
-    const info = `
-📍 *${server.name} - ${server.location}*
-
-🌐 *IP/dominio:* ${server.ip}
-👤 *Usuario:* (tu_usuario)
-🔑 *Contraseña:* mgvpn247
-
-📱 *Configuración en la app:*
-1. Servidor: ${server.ip}
-2. Puerto: 22
-3. Usuario: (tu_usuario)
-4. Contraseña: mgvpn247
-
-🛡️ *Estado:* 🟢 OPERATIVO
-`;
-    
-    return info;
 }
 
-// Resto del código del bot (mercado pago, mensajes, etc.)
-// [El resto del código permanece similar pero con ajustes para multi-server]
+async function checkPendingPayments() {
+    config = loadConfig();
+    if (!config.mercadopago.access_token || config.mercadopago.access_token === '') return;
+    
+    db.all('SELECT * FROM payments WHERE status = "pending" AND created_at > datetime("now", "-48 hours")', async (err, payments) => {
+        if (err || !payments || payments.length === 0) return;
+        
+        console.log(chalk.yellow(`🔍 Verificando ${payments.length} pagos pendientes...`));
+        
+        for (const payment of payments) {
+            try {
+                // ✅ Usar API v1 para búsqueda (más estable)
+                const url = `https://api.mercadopago.com/v1/payments/search?external_reference=${payment.payment_id}`;
+                const response = await axios.get(url, {
+                    headers: { 
+                        'Authorization': `Bearer ${config.mercadopago.access_token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    timeout: 15000
+                });
+                
+                if (response.data && response.data.results && response.data.results.length > 0) {
+                    const mpPayment = response.data.results[0];
+                    
+                    console.log(chalk.cyan(`📋 Pago ${payment.payment_id}: ${mpPayment.status}`));
+                    
+                    if (mpPayment.status === 'approved') {
+                        console.log(chalk.green(`✅ PAGO APROBADO: ${payment.payment_id}`));
+                        
+                        const username = generateUsername();
+                        const password = 'mgvpn247'; // ✅ CONTRASEÑA FIJA
+                        const connMap = { '7d': 1, '15d': 1, '30d': 1 };
+                        const connections = connMap[payment.plan] || 1;
+                        
+                        const result = await createSSHUser(payment.phone, username, password, payment.days, connections);
+                        
+                        db.run(`UPDATE payments SET status = 'approved', approved_at = CURRENT_TIMESTAMP WHERE payment_id = ?`, [payment.payment_id]);
+                        
+                        const expireDate = moment().add(payment.days, 'days').format('DD/MM/YYYY');
+                        
+                        const message = `╔══════════════════════════════════════╗
+║   🎉 *PAGO CONFIRMADO*               ║
+╚══════════════════════════════════════╝
 
-// [Se mantiene el código original de MercadoPago, pagos, etc. pero actualizado para usar server_id]
+✅ Tu compra ha sido aprobada
 
-// ================================================
-// MENSAJES DEL BOT (ACTUALIZADOS PARA MULTI-SERVER)
-// ================================================
+📋 *DATOS DE ACCESO:*
+👤 Usuario: *${username}*
+🔑 Contraseña: *mgvpn247*
+
+⏰ *VÁLIDO HASTA:* ${expireDate}
+🔌 *CONEXIÓN:* 1
+
+📱 *INSTALACIÓN:*
+1. Descarga la app (Escribe *5*)
+2. Seleccionar servidor
+3. Ingresar Usuario y Contraseña
+4. ¡Conéctate automáticamente!
+
+🎊 ¡Disfruta del servicio premium!
+
+💬 Soporte: *Escribe 6*`;
+                        
+                        await client.sendMessage(payment.phone, message, { sendSeen: false });
+                        console.log(chalk.green(`✅ Usuario creado y notificado: ${username}`));
+                    }
+                } else {
+                    console.log(chalk.gray(`⏳ Sin respuesta para ${payment.payment_id}`));
+                }
+            } catch (error) {
+                console.error(chalk.red(`❌ Error verificando ${payment.payment_id}:`), error.message);
+            }
+        }
+    });
+}
 
 client.on('message', async (msg) => {
     const text = msg.body.toLowerCase().trim();
@@ -1058,14 +732,12 @@ client.on('message', async (msg) => {
     if (phone.includes('@g.us')) return;
     
     config = loadConfig();
-    serversConfig = loadServers();
-    
     console.log(chalk.cyan(`📩 [${phone.split('@')[0]}]: ${text.substring(0, 30)}`));
     
-    // MENU PRINCIPAL
+    // ✅ FIX 3: Enviar mensajes sin error markedUnread
     if (['menu', 'hola', 'start', 'hi'].includes(text)) {
         await client.sendMessage(phone, `╔══════════════════════════════════════╗
-║   🚀 *HOLA BOT MGVPN MULTI-SERVER*  ║
+║   🚀 *HOLA BOT MGVPN*              ║
 ╚══════════════════════════════════════╝
 
 📋 *MENU:*
@@ -1073,10 +745,9 @@ client.on('message', async (msg) => {
 ⌛️ *1* - Prueba GRATIS (2h) 
 💰 *2* - Planes Internet
 👤 *3* - Mis cuentas
-📡 *4* - Servidores disponibles
-💳 *5* - Estado de pago
-📱 *6* - Descargar APP
-🔧 *7* - Soporte
+💳 *4* - Estado de pago
+📱 *5* - Descargar APP
+🔧 *6* - Soporte
 
 💬 Responde con el número`, { sendSeen: false });
     }
@@ -1088,70 +759,145 @@ client.on('message', async (msg) => {
 💎 *Escribe 2* para planes`, { sendSeen: false });
             return;
         }
-        
-        // Seleccionar mejor servidor automáticamente
-        const bestServer = getBestServer();
-        
-        await client.sendMessage(phone, `⏳ Creando cuenta test en *${bestServer.name}*...`, { sendSeen: false });
-        
+        await client.sendMessage(phone, '⏳ Creando cuenta test...', { sendSeen: false });
         try {
             const username = generateUsername();
-            const password = 'mgvpn247';
+            const password = 'mgvpn247'; // ✅ CONTRASEÑA FIJA
+            await createSSHUser(phone, username, password, 0, 1);
+            registerTest(phone);
             
-            const result = await createSSHUser(phone, username, password, 0, bestServer.id);
-            registerTest(phone, bestServer.id);
-            
-            const connectionInfo = getConnectionInfo(bestServer.id);
-            
-            await client.sendMessage(phone, `✅ *PRUEBA ACTIVADA EN ${bestServer.name}*
+            await client.sendMessage(phone, `✅ *PRUEBA ACTIVADA*
 
 👤 Usuario: *${username}*
 🔑 Contraseña: *mgvpn247*
 ⏰ Duración: 2 horas  
 🔌 Conexión: 1
-📍 Servidor: ${bestServer.name} - ${bestServer.location}
-
-${connectionInfo}
 
 📱 *PARA CONECTAR:*
-1. Descarga la app (Escribe *6*)
-2. Selecciona servidor: *${bestServer.ip}*
+1. Descarga la app (Escribe *5*)
+2. Selecionar servidor
 3. Ingresa usuario y contraseña
 4. ¡Listo!
 
-💎 ¿Te gustó? *Escribe 2* para planes premium`, { sendSeen: false });
+💎 ¿Te gustó? *Escribe 2*`, { sendSeen: false });
             
-            console.log(chalk.green(`✅ Test creado en ${bestServer.name}: ${username}`));
+            console.log(chalk.green(`✅ Test creado: ${username}`));
         } catch (error) {
             await client.sendMessage(phone, `❌ Error al crear cuenta: ${error.message}`, { sendSeen: false });
         }
     }
     else if (text === '2') {
-        await client.sendMessage(phone, `💎 *PLANES INTERNET MULTI-SERVER*
+        await client.sendMessage(phone, `💎 *PLANES INTERNET*
 
 🗓 *7 días* - $${config.prices.price_7d} ARS
-   Acceso a TODOS los servidores
-   1 conexión simultánea
+   1 conexión
      _Escribe: *comprar7*_
 
 🗓 *15 días* - $${config.prices.price_15d} ARS
-   Acceso a TODOS los servidores
-   1 conexión simultánea
+   1 conexión
      _Escribe: *comprar15*_
 
 🗓 *30 días* - $${config.prices.price_30d} ARS
-   Acceso a TODOS los servidores
-   1 conexión simultánea
-     _Escribe: *comprar30*_
+   1 conexión
+   📝 _Escribe: *comprar30*_
 
 💳 Pago: MercadoPago
 ⚡ Activación: 2-5 min
-🌐 *3 servidores disponibles*
 
 Escribe el comando`, { sendSeen: false });
     }
+    else if (['comprar7', 'comprar15', 'comprar30'].includes(text)) {
+        config = loadConfig();
+        
+        console.log(chalk.yellow(`🔑 Verificando token MP...`));
+        
+        if (!config.mercadopago.access_token || config.mercadopago.access_token === '') {
+            await client.sendMessage(phone, `❌ *MERCADOPAGO NO CONFIGURADO*
+
+El administrador debe configurar MercadoPago primero.
+
+💬 Soporte: *Escribe 6*`, { sendSeen: false });
+            return;
+        }
+        
+        // Reinicializar MP si es necesario
+        if (!mpEnabled || !mpPreference) {
+            console.log(chalk.yellow('🔄 Reinicializando MercadoPago...'));
+            mpEnabled = initMercadoPago();
+        }
+        
+        if (!mpEnabled || !mpPreference) {
+            await client.sendMessage(phone, `❌ *ERROR CON MERCADOPAGO*
+
+El sistema de pagos no está disponible.
+
+💬 Contacta soporte: *Escribe 6*`, { sendSeen: false });
+            return;
+        }
+        
+        const planMap = {
+            'comprar7': { days: 7, amount: config.prices.price_7d, plan: '7d', conn: 1 },
+            'comprar15': { days: 15, amount: config.prices.price_15d, plan: '15d', conn: 1 },
+            'comprar30': { days: 30, amount: config.prices.price_30d, plan: '30d', conn: 1 }
+        };
+        
+        const p = planMap[text];
+        await client.sendMessage(phone, `⏳ Generando pago MercadoPago...
+
+📦 Plan: ${p.days} días
+💰 Monto: $${p.amount} ARS
+🔌 Conexión: ${p.conn}
+
+⏰ Procesando...`, { sendSeen: false });
+        
+        try {
+            const payment = await createMercadoPagoPayment(phone, p.plan, p.days, p.amount, p.conn);
+            
+            if (payment.success) {
+                await client.sendMessage(phone, `💳 *PAGO GENERADO EXITOSAMENTE*
+
+📦 Plan: ${p.days} días
+💰 $${p.amount} ARS
+🔌 ${p.conn} conexión
+
+🔗 *ENLACE DE PAGO:*
+${payment.paymentUrl}
+
+
+✅ Te notificaré cuando se apruebe el pago
+
+💬 Escribe *4* para ver estado del pago`, { sendSeen: false });
+                
+                // Enviar QR si existe
+                if (fs.existsSync(payment.qrPath)) {
+                    try {
+                        const media = MessageMedia.fromFilePath(payment.qrPath);
+                        await client.sendMessage(phone, media, { caption: '📱 Escanea con la app de MercadoPago', sendSeen: false });
+                        console.log(chalk.green('✅ QR de pago enviado'));
+                    } catch (qrError) {
+                        console.error(chalk.red('⚠️ Error enviando QR:'), qrError.message);
+                    }
+                }
+            } else {
+                await client.sendMessage(phone, `❌ *ERROR AL GENERAR PAGO*
+
+Detalles: ${payment.error}
+
+Por favor, intenta de nuevo en unos minutos o contacta soporte.
+
+💬 Soporte: *Escribe 6*`, { sendSeen: false });
+            }
+        } catch (error) {
+            console.error(chalk.red('❌ Error en compra:'), error);
+            await client.sendMessage(phone, `❌ *ERROR INESPERADO*
+
+${error.message}
+
+💬 Contacta soporte: *Escribe 6*`, { sendSeen: false });
+        }
+    }
     else if (text === '3') {
-        db.all(`SELECT username, password, server_id, tipo, expires_at, max_connections FROM users WHERE phone = ? AND status = 1 ORDER BY created_at DESC LIMIT 10`, [phone],
+        db.all(`SELECT username, password, tipo, expires_at, max_connections FROM users WHERE phone = ? AND status = 1 ORDER BY created_at DESC LIMIT 10`, [phone],
             async (err, rows) => {
                 if (!rows || rows.length === 0) {
                     await client.sendMessage(phone, `📋 *SIN CUENTAS*
@@ -1160,71 +906,183 @@ Escribe el comando`, { sendSeen: false });
 💰 *2* - Ver planes`, { sendSeen: false });
                     return;
                 }
-                let msg = `📋 *TUS CUENTAS ACTIVAS*\n\n`;
+                let msg = `📋 *TUS CUENTAS ACTIVAS*
+
+`;
                 rows.forEach((a, i) => {
                     const tipo = a.tipo === 'premium' ? '💎' : '🆓';
                     const tipoText = a.tipo === 'premium' ? 'PREMIUM' : 'TEST';
                     const expira = moment(a.expires_at).format('DD/MM HH:mm');
-                    const server = serversConfig.servers.find(s => s.id === a.server_id);
-                    const serverName = server ? server.name : 'Desconocido';
                     
-                    msg += `*${i+1}. ${tipo} ${tipoText} - ${serverName}*\n`;
-                    msg += `👤 *${a.username}*\n`;
-                    msg += `🔑 *mgvpn247*\n`;
-                    msg += `📍 Servidor: ${serverName}\n`;
-                    msg += `⏰ ${expira}\n`;
-                    msg += `🔌 ${a.max_connections} conexión\n\n`;
+                    msg += `*${i+1}. ${tipo} ${tipoText}*
+`;
+                    msg += `👤 *${a.username}*
+`;
+                    msg += `🔑 *mgvpn247*
+`;
+                    msg += `⏰ ${expira}
+`;
+                    msg += `🔌 ${a.max_connections} conexión
+
+`;
                 });
-                msg += `📱 Para conectar descarga la app (Escribe *6*)\n`;
-                msg += `📡 Para ver info del servidor escribe: *infoX* (ej: info1)`;
+                msg += `📱 Para conectar descarga la app (Escribe *5*)`;
                 await client.sendMessage(phone, msg, { sendSeen: false });
             });
     }
     else if (text === '4') {
-        await client.sendMessage(phone, getServersList(), { sendSeen: false });
+        db.all(`SELECT plan, amount, status, created_at, payment_url FROM payments WHERE phone = ? ORDER BY created_at DESC LIMIT 5`, [phone],
+            async (err, pays) => {
+                if (!pays || pays.length === 0) {
+                    await client.sendMessage(phone, `💳 *SIN PAGOS REGISTRADOS*
+
+*2* - Ver planes disponibles`, { sendSeen: false });
+                    return;
+                }
+                let msg = `💳 *ESTADO DE PAGOS*
+
+`;
+                pays.forEach((p, i) => {
+                    const emoji = p.status === 'approved' ? '✅' : '⏳';
+                    const statusText = p.status === 'approved' ? 'APROBADO' : 'PENDIENTE';
+                    msg += `*${i+1}. ${emoji} ${statusText}*
+`;
+                    msg += `Plan: ${p.plan} | $${p.amount} ARS
+`;
+                    msg += `Fecha: ${moment(p.created_at).format('DD/MM HH:mm')}
+`;
+                    if (p.status === 'pending' && p.payment_url) {
+                        msg += `🔗 ${p.payment_url.substring(0, 40)}...
+`;
+                    }
+                    msg += `
+`;
+                });
+                msg += `🔄 Verificación automática cada 2 minutos`;
+                await client.sendMessage(phone, msg, { sendSeen: false });
+            });
     }
-    else if (text.startsWith('info')) {
-        const serverNum = parseInt(text.replace('info', ''));
-        if (isNaN(serverNum) || serverNum < 1 || serverNum > 3) {
-            await client.sendMessage(phone, `❌ Número de servidor inválido\n\nEscribe *4* para ver servidores disponibles`, { sendSeen: false });
-            return;
+    else if (text === '5') {
+        // Buscar APK automáticamente
+        const searchPaths = [
+            '/root/app.apk',
+            '/root/ssh-bot/app.apk',
+            '/root/android.apk',
+            '/root/vpn.apk'
+        ];
+        
+        let apkFound = null;
+        let apkName = 'app.apk';
+        
+        for (const filePath of searchPaths) {
+            if (fs.existsSync(filePath)) {
+                apkFound = filePath;
+                apkName = path.basename(filePath);
+                break;
+            }
         }
         
-        const server = serversConfig.servers.find(s => s.id === serverNum);
-        if (!server || !server.enabled) {
-            await client.sendMessage(phone, `❌ Servidor ${serverNum} no disponible`, { sendSeen: false });
-            return;
-        }
-        
-        await client.sendMessage(phone, getConnectionInfo(serverNum), { sendSeen: false });
-    }
-    // [Resto de comandos similares pero actualizados...]
-});
+        if (apkFound) {
+            try {
+                const stats = fs.statSync(apkFound);
+                const fileSize = (stats.size / (1024 * 1024)).toFixed(2);
+                
+                console.log(chalk.cyan(`📱 Enviando APK: ${apkName} (${fileSize}MB)`));
+                
+                await client.sendMessage(phone, `📱 *DESCARGANDO APP*
 
-// ================================================
-// CRON JOBS MULTI-SERVER
-// ================================================
+📦 Archivo: ${apkName}
+📊 Tamaño: ${fileSize} MB
 
-// ✅ Sincronizar contadores cada 5 minutos
-cron.schedule('*/5 * * * *', () => {
-    console.log(chalk.yellow('🔄 Sincronizando contadores de servidores...'));
-    exec('bash /opt/ssh-bot/scripts/sync_servers.sh', (error, stdout, stderr) => {
-        if (error) {
-            console.error(chalk.red('❌ Error sincronizando:'), error);
+⏳ Enviando archivo, espera...`, { sendSeen: false });
+                
+                const media = MessageMedia.fromFilePath(apkFound);
+                await client.sendMessage(phone, media, {
+                    caption: `📱 *${apkName}*
+
+✅ Archivo enviado correctamente
+
+📱 *INSTRUCCIONES:*
+1. Toca el archivo para instalar
+2. Permite "Fuentes desconocidas" si te lo pide
+3. Abre la app
+4. Ingresa tus datos de acceso
+   👤 Usuario: (tu usuario)
+   🔑 Contraseña: mgvpn247
+
+💡 Si no ves el archivo, revisa la sección "Archivos" de WhatsApp`,
+                    sendSeen: false
+                });
+                
+                console.log(chalk.green(`✅ APK enviado exitosamente`));
+                
+            } catch (error) {
+                console.error(chalk.red('❌ Error enviando APK:'), error.message);
+                
+                // Fallback: servidor web
+                const serverStarted = await startAPKServer(apkFound);
+                if (serverStarted) {
+                    await client.sendMessage(phone, `📱 *ENLACE DE DESCARGA*
+
+El archivo es muy grande para WhatsApp.
+
+🔗 Descarga desde aquí:
+http://${config.bot.server_ip}:8001/${apkName}
+
+📱 Instrucciones:
+1. Abre el enlace en Chrome
+2. Descarga el archivo
+3. Instala y abre la app
+4. Usuario: (tu usuario)
+5. Contraseña: mgvpn247
+
+⚠️ El enlace expira en 1 hora`, { sendSeen: false });
+                } else {
+                    await client.sendMessage(phone, `❌ *ERROR AL ENVIAR APK*
+
+No se pudo enviar el archivo.
+
+📞 Contacta soporte:
+${config.links.support}`, { sendSeen: false });
+                }
+            }
         } else {
-            console.log(chalk.green('✅ Sincronización completada'));
-            // Recargar configuración
-            serversConfig = loadServers();
+            await client.sendMessage(phone, `❌ *APK NO DISPONIBLE*
+
+El archivo de instalación no está disponible en el servidor.
+
+📞 Contacta al administrador:
+${config.links.support}
+
+💡 Ubicación esperada: /root/app.apk`, { sendSeen: false });
         }
-    });
+    }
+    else if (text === '6') {
+        await client.sendMessage(phone, `🆘 *SOPORTE TÉCNICO*
+
+📞 Canal de soporte:
+${config.links.support}
+
+⏰ Horario: 9AM - 10PM
+
+🔑 *Contraseña predeterminada:* mgvpn247
+
+💬 Escribe "menu" para volver al inicio`, { sendSeen: false });
+    }
 });
 
-// ✅ Limpiar usuarios expirados cada 15 minutos (todos los servidores)
+// ✅ Verificar pagos cada 2 minutos
+cron.schedule('*/2 * * * *', () => {
+    console.log(chalk.yellow('🔄 Verificando pagos pendientes...'));
+    checkPendingPayments();
+});
+
+// ✅ AJUSTE: Limpiar usuarios expirados cada 15 minutos
 cron.schedule('*/15 * * * *', async () => {
     const now = moment().format('YYYY-MM-DD HH:mm:ss');
-    console.log(chalk.yellow(`🧹 Limpiando usuarios expirados (${now})...`));
+    console.log(chalk.yellow(`🧹 Limpiando usuarios expirados cada 15 minutos (${now})...`));
     
-    db.all('SELECT username, server_id FROM users WHERE expires_at < ? AND status = 1', [now], async (err, rows) => {
+    db.all('SELECT username FROM users WHERE expires_at < ? AND status = 1', [now], async (err, rows) => {
         if (err) {
             console.error(chalk.red('❌ Error BD:'), err.message);
             return;
@@ -1233,9 +1091,10 @@ cron.schedule('*/15 * * * *', async () => {
         
         for (const r of rows) {
             try {
-                await deleteUserFromServer(r.server_id, r.username);
-                db.run('UPDATE users SET status = 0 WHERE username = ? AND server_id = ?', [r.username, r.server_id]);
-                console.log(chalk.green(`🗑️ Eliminado: ${r.username} del servidor ${r.server_id}`));
+                await execPromise(`pkill -u ${r.username} 2>/dev/null || true`);
+                await execPromise(`userdel -f ${r.username} 2>/dev/null || true`);
+                db.run('UPDATE users SET status = 0 WHERE username = ?', [r.username]);
+                console.log(chalk.green(`🗑️ Eliminado: ${r.username}`));
             } catch (e) {
                 console.error(chalk.red(`Error eliminando ${r.username}:`), e.message);
             }
@@ -1244,35 +1103,57 @@ cron.schedule('*/15 * * * *', async () => {
     });
 });
 
-// [Resto del código del bot...]
+// ✅ Limpiar pagos antiguos cada 24 horas
+cron.schedule('0 0 * * *', () => {
+    console.log(chalk.yellow('🧹 Limpiando pagos antiguos...'));
+    db.run(`DELETE FROM payments WHERE status = 'pending' AND created_at < datetime('now', '-7 days')`, (err) => {
+        if (!err) console.log(chalk.green('✅ Pagos antiguos limpiados'));
+    });
+});
 
-console.log(chalk.green('\n🚀 Inicializando bot multi-server...\n'));
+// ✅ MONITOR AUTOMÁTICO - VERIFICA CADA 30 SEGUNDOS SI HAY MÁS DE 1 CONEXIÓN
+setInterval(() => {
+    db.all('SELECT username FROM users WHERE status = 1', (err, rows) => {
+        if (!err && rows) {
+            rows.forEach(user => {
+                require('child_process').exec(`ps aux | grep "^${user.username}" | grep -v grep | wc -l`, (e, out) => {
+                    const cnt = parseInt(out) || 0;
+                    if (cnt > 1) {
+                        console.log(chalk.red(`⚠️ ${user.username} tiene ${cnt} conexiones (>1)`));
+                        require('child_process').exec(`pkill -u ${user.username} 2>/dev/null; sleep 1; pkill -u ${user.username} 2>/dev/null`);
+                    }
+                });
+            });
+        }
+    });
+}, 30000); // 30 segundos
+
+console.log(chalk.green('\n🚀 Inicializando bot...\n'));
 client.initialize();
 BOTEOF
 
-echo -e "${GREEN}✅ Bot multi-server creado${NC}"
+echo -e "${GREEN}✅ Bot creado con contraseña fija mgvpn247${NC}"
 
 # ================================================
-# CREAR PANEL DE CONTROL MULTI-SERVER
+# CREAR PANEL DE CONTROL CON CONTRASEÑA FIJA
 # ================================================
-echo -e "\n${CYAN}${BOLD}🎛️  CREANDO PANEL DE CONTROL MULTI-SERVER...${NC}"
+echo -e "\n${CYAN}${BOLD}🎛️  CREANDO PANEL DE CONTROL CON CONTRASEÑA FIJA mgvpn247...${NC}"
 
 cat > /usr/local/bin/sshbot << 'PANELEOF'
 #!/bin/bash
-RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'; CYAN='\033[0;36m'; BLUE='\033[0;34m'; ORANGE='\033[0;33m'; NC='\033[0m'
+RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'; CYAN='\033[0;36m'; BLUE='\033[0;34m'; NC='\033[0m'
 
 DB="/opt/ssh-bot/data/users.db"
 CONFIG="/opt/ssh-bot/config/config.json"
-SERVERS="/opt/ssh-bot/config/servers.json"
 
 get_val() { jq -r "$1" "$CONFIG" 2>/dev/null; }
-get_server() { jq -r "$1" "$SERVERS" 2>/dev/null; }
+set_val() { local t=$(mktemp); jq "$1 = $2" "$CONFIG" > "$t" && mv "$t" "$CONFIG"; }
 
 show_header() {
     clear
     echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
-    echo -e "${CYAN}║         🎛️  PANEL SSH BOT PRO v8.7 MULTI-SERVER           ║${NC}"
-    echo -e "${CYAN}║               ⚡ SOPORTE PARA 3 SERVIDORES/VPS             ║${NC}"
+    echo -e "${CYAN}║              🎛️  PANEL SSH BOT PRO v8.6                    ║${NC}"
+    echo -e "${CYAN}║               💳 MercadoPago SDK v2.x ALL FIXES            ║${NC}"
     echo -e "${CYAN}║               🔐 CONTRASEÑA FIJA: mgvpn247                 ║${NC}"
     echo -e "${CYAN}╚══════════════════════════════════════════════════════════════╝${NC}\n"
 }
@@ -1280,7 +1161,6 @@ show_header() {
 while true; do
     show_header
     
-    # Obtener estadísticas
     TOTAL_USERS=$(sqlite3 "$DB" "SELECT COUNT(*) FROM users" 2>/dev/null || echo "0")
     ACTIVE_USERS=$(sqlite3 "$DB" "SELECT COUNT(*) FROM users WHERE status=1" 2>/dev/null || echo "0")
     
@@ -1291,47 +1171,47 @@ while true; do
         BOT_STATUS="${RED}● DETENIDO${NC}"
     fi
     
-    # Mostrar servidores
-    echo -e "${YELLOW}📡 SERVIDORES CONFIGURADOS:${NC}"
-    for i in {1..3}; do
-        SERVER_NAME=$(jq -r ".servers[$((i-1))].name" "$SERVERS" 2>/dev/null)
-        SERVER_IP=$(jq -r ".servers[$((i-1))].ip" "$SERVERS" 2>/dev/null)
-        SERVER_LOC=$(jq -r ".servers[$((i-1))].location" "$SERVERS" 2>/dev/null)
-        SERVER_ENABLED=$(jq -r ".servers[$((i-1))].enabled" "$SERVERS" 2>/dev/null)
-        SERVER_USERS=$(jq -r ".servers[$((i-1))].current_users" "$SERVERS" 2>/dev/null)
-        
-        if [[ "$SERVER_ENABLED" == "true" ]]; then
-            STATUS_COLOR="${GREEN}"
-            STATUS_ICON="🟢"
-        else
-            STATUS_COLOR="${RED}"
-            STATUS_ICON="🔴"
-        fi
-        
-        SERVER_TYPE=$([[ "$i" == "1" ]] && echo "🏠" || echo "🌐")
-        echo -e "  ${CYAN}${i}.${NC} ${SERVER_NAME} ${SERVER_TYPE} ${STATUS_COLOR}${STATUS_ICON}${NC}"
-        echo -e "     📍 ${SERVER_LOC} | 🌐 ${SERVER_IP}"
-        echo -e "     👥 ${SERVER_USERS} usuarios activos"
-        echo ""
-    done
+    MP_TOKEN=$(get_val '.mercadopago.access_token')
+    if [[ -n "$MP_TOKEN" && "$MP_TOKEN" != "" && "$MP_TOKEN" != "null" ]]; then
+        MP_STATUS="${GREEN}✅ SDK v2.x ACTIVO${NC}"
+    else
+        MP_STATUS="${RED}❌ NO CONFIGURADO${NC}"
+    fi
+    
+    APK_FOUND=""
+    if [[ -f "/root/app.apk" ]]; then
+        APK_SIZE=$(du -h "/root/app.apk" | cut -f1)
+        APK_FOUND="${GREEN}✅ ${APK_SIZE}${NC}"
+    else
+        APK_FOUND="${RED}❌ NO ENCONTRADO${NC}"
+    fi
+    
+    echo -e "${YELLOW}📊 ESTADO DEL SISTEMA${NC}"
+    echo -e "  Bot: $BOT_STATUS"
+    echo -e "  Usuarios: ${CYAN}$ACTIVE_USERS/$TOTAL_USERS${NC} activos/total"
+    echo -e "  MercadoPago: $MP_STATUS"
+    echo -e "  APK: $APK_FOUND"
+    echo -e "  Test: ${GREEN}2 horas${NC} | Limpieza: ${GREEN}cada 15 min${NC}"
+    echo -e "  Conexión por usuario: ${GREEN}1${NC}"
+    echo -e "  Contraseña: ${GREEN}mgvpn247${NC} (FIJA PARA TODOS)"
+    echo -e ""
     
     echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo -e "${CYAN}[1]${NC}  🚀  Iniciar/Reiniciar bot"
     echo -e "${CYAN}[2]${NC}  🛑  Detener bot"
     echo -e "${CYAN}[3]${NC}  📱  Ver QR WhatsApp"
-    echo -e "${CYAN}[4]${NC}  👤  Crear usuario (elegir servidor)"
-    echo -e "${CYAN}[5]${NC}  👥  Listar usuarios por servidor"
+    echo -e "${CYAN}[4]${NC}  👤  Crear usuario manual"
+    echo -e "${CYAN}[5]${NC}  👥  Listar usuarios"
     echo -e "${CYAN}[6]${NC}  🗑️   Eliminar usuario"
     echo -e ""
     echo -e "${CYAN}[7]${NC}  💰  Cambiar precios"
     echo -e "${CYAN}[8]${NC}  🔑  Configurar MercadoPago"
     echo -e "${CYAN}[9]${NC}  📱  Gestionar APK"
-    echo -e "${CYAN}[10]${NC} ⚙️   Configurar servidores"
-    echo -e "${CYAN}[11]${NC} 🔄  Sincronizar servidores"
-    echo -e "${CYAN}[12]${NC} 📊  Ver estadísticas"
-    echo -e "${CYAN}[13]${NC} 📝  Ver logs"
-    echo -e "${CYAN}[14]${NC} 🔧  Reparar bot"
-    echo -e "${CYAN}[15]${NC} 🧪  Test MercadoPago"
+    echo -e "${CYAN}[10]${NC} 📊  Ver estadísticas"
+    echo -e "${CYAN}[11]${NC} ⚙️   Ver configuración"
+    echo -e "${CYAN}[12]${NC} 📝  Ver logs"
+    echo -e "${CYAN}[13]${NC} 🔧  Reparar bot"
+    echo -e "${CYAN}[14]${NC} 🧪  Test MercadoPago"
     echo -e "${CYAN}[0]${NC}  🚪  Salir"
     echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     
@@ -1373,13 +1253,13 @@ while true; do
                     2)
                         echo -e "\n${GREEN}Ruta: /root/qr-whatsapp.png${NC}"
                         echo -e "\n${YELLOW}Descarga con SFTP o:${NC}"
-                        echo -e "  scp root@$(jq -r '.servers[0].ip' "$SERVERS"):/root/qr-whatsapp.png ."
+                        echo -e "  scp root@$(get_val '.bot.server_ip'):/root/qr-whatsapp.png ."
                         read -p "Presiona Enter..." 
                         ;;
                 esac
             else
                 echo -e "${YELLOW}⚠️  QR no generado aún${NC}\n"
-                echo -e "${CYAN}Ejecuta opción 1 o 14 para generar QR${NC}\n"
+                echo -e "${CYAN}Ejecuta opción 1 o 13 para generar QR${NC}\n"
                 read -p "¿Ver logs? (s/N): " VER
                 [[ "$VER" == "s" ]] && pm2 logs ssh-bot --lines 50
             fi
@@ -1387,40 +1267,8 @@ while true; do
         4)
             clear
             echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
-            echo -e "${CYAN}║              👤 CREAR USUARIO EN SERVIDOR                    ║${NC}"
+            echo -e "${CYAN}║                     👤 CREAR USUARIO                        ║${NC}"
             echo -e "${CYAN}╚══════════════════════════════════════════════════════════════╝${NC}\n"
-            
-            echo -e "${YELLOW}📡 SELECCIONAR SERVIDOR:${NC}"
-            for i in {1..3}; do
-                SERVER_NAME=$(jq -r ".servers[$((i-1))].name" "$SERVERS")
-                SERVER_LOC=$(jq -r ".servers[$((i-1))].location" "$SERVERS")
-                SERVER_ENABLED=$(jq -r ".servers[$((i-1))].enabled" "$SERVERS")
-                
-                if [[ "$SERVER_ENABLED" == "true" ]]; then
-                    echo -e "  ${CYAN}${i}.${NC} ${SERVER_NAME} - ${SERVER_LOC} 🟢"
-                else
-                    echo -e "  ${RED}${i}.${NC} ${SERVER_NAME} - ${SERVER_LOC} 🔴"
-                fi
-            done
-            echo -e "  ${CYAN}4.${NC} Auto (selección automática)"
-            
-            read -p "Selecciona servidor (1-4): " SERVER_CHOICE
-            
-            if [[ "$SERVER_CHOICE" == "4" ]]; then
-                SERVER_ID="auto"
-            elif [[ "$SERVER_CHOICE" =~ ^[1-3]$ ]]; then
-                SERVER_ID="$SERVER_CHOICE"
-                SERVER_ENABLED=$(jq -r ".servers[$((SERVER_CHOICE-1))].enabled" "$SERVERS")
-                if [[ "$SERVER_ENABLED" != "true" ]]; then
-                    echo -e "${RED}❌ Servidor deshabilitado${NC}"
-                    read -p "Presiona Enter..."
-                    continue
-                fi
-            else
-                echo -e "${RED}❌ Opción inválida${NC}"
-                read -p "Presiona Enter..."
-                continue
-            fi
             
             read -p "Teléfono (ej: 5491122334455): " PHONE
             read -p "Usuario (auto=generar): " USERNAME
@@ -1434,72 +1282,35 @@ while true; do
             [[ "$USERNAME" == "auto" || -z "$USERNAME" ]] && USERNAME="user$(tr -dc 'a-z0-9' < /dev/urandom | head -c 6)"
             [[ -z "$PASSWORD" ]] && PASSWORD="mgvpn247"
             
-            if [[ "$SERVER_ID" == "auto" ]]; then
-                SERVER_CHOICE=$(jq -r '.servers | map(select(.enabled == true)) | sort_by(.current_users) | .[0].id' "$SERVERS")
-                SERVER_ID=${SERVER_CHOICE:-1}
-            fi
-            
-            SERVER_NAME=$(jq -r ".servers[$((SERVER_ID-1))].name" "$SERVERS")
-            
-            echo -e "\n${YELLOW}Creando usuario en ${SERVER_NAME}...${NC}"
-            
             if [[ "$TIPO" == "test" ]]; then
                 DAYS="0"
                 EXPIRE_DATE=$(date -d "+2 hours" +"%Y-%m-%d %H:%M:%S")
-                CREATE_CMD="/opt/ssh-bot/scripts/create_remote_user.sh $SERVER_ID $USERNAME $PASSWORD $DAYS"
-                OUTPUT=$(bash -c "$CREATE_CMD" 2>&1)
-                
-                if [[ "$OUTPUT" == SUCCESS:* ]]; then
-                    EXPIRE_DATE=$(echo "$OUTPUT" | cut -d: -f2)
-                else
-                    echo -e "${RED}❌ Error creando usuario: $OUTPUT${NC}"
-                    read -p "Presiona Enter..."
-                    continue
-                fi
+                useradd -M -s /bin/false "$USERNAME" && echo "$USERNAME:mgvpn247" | chpasswd && chage -E "$(date -d '+2 hours' +%Y-%m-%d)" "$USERNAME"
             else
                 EXPIRE_DATE=$(date -d "+$DAYS days" +"%Y-%m-%d 23:59:59")
-                CREATE_CMD="/opt/ssh-bot/scripts/create_remote_user.sh $SERVER_ID $USERNAME $PASSWORD $DAYS"
-                OUTPUT=$(bash -c "$CREATE_CMD" 2>&1)
-                
-                if [[ "$OUTPUT" != SUCCESS:* ]]; then
-                    echo -e "${RED}❌ Error creando usuario: $OUTPUT${NC}"
-                    read -p "Presiona Enter..."
-                    continue
-                fi
+                useradd -M -s /bin/false -e "$(date -d "+$DAYS days" +%Y-%m-%d)" "$USERNAME" && echo "$USERNAME:mgvpn247" | chpasswd
             fi
             
-            # Insertar en BD
-            sqlite3 "$DB" "INSERT INTO users (phone, username, password, server_id, tipo, expires_at, max_connections, status) VALUES ('$PHONE', '$USERNAME', '$PASSWORD', $SERVER_ID, '$TIPO', '$EXPIRE_DATE', $CONNECTIONS, 1)"
-            
-            # Actualizar contador en servers.json
-            CURRENT_USERS=$(jq -r ".servers[$((SERVER_ID-1))].current_users" "$SERVERS")
-            NEW_COUNT=$((CURRENT_USERS + 1))
-            jq --argjson id "$SERVER_ID" --argjson count "$NEW_COUNT" \
-               '.servers |= map(if .id == $id then .current_users = $count else . end)' \
-               "$SERVERS" > /tmp/servers_temp.json && mv /tmp/servers_temp.json "$SERVERS"
-            
-            echo -e "\n${GREEN}✅ USUARIO CREADO${NC}"
-            echo -e "👤 Usuario: ${USERNAME}"
-            echo -e "🔑 Contraseña: mgvpn247"
-            echo -e "📡 Servidor: ${SERVER_NAME}"
-            echo -e "⏰ Expira: ${EXPIRE_DATE}"
-            echo -e "🔌 Conexiones: ${CONNECTIONS}"
-            
+            if [[ $? -eq 0 ]]; then
+                sqlite3 "$DB" "INSERT INTO users (phone, username, password, tipo, expires_at, max_connections, status) VALUES ('$PHONE', '$USERNAME', 'mgvpn247', '$TIPO', '$EXPIRE_DATE', 1, 1)"
+                echo -e "\n${GREEN}✅ USUARIO CREADO${NC}"
+                echo -e "👤 Usuario: ${USERNAME}"
+                echo -e "🔑 Contraseña: mgvpn247"
+                echo -e "⏰ Expira: ${EXPIRE_DATE}"
+                echo -e "🔌 Conexiones: 1"
+            else
+                echo -e "\n${RED}❌ Error creando usuario${NC}"
+            fi
             read -p "Presiona Enter..." 
             ;;
         5)
             clear
             echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
-            echo -e "${CYAN}║              👥 USUARIOS POR SERVIDOR                       ║${NC}"
+            echo -e "${CYAN}║                     👥 USUARIOS ACTIVOS                     ║${NC}"
             echo -e "${CYAN}╚══════════════════════════════════════════════════════════════╝${NC}\n"
             
-            for i in {1..3}; do
-                SERVER_NAME=$(jq -r ".servers[$((i-1))].name" "$SERVERS")
-                echo -e "${YELLOW}📡 ${SERVER_NAME}:${NC}"
-                sqlite3 -column -header "$DB" "SELECT username, 'mgvpn247' as password, tipo, expires_at, max_connections as conex FROM users WHERE server_id = $i AND status = 1 ORDER BY expires_at DESC LIMIT 10"
-                echo ""
-            done
-            
+            sqlite3 -column -header "$DB" "SELECT username, 'mgvpn247' as password, tipo, expires_at, max_connections as conex, substr(phone,1,12) as tel FROM users WHERE status = 1 ORDER BY expires_at DESC LIMIT 20"
+            echo -e "\n${YELLOW}Total: ${ACTIVE_USERS}${NC}"
             echo -e "${GREEN}🔐 Contraseña: mgvpn247 para todos${NC}"
             read -p "Presiona Enter..." 
             ;;
@@ -1511,111 +1322,240 @@ while true; do
             
             read -p "Usuario a eliminar: " DEL_USER
             if [[ -n "$DEL_USER" ]]; then
-                # Obtener server_id del usuario
-                SERVER_ID=$(sqlite3 "$DB" "SELECT server_id FROM users WHERE username = '$DEL_USER' LIMIT 1")
+                pkill -u "$DEL_USER" 2>/dev/null || true
+                userdel -f "$DEL_USER" 2>/dev/null || true
+                sqlite3 "$DB" "UPDATE users SET status = 0 WHERE username = '$DEL_USER'"
+                echo -e "${GREEN}✅ Usuario $DEL_USER eliminado${NC}"
+            fi
+            read -p "Presiona Enter..." 
+            ;;
+        7)
+            clear
+            echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
+            echo -e "${CYAN}║                     💰 CAMBIAR PRECIOS                      ║${NC}"
+            echo -e "${CYAN}╚══════════════════════════════════════════════════════════════╝${NC}\n"
+            
+            CURRENT_7D=$(get_val '.prices.price_7d')
+            CURRENT_15D=$(get_val '.prices.price_15d')
+            CURRENT_30D=$(get_val '.prices.price_30d')
+            
+            echo -e "${YELLOW}Precios actuales:${NC}"
+            echo -e "  7 días: $${CURRENT_7D} (1 conexión)"
+            echo -e "  15 días: $${CURRENT_15D} (1 conexión)"
+            echo -e "  30 días: $${CURRENT_30D} (1 conexión)\n"
+            
+            read -p "Nuevo precio 7d [${CURRENT_7D}]: " NEW_7D
+            read -p "Nuevo precio 15d [${CURRENT_15D}]: " NEW_15D
+            read -p "Nuevo precio 30d [${CURRENT_30D}]: " NEW_30D
+            
+            [[ -n "$NEW_7D" ]] && set_val '.prices.price_7d' "$NEW_7D"
+            [[ -n "$NEW_15D" ]] && set_val '.prices.price_15d' "$NEW_15D"
+            [[ -n "$NEW_30D" ]] && set_val '.prices.price_30d' "$NEW_30D"
+            
+            echo -e "\n${GREEN}✅ Precios actualizados${NC}"
+            echo -e "${YELLOW}⚠️  Nota: Todos los planes tienen 1 conexión${NC}"
+            echo -e "${YELLOW}🔐 Contraseña: mgvpn247 para todos los usuarios${NC}"
+            read -p "Presiona Enter..." 
+            ;;
+        8)
+            clear
+            echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
+            echo -e "${CYAN}║              🔑 CONFIGURAR MERCADOPAGO SDK v2.x             ║${NC}"
+            echo -e "${CYAN}╚══════════════════════════════════════════════════════════════╝${NC}\n"
+            
+            CURRENT_TOKEN=$(get_val '.mercadopago.access_token')
+            
+            if [[ -n "$CURRENT_TOKEN" && "$CURRENT_TOKEN" != "null" && "$CURRENT_TOKEN" != "" ]]; then
+                echo -e "${GREEN}✅ Token configurado${NC}"
+                echo -e "${YELLOW}Preview: ${CURRENT_TOKEN:0:30}...${NC}\n"
+            else
+                echo -e "${YELLOW}⚠️  Sin token configurado${NC}\n"
+            fi
+            
+            echo -e "${CYAN}📋 Obtener token:${NC}"
+            echo -e "  1. https://www.mercadopago.com.ar/developers"
+            echo -e "  2. Inicia sesión"
+            echo -e "  3. 'Tus credenciales' → Access Token PRODUCCIÓN"
+            echo -e "  4. Formato: APP_USR-xxxxxxxxxx\n"
+            
+            read -p "¿Configurar nuevo token? (s/N): " CONF
+            if [[ "$CONF" == "s" ]]; then
+                echo ""
+                read -p "Pega el Access Token: " NEW_TOKEN
                 
-                if [[ -n "$SERVER_ID" ]]; then
-                    # Eliminar del servidor
-                    DELETE_CMD="/opt/ssh-bot/scripts/delete_remote_user.sh $SERVER_ID $DEL_USER"
-                    bash -c "$DELETE_CMD"
-                    
-                    # Eliminar de BD
-                    sqlite3 "$DB" "UPDATE users SET status = 0 WHERE username = '$DEL_USER'"
-                    
-                    # Actualizar contador
-                    CURRENT_USERS=$(jq -r ".servers[$((SERVER_ID-1))].current_users" "$SERVERS")
-                    if [[ "$CURRENT_USERS" -gt 0 ]]; then
-                        NEW_COUNT=$((CURRENT_USERS - 1))
-                        jq --argjson id "$SERVER_ID" --argjson count "$NEW_COUNT" \
-                           '.servers |= map(if .id == $id then .current_users = $count else . end)' \
-                           "$SERVERS" > /tmp/servers_temp.json && mv /tmp/servers_temp.json "$SERVERS"
-                    fi
-                    
-                    echo -e "${GREEN}✅ Usuario $DEL_USER eliminado${NC}"
+                # ✅ VALIDACIÓN CORREGIDA
+                if [[ "$NEW_TOKEN" =~ ^APP_USR- ]] || [[ "$NEW_TOKEN" =~ ^TEST- ]]; then
+                    set_val '.mercadopago.access_token' "\"$NEW_TOKEN\""
+                    set_val '.mercadopago.enabled' "true"
+                    echo -e "\n${GREEN}✅ Token configurado${NC}"
+                    echo -e "${YELLOW}🔄 Reiniciando bot...${NC}"
+                    cd /root/ssh-bot && pm2 restart ssh-bot
+                    sleep 2
+                    echo -e "${GREEN}✅ MercadoPago SDK v2.x activado${NC}"
                 else
-                    echo -e "${RED}❌ Usuario no encontrado${NC}"
+                    echo -e "${RED}❌ Token inválido${NC}"
+                    echo -e "${YELLOW}Debe empezar con APP_USR- o TEST-${NC}"
                 fi
+            fi
+            read -p "Presiona Enter..." 
+            ;;
+        9)
+            clear
+            echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
+            echo -e "${CYAN}║                     📱 GESTIONAR APK                         ║${NC}"
+            echo -e "${CYAN}╚══════════════════════════════════════════════════════════════╝${NC}\n"
+            
+            APKS=$(find /root /home /opt -name "*.apk" 2>/dev/null | head -5)
+            
+            if [[ -n "$APKS" ]]; then
+                echo -e "${GREEN}✅ APKs encontrados:${NC}"
+                i=1
+                while IFS= read -r apk; do
+                    size=$(du -h "$apk" | cut -f1)
+                    echo -e "  ${i}. ${apk} (${size})"
+                    ((i++))
+                done <<< "$APKS"
+                
+                echo ""
+                read -p "Selecciona (1-$((i-1))): " SEL
+                if [[ "$SEL" =~ ^[0-9]+$ ]]; then
+                    selected=$(echo "$APKS" | sed -n "${SEL}p")
+                    echo -e "\n${YELLOW}Seleccionado: ${selected}${NC}"
+                    echo -e "\n1. Copiar a /root/app.apk"
+                    echo -e "2. Ver detalles"
+                    echo -e "3. Eliminar"
+                    read -p "Opción: " OPT
+                    case $OPT in
+                        1) cp "$selected" /root/app.apk && chmod 644 /root/app.apk && echo -e "${GREEN}✅ Copiado${NC}" ;;
+                        2) du -h "$selected" && echo "WhatsApp límite: 100MB" ;;
+                        3) rm -f "$selected" && echo -e "${GREEN}✅ Eliminado${NC}" ;;
+                    esac
+                fi
+            else
+                echo -e "${RED}❌ Sin APKs${NC}\n"
+                echo -e "${CYAN}Subir con SCP:${NC}"
+                echo -e "  scp app.apk root@$(get_val '.bot.server_ip'):/root/app.apk"
             fi
             read -p "Presiona Enter..." 
             ;;
         10)
             clear
             echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
-            echo -e "${CYAN}║              ⚙️  CONFIGURAR SERVIDORES                      ║${NC}"
+            echo -e "${CYAN}║                     📊 ESTADÍSTICAS                         ║${NC}"
             echo -e "${CYAN}╚══════════════════════════════════════════════════════════════╝${NC}\n"
             
-            echo -e "${YELLOW}Configuración actual:${NC}"
-            for i in {1..3}; do
-                SERVER_NAME=$(jq -r ".servers[$((i-1))].name" "$SERVERS")
-                SERVER_IP=$(jq -r ".servers[$((i-1))].ip" "$SERVERS")
-                SERVER_LOC=$(jq -r ".servers[$((i-1))].location" "$SERVERS")
-                SERVER_ENABLED=$(jq -r ".servers[$((i-1))].enabled" "$SERVERS")
-                
-                echo -e "${CYAN}${i}. ${SERVER_NAME}${NC}"
-                echo -e "   IP: ${SERVER_IP}"
-                echo -e "   Localización: ${SERVER_LOC}"
-                echo -e "   Estado: $([[ "$SERVER_ENABLED" == "true" ]] && echo "🟢 HABILITADO" || echo "🔴 DESHABILITADO")"
-                echo ""
-            done
+            echo -e "${YELLOW}👥 USUARIOS:${NC}"
+            sqlite3 "$DB" "SELECT 'Total: ' || COUNT(*) || ' | Activos: ' || SUM(CASE WHEN status=1 THEN 1 ELSE 0 END) || ' | Premium: ' || SUM(CASE WHEN tipo='premium' THEN 1 ELSE 0 END) FROM users"
             
-            echo -e "${YELLOW}Opciones:${NC}"
-            echo -e "  1. Habilitar/Deshabilitar servidor"
-            echo -e "  2. Cambiar IP de servidor"
-            echo -e "  3. Cambiar localización"
-            echo -e "  4. Volver"
+            echo -e "\n${YELLOW}💰 PAGOS:${NC}"
+            sqlite3 "$DB" "SELECT 'Pendientes: ' || SUM(CASE WHEN status='pending' THEN 1 ELSE 0 END) || ' | Aprobados: ' || SUM(CASE WHEN status='approved' THEN 1 ELSE 0 END) || ' | Total: $' || printf('%.2f', SUM(CASE WHEN status='approved' THEN amount ELSE 0 END)) FROM payments"
             
-            read -p "Selecciona opción: " SERVER_OPT
+            echo -e "\n${YELLOW}📅 HOY:${NC}"
+            TODAY=$(date +%Y-%m-%d)
+            sqlite3 "$DB" "SELECT 'Tests: ' || COUNT(*) FROM daily_tests WHERE date = '$TODAY'"
             
-            case $SERVER_OPT in
-                1)
-                    read -p "Número de servidor (1-3): " SERVER_NUM
-                    if [[ "$SERVER_NUM" =~ ^[1-3]$ ]]; then
-                        CURRENT_ENABLED=$(jq -r ".servers[$((SERVER_NUM-1))].enabled" "$SERVERS")
-                        NEW_ENABLED=$([[ "$CURRENT_ENABLED" == "true" ]] && echo "false" || echo "true")
-                        
-                        jq --argjson num "$SERVER_NUM" --arg enabled "$NEW_ENABLED" \
-                           '.servers |= map(if .id == $num then .enabled = ($enabled == "true") else . end)' \
-                           "$SERVERS" > /tmp/servers_temp.json && mv /tmp/servers_temp.json "$SERVERS"
-                        
-                        echo -e "${GREEN}✅ Servidor ${SERVER_NUM} $([[ "$NEW_ENABLED" == "true" ]] && echo "habilitado" || echo "deshabilitado")${NC}"
-                    fi
-                    ;;
-                2)
-                    read -p "Número de servidor (1-3): " SERVER_NUM
-                    if [[ "$SERVER_NUM" =~ ^[1-3]$ ]]; then
-                        read -p "Nueva IP: " NEW_IP
-                        if [[ -n "$NEW_IP" ]]; then
-                            jq --argjson num "$SERVER_NUM" --arg ip "$NEW_IP" \
-                               '.servers |= map(if .id == $num then .ip = $ip else . end)' \
-                               "$SERVERS" > /tmp/servers_temp.json && mv /tmp/servers_temp.json "$SERVERS"
-                            
-                            echo -e "${GREEN}✅ IP actualizada${NC}"
-                        fi
-                    fi
-                    ;;
-                3)
-                    read -p "Número de servidor (1-3): " SERVER_NUM
-                    if [[ "$SERVER_NUM" =~ ^[1-3]$ ]]; then
-                        read -p "Nueva localización: " NEW_LOC
-                        if [[ -n "$NEW_LOC" ]]; then
-                            jq --argjson num "$SERVER_NUM" --arg loc "$NEW_LOC" \
-                               '.servers |= map(if .id == $num then .location = $loc else . end)' \
-                               "$SERVERS" > /tmp/servers_temp.json && mv /tmp/servers_temp.json "$SERVERS"
-                            
-                            echo -e "${GREEN}✅ Localización actualizada${NC}"
-                        fi
-                    fi
-                    ;;
-            esac
-            read -p "Presiona Enter..." 
+            echo -e "\n${YELLOW}🔌 CONEXIONES:${NC}"
+            echo -e "  Configuración: 1 por usuario"
+            echo -e "  Contraseña: mgvpn247 (FIJA)"
+            
+            read -p "\nPresiona Enter..." 
             ;;
         11)
-            echo -e "\n${YELLOW}🔄 Sincronizando servidores...${NC}"
-            bash /opt/ssh-bot/scripts/sync_servers.sh
+            clear
+            echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
+            echo -e "${CYAN}║                     ⚙️  CONFIGURACIÓN                        ║${NC}"
+            echo -e "${CYAN}╚══════════════════════════════════════════════════════════════╝${NC}\n"
+            
+            echo -e "${YELLOW}🤖 BOT:${NC}"
+            echo -e "  IP: $(get_val '.bot.server_ip')"
+            echo -e "  Versión: $(get_val '.bot.version')"
+            
+            echo -e "\n${YELLOW}💰 PRECIOS:${NC}"
+            echo -e "  7d: $(get_val '.prices.price_7d') ARS (1 conexión)"
+            echo -e "  15d: $(get_val '.prices.price_15d') ARS (1 conexión)"
+            echo -e "  30d: $(get_val '.prices.price_30d') ARS (1 conexión)"
+            echo -e "  Test: $(get_val '.prices.test_hours') horas (1 conexión)"
+            
+            echo -e "\n${YELLOW}💳 MERCADOPAGO:${NC}"
+            MP_TOKEN=$(get_val '.mercadopago.access_token')
+            if [[ -n "$MP_TOKEN" && "$MP_TOKEN" != "null" ]]; then
+                echo -e "  Estado: ${GREEN}SDK v2.x ACTIVO${NC}"
+                echo -e "  Token: ${MP_TOKEN:0:25}..."
+            else
+                echo -e "  Estado: ${RED}NO CONFIGURADO${NC}"
+            fi
+            
+            echo -e "\n${YELLOW}🔐 SEGURIDAD:${NC}"
+            echo -e "  Contraseña predeterminada: ${GREEN}mgvpn247${NC} (FIJA PARA TODOS)"
+            echo -e "  Conexión por usuario: 1"
+            
+            echo -e "\n${YELLOW}⚡ AJUSTES:${NC}"
+            echo -e "  Limpieza: cada 15 minutos"
+            echo -e "  Test: 2 horas exactas"
+            
+            read -p "\nPresiona Enter..." 
+            ;;
+        12)
+            echo -e "\n${YELLOW}📝 Logs (Ctrl+C para salir)...${NC}\n"
+            pm2 logs ssh-bot --lines 100
+            ;;
+        13)
+            clear
+            echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
+            echo -e "${CYAN}║                     🔧 REPARAR BOT                          ║${NC}"
+            echo -e "${CYAN}╚══════════════════════════════════════════════════════════════╝${NC}\n"
+            
+            echo -e "${RED}⚠️  Borrará sesión de WhatsApp${NC}\n"
+            read -p "¿Continuar? (s/N): " CONF
+            
+            if [[ "$CONF" == "s" ]]; then
+                echo -e "\n${YELLOW}🧹 Limpiando...${NC}"
+                rm -rf /root/.wwebjs_auth/* /root/.wwebjs_cache/* /root/qr-whatsapp.png
+                echo -e "${YELLOW}📦 Reinstalando...${NC}"
+                cd /root/ssh-bot && npm install --silent
+                echo -e "${YELLOW}🔧 Aplicando parches...${NC}"
+                find /root/ssh-bot/node_modules -name "Client.js" -type f -exec sed -i 's/if (chat && chat.markedUnread)/if (false)/g' {} \; 2>/dev/null || true
+                echo -e "${YELLOW}🔄 Reiniciando...${NC}"
+                pm2 restart ssh-bot
+                echo -e "\n${GREEN}✅ Reparado - Espera 10s para QR${NC}"
+                sleep 10
+                [[ -f "/root/qr-whatsapp.png" ]] && echo -e "${GREEN}✅ QR generado${NC}" || pm2 logs ssh-bot
+            fi
             read -p "Presiona Enter..." 
             ;;
-        # [Resto de opciones similares al panel original...]
-        
+        14)
+            clear
+            echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
+            echo -e "${CYAN}║                 🧪 TEST MERCADOPAGO SDK v2.x                ║${NC}"
+            echo -e "${CYAN}╚══════════════════════════════════════════════════════════════╝${NC}\n"
+            
+            TOKEN=$(get_val '.mercadopago.access_token')
+            if [[ -z "$TOKEN" || "$TOKEN" == "null" ]]; then
+                echo -e "${RED}❌ Token no configurado${NC}\n"
+                read -p "Presiona Enter..." 
+                continue
+            fi
+            
+            echo -e "${YELLOW}🔑 Token: ${TOKEN:0:30}...${NC}\n"
+            echo -e "${YELLOW}🔄 Probando conexión con API...${NC}\n"
+            
+            RESPONSE=$(curl -s -w "\n%{http_code}" -H "Authorization: Bearer $TOKEN" "https://api.mercadopago.com/v1/payment_methods" 2>&1)
+            HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+            BODY=$(echo "$RESPONSE" | head -n-1)
+            
+            if [[ "$HTTP_CODE" == "200" ]]; then
+                echo -e "${GREEN}✅ CONEXIÓN EXITOSA${NC}\n"
+                echo -e "${CYAN}Métodos de pago disponibles:${NC}"
+                echo "$BODY" | jq -r '.[].name' 2>/dev/null | head -5
+                echo -e "\n${GREEN}✅ MercadoPago SDK v2.x funcionando correctamente${NC}"
+            else
+                echo -e "${RED}❌ ERROR - Código HTTP: $HTTP_CODE${NC}\n"
+                echo -e "${YELLOW}Respuesta:${NC}"
+                echo "$BODY" | jq '.' 2>/dev/null || echo "$BODY"
+            fi
+            
+            read -p "\nPresiona Enter..." 
+            ;;
         0)
             echo -e "\n${GREEN}👋 Hasta pronto${NC}\n"
             exit 0
@@ -1629,30 +1569,12 @@ done
 PANELEOF
 
 chmod +x /usr/local/bin/sshbot
-echo -e "${GREEN}✅ Panel multi-server creado${NC}"
-
-# ================================================
-# CONFIGURAR TAREAS CRON
-# ================================================
-echo -e "\n${CYAN}${BOLD}⏰ CONFIGURANDO TAREAS AUTOMÁTICAS...${NC}"
-
-# Limpiar crontab existente
-crontab -l | grep -v "ssh-bot" | crontab -
-
-# Agregar nuevas tareas
-(
-    echo "# SSH BOT PRO MULTI-SERVER v8.7"
-    echo "*/5 * * * * bash /opt/ssh-bot/scripts/sync_servers.sh > /dev/null 2>&1"
-    echo "0 */2 * * * find /opt/ssh-bot/logs -name '*.log' -mtime +7 -delete"
-    echo "@reboot cd /root/ssh-bot && pm2 start bot.js --name ssh-bot"
-) | crontab -
-
-echo -e "${GREEN}✅ Tareas cron configuradas${NC}"
+echo -e "${GREEN}✅ Panel creado con contraseña fija mgvpn247${NC}"
 
 # ================================================
 # INICIAR BOT
 # ================================================
-echo -e "\n${CYAN}${BOLD}🚀 INICIANDO BOT MULTI-SERVER...${NC}"
+echo -e "\n${CYAN}${BOLD}🚀 INICIANDO BOT...${NC}"
 
 cd "$USER_HOME"
 pm2 start bot.js --name ssh-bot
@@ -1669,29 +1591,25 @@ echo -e "${GREEN}${BOLD}"
 cat << "FINAL"
 ╔══════════════════════════════════════════════════════════════╗
 ║                                                              ║
-║    🎉 INSTALACIÓN COMPLETADA - MULTI-SERVER EDITION 🎉     ║
+║      🎉 INSTALACIÓN COMPLETADA - ALL FIXES APPLIED 🎉       ║
 ║                                                              ║
-║         SSH BOT PRO v8.7 - SOPORTE 3 SERVIDORES            ║
-║           ⚡ Balanceo automático entre servidores           ║
-║           💳 MercadoPago SDK v2.x FULLY FIXED              ║
-║           📅 Fechas ISO 8601 corregidas                    ║
-║           🤖 WhatsApp markedUnread parcheado               ║
-║           🔑 Validación token corregida                    ║
-║           ⏰ Test: 2 horas exactas                         ║
-║           ⚡ Limpieza: cada 15 minutos                     ║
-║           📱 APK Automático                                ║
-║           🔐 CONTRASEÑA FIJA: mgvpn247 PARA TODOS          ║
+║         SSH BOT PRO v8.6 - TODOS LOS FIXES APLICADOS        ║
+║           💳 MercadoPago SDK v2.x FULLY FIXED               ║
+║           📅 Fechas ISO 8601 corregidas                     ║
+║           🤖 WhatsApp markedUnread parcheado                ║
+║           🔑 Validación token corregida                     ║
+║           ⏰ Test: 2 horas exactas (ajustado)               ║
+║           ⚡ Limpieza: cada 15 minutos (ajustado)           ║
+║           📱 APK Automático                                 ║
+║           🔐 CONTRASEÑA FIJA: mgvpn247 PARA TODOS           ║
 ║                                                              ║
 ╚══════════════════════════════════════════════════════════════╝
 FINAL
 echo -e "${NC}"
 
 echo -e "${CYAN}══════════════════════════════════════════════════════════════${NC}"
-echo -e "${GREEN}✅ Bot instalado con soporte para 3 servidores${NC}"
-echo -e "${GREEN}✅ Balanceo automático configurado${NC}"
-echo -e "${GREEN}✅ Panel de control multi-server creado${NC}"
-echo -e "${GREEN}✅ Scripts para servidores remotos configurados${NC}"
-echo -e "${GREEN}✅ Sincronización automática cada 5 minutos${NC}"
+echo -e "${GREEN}✅ Bot instalado con TODOS los fixes aplicados${NC}"
+echo -e "${GREEN}✅ Panel de control con validación corregida${NC}"
 echo -e "${GREEN}✅ Fechas ISO 8601 corregidas para MP v2.x${NC}"
 echo -e "${GREEN}✅ Error WhatsApp Web parcheado (markedUnread)${NC}"
 echo -e "${GREEN}✅ Validación de token MP corregida${NC}"
@@ -1701,72 +1619,71 @@ echo -e "${GREEN}✅ CONTRASEÑA FIJA: mgvpn247 para todos los usuarios${NC}"
 echo -e "${CYAN}══════════════════════════════════════════════════════════════${NC}\n"
 
 echo -e "${YELLOW}📋 COMANDOS:${NC}\n"
-echo -e "  ${GREEN}sshbot${NC}           - Panel de control multi-server"
+echo -e "  ${GREEN}sshbot${NC}           - Panel de control"
 echo -e "  ${GREEN}pm2 logs ssh-bot${NC} - Ver logs"
 echo -e "  ${GREEN}pm2 restart ssh-bot${NC} - Reiniciar\n"
 
 echo -e "${YELLOW}🔧 CONFIGURACIÓN:${NC}\n"
 echo -e "  1. Ejecuta: ${GREEN}sshbot${NC}"
 echo -e "  2. Opción ${CYAN}[8]${NC} - Configurar MercadoPago"
-echo -e "  3. Opción ${CYAN}[10]${NC} - Configurar servidores"
-echo -e "  4. Opción ${CYAN}[11]${NC} - Sincronizar servidores"
-echo -e "  5. Opción ${CYAN}[3]${NC} - Escanear QR WhatsApp"
-echo -e "  6. Sube APK a /root/app.apk\n"
+echo -e "  3. Opción ${CYAN}[14]${NC} - Test MercadoPago"
+echo -e "  4. Opción ${CYAN}[3]${NC} - Escanear QR WhatsApp"
+echo -e "  5. Sube APK a /root/app.apk\n"
 
-echo -e "${YELLOW}📡 SERVIDORES CONFIGURADOS:${NC}"
-for i in {1..3}; do
-    SERVER_NAME=$(jq -r ".servers[$((i-1))].name" "$SERVERS")
-    SERVER_IP=$(jq -r ".servers[$((i-1))].ip" "$SERVERS")
-    SERVER_LOC=$(jq -r ".servers[$((i-1))].location" "$SERVERS")
-    SERVER_TYPE=$([[ "$i" == "1" ]] && echo "🏠 LOCAL" || echo "🌐 REMOTO")
-    echo -e "  ${CYAN}${i}.${NC} ${SERVER_NAME} - ${SERVER_IP} (${SERVER_LOC}) ${SERVER_TYPE}"
-done
-
-echo -e "\n${YELLOW}🔐 CONTRASEÑA:${NC}"
+echo -e "${YELLOW}🔐 CONTRASEÑA:${NC}"
 echo -e "  • ${GREEN}mgvpn247${NC} para TODOS los usuarios (test y premium)"
-echo -e "  • Válida en los 3 servidores"
 echo -e "  • Solo el nombre de usuario cambia\n"
 
-echo -e "${YELLOW}⚡ CARACTERÍSTICAS:${NC}"
-echo -e "  • Balanceo automático entre servidores"
-echo -e "  • Usuarios distribuidos inteligentemente"
-echo -e "  • Sincronización automática cada 5 minutos"
-echo -e "  • Panel unificado para 3 servidores"
-echo -e "  • Estadísticas por servidor\n"
+echo -e "${YELLOW}⚡ AJUSTES APLICADOS:${NC}"
+echo -e "  • Test: ${GREEN}2 horas${NC}"
+echo -e "  • Limpieza: ${GREEN}cada 15 minutos${NC}"
+echo -e "  • Conexión por usuario: ${GREEN}1${NC}"
+echo -e "  • Contraseña: ${GREEN}mgvpn247${NC} (FIJA)\n"
+
+echo -e "${YELLOW}📊 INFO:${NC}"
+echo -e "  IP: ${CYAN}$SERVER_IP${NC}"
+echo -e "  BD: ${CYAN}$DB_FILE${NC}"
+echo -e "  Config: ${CYAN}$CONFIG_FILE${NC}\n"
 
 echo -e "${CYAN}══════════════════════════════════════════════════════════════${NC}\n"
 
 read -p "$(echo -e "${YELLOW}¿Abrir panel? (s/N): ${NC}")" -n 1 -r
 echo
 if [[ $REPLY =~ ^[Ss]$ ]]; then
-    echo -e "\n${CYAN}Abriendo panel multi-server...${NC}\n"
+    echo -e "\n${CYAN}Abriendo panel...${NC}\n"
     sleep 2
     /usr/local/bin/sshbot
 else
     echo -e "\n${YELLOW}💡 Ejecuta: ${GREEN}sshbot${NC}\n"
-    echo -e "${RED}⚠️  Recuerda configurar MercadoPago (opción 8) y verificar servidores (opción 10)${NC}\n"
+    echo -e "${RED}⚠️  Recuerda configurar MercadoPago (opción 8)${NC}\n"
 fi
 
-echo -e "${GREEN}${BOLD}¡Instalación multi-server completada exitosamente! 🚀${NC}\n"
+echo -e "${GREEN}${BOLD}¡Instalación exitosa con todos los fixes y contraseña fija mgvpn247! 🚀${NC}\n"
 
 # ================================================
-# AUTO-DESTRUCCIÓN DEL SCRIPT
+# AUTO-DESTRUCCIÓN DEL SCRIPT (SEGURIDAD)
 # ================================================
 echo -e "\n${RED}${BOLD}⚠️  AUTO-DESTRUCCIÓN ACTIVADA ⚠️${NC}"
 echo -e "${YELLOW}El script se eliminará automáticamente en 10 segundos...${NC}"
 echo -e "${CYAN}Guarda una copia local si necesitas reinstalar${NC}"
 
+# Esperar un momento para que el usuario vea el mensaje
 sleep 10
 
+# Obtener la ruta completa del script
 SCRIPT_PATH="$(realpath "$0")"
+
+# Verificar que es un script de instalación (por seguridad)
 if [[ "$SCRIPT_PATH" =~ install.*\.sh$ ]] || [[ "$(basename "$SCRIPT_PATH")" =~ ^install_ ]]; then
     echo -e "${RED}🗑️  Eliminando script de instalación: $SCRIPT_PATH${NC}"
     
+    # Crear comando de autodestrucción en background
     nohup bash -c "
         sleep 2
         echo 'Eliminando script de instalación...'
         rm -f '$SCRIPT_PATH'
         echo '✅ Script eliminado para seguridad'
+        # También eliminar logs y temporales
         rm -f /tmp/sshbot-install-* 2>/dev/null
     " > /dev/null 2>&1 &
     
@@ -1775,12 +1692,12 @@ else
     echo -e "${YELLOW}⚠️  No se eliminó (nombre no seguro)${NC}"
 fi
 
+# Mensaje final
 echo -e "\n${GREEN}═══════════════════════════════════════════════${NC}"
-echo -e "${GREEN}        🎉 INSTALACIÓN TERMINADA               ${NC}"
+echo -e "${GREEN}           🎉 INSTALACIÓN TERMINADA           ${NC}"
 echo -e "${GREEN}═══════════════════════════════════════════════${NC}"
 echo -e "${YELLOW}Comandos disponibles:${NC}"
-echo -e "  ${CYAN}sshbot${NC}          - Panel de control multi-server"
+echo -e "  ${CYAN}sshbot${NC}          - Panel de control"
 echo -e "  ${CYAN}pm2 logs ssh-bot${NC} - Ver logs en tiempo real"
-echo -e "  ${CYAN}bash /opt/ssh-bot/scripts/sync_servers.sh${NC} - Sincronizar servidores"
 echo -e "${YELLOW}Contraseña predeterminada: ${GREEN}mgvpn247${NC}"
 exit 0
