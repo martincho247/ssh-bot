@@ -1,12 +1,14 @@
 #!/bin/bash
 # ================================================
-# SSH BOT PRO v8.7 - FIX MULTIPLES ENLACES
+# SSH BOT PRO v8.7 - FIX MULTIPLES ENLACES + NOTIFICACIONES
 # Correcciones aplicadas:
 # 1. ✅ SOLUCIÓN: Evita envío de múltiples enlaces de pago
 # 2. ✅ Verifica pago existente antes de crear uno nuevo
 # 3. ✅ Reutiliza enlace si ya hay pago pendiente
 # 4. ✅ Planes con 2 conexiones añadidos
 # 5. ✅ CONTRASEÑA FIJA: mgvpn247 PARA TODOS LOS USUARIOS
+# 6. ✅ NUEVO: Opción 0 para salir en WhatsApp
+# 7. ✅ NUEVO: Aviso automático de vencimiento de plan
 # ================================================
 
 set -e
@@ -39,6 +41,8 @@ cat << "BANNER"
 ║               💡 SOLUCIÓN: 1 PAGO = 1 ENLACE                ║
 ║               🔌 PLANES CON 2 CONEXIONES                    ║
 ║               🔐 CONTRASEÑA FIJA: mgvpn247                  ║
+║               ⏰ NOTIFICACIONES DE VENCIMIENTO              ║
+║               🚪 OPCIÓN 0 PARA SALIR                        ║
 ║                                                              ║
 ╚══════════════════════════════════════════════════════════════╝
 BANNER
@@ -51,6 +55,8 @@ echo -e "  🟢 ${GREEN}FIX 3:${NC} Envía SOLO UN enlace por compra"
 echo -e "  🔵 ${BLUE}FIX 4:${NC} Evita creación de múltiples pagos"
 echo -e "  🟣 ${PURPLE}FIX 5:${NC} Planes con 2 conexiones añadidos"
 echo -e "  🔐 ${CYAN}FIX 6:${NC} Contraseña fija: mgvpn247 para todos los usuarios"
+echo -e "  🚪 ${YELLOW}FIX 7:${NC} Opción 0 para salir en WhatsApp"
+echo -e "  ⏰ ${BLUE}FIX 8:${NC} Avisos automáticos de vencimiento de plan"
 echo -e "${CYAN}══════════════════════════════════════════════════════════════${NC}\n"
 
 # Verificar root
@@ -80,6 +86,8 @@ echo -e "   • APK automático + Test 2h"
 echo -e "   • Cron limpieza cada 15 minutos"
 echo -e "   • 🔐 CONTRASEÑA FIJA: mgvpn247 para todos los usuarios"
 echo -e "   • 🔌 PLANES CON 2 CONEXIONES"
+echo -e "   • 🚪 OPCIÓN 0 para salir en WhatsApp"
+echo -e "   • ⏰ AVISOS automáticos de vencimiento"
 echo -e "\n${RED}⚠️  Se eliminarán instalaciones anteriores${NC}"
 
 read -p "$(echo -e "${YELLOW}¿Continuar con la instalación? (s/N): ${NC}")" -n 1 -r
@@ -152,7 +160,7 @@ rm -rf "$INSTALL_DIR" "$USER_HOME" 2>/dev/null || true
 rm -rf /root/.wwebjs_auth /root/.wwebjs_cache 2>/dev/null || true
 
 # Crear directorios
-mkdir -p "$INSTALL_DIR"/{data,config,qr_codes,logs}
+mkdir -p "$INSTALL_DIR"/{data,config,qr_codes,logs,notifications}
 mkdir -p "$USER_HOME"
 mkdir -p /root/.wwebjs_auth
 chmod -R 755 "$INSTALL_DIR"
@@ -188,7 +196,13 @@ cat > "$CONFIG_FILE" << EOF
     "paths": {
         "database": "$DB_FILE",
         "chromium": "/usr/bin/google-chrome",
-        "qr_codes": "$INSTALL_DIR/qr_codes"
+        "qr_codes": "$INSTALL_DIR/qr_codes",
+        "notifications": "$INSTALL_DIR/notifications"
+    },
+    "notifications": {
+        "enabled": true,
+        "days_before_expire": [1, 3, 7],
+        "check_interval_minutes": 60
     }
 }
 EOF
@@ -204,7 +218,10 @@ CREATE TABLE users (
     expires_at DATETIME,
     max_connections INTEGER DEFAULT 1,
     status INTEGER DEFAULT 1,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    notified_1_day INTEGER DEFAULT 0,
+    notified_3_days INTEGER DEFAULT 0,
+    notified_7_days INTEGER DEFAULT 0
 );
 CREATE TABLE daily_tests (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -235,18 +252,33 @@ CREATE TABLE logs (
     data TEXT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
+CREATE TABLE notifications (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER,
+    phone TEXT,
+    username TEXT,
+    notification_type TEXT,
+    days_left INTEGER,
+    message TEXT,
+    sent INTEGER DEFAULT 0,
+    sent_at DATETIME,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(user_id) REFERENCES users(id)
+);
 CREATE INDEX idx_users_phone ON users(phone);
 CREATE INDEX idx_users_status ON users(status);
 CREATE INDEX idx_payments_status ON payments(status);
 CREATE INDEX idx_payments_phone_plan ON payments(phone, plan, status);
+CREATE INDEX idx_users_expires ON users(expires_at);
+CREATE INDEX idx_users_notified ON users(notified_1_day, notified_3_days, notified_7_days);
 SQL
 
 echo -e "${GREEN}✅ Estructura creada con planes de 2 conexiones${NC}"
 
 # ================================================
-# CREAR BOT CON FIX DE MÚLTIPLES ENLACES
+# CREAR BOT CON FIX DE MÚLTIPLES ENLACES + NOTIFICACIONES
 # ================================================
-echo -e "\n${CYAN}${BOLD}🤖 CREANDO BOT CON FIX DE MÚLTIPLES ENLACES...${NC}"
+echo -e "\n${CYAN}${BOLD}🤖 CREANDO BOT CON FIX DE MÚLTIPLES ENLACES + NOTIFICACIONES...${NC}"
 
 cd "$USER_HOME"
 
@@ -280,8 +312,8 @@ find node_modules/whatsapp-web.js -name "Client.js" -type f -exec sed -i 's/cons
 
 echo -e "${GREEN}✅ Parche markedUnread aplicado${NC}"
 
-# Crear bot.js CON FIX DE MÚLTIPLES ENLACES
-echo -e "${YELLOW}📝 Creando bot.js con FIX de múltiples enlaces...${NC}"
+# Crear bot.js CON FIX DE MÚLTIPLES ENLACES + NOTIFICACIONES
+echo -e "${YELLOW}📝 Creando bot.js con FIX de múltiples enlaces y notificaciones...${NC}"
 
 cat > "bot.js" << 'BOTEOF'
 const { Client, LocalAuth, MessageMedia } = require('whatsapp-web.js');
@@ -344,6 +376,8 @@ moment.locale('es');
 console.log(chalk.cyan.bold('\n╔══════════════════════════════════════════════════════════════╗'));
 console.log(chalk.cyan.bold('║      🤖 SSH BOT PRO v8.7 - FIX MULTIPLES ENLACES           ║'));
 console.log(chalk.cyan.bold('║               🔐 CONTRASEÑA FIJA: mgvpn247                  ║'));
+console.log(chalk.cyan.bold('║               ⏰ NOTIFICACIONES DE VENCIMIENTO              ║'));
+console.log(chalk.cyan.bold('║               🚪 OPCIÓN 0 PARA SALIR                        ║'));
 console.log(chalk.cyan.bold('╚══════════════════════════════════════════════════════════════╝\n'));
 console.log(chalk.yellow(`📍 IP: ${config.bot.server_ip}`));
 console.log(chalk.yellow(`💳 MercadoPago: ${mpEnabled ? '✅ SDK v2.x ACTIVO' : '❌ NO CONFIGURADO'}`));
@@ -353,6 +387,8 @@ console.log(chalk.green('✅ APK automático desde /root'));
 console.log(chalk.green('✅ Test 2 horas exactas'));
 console.log(chalk.green('✅ CONTRASEÑA FIJA: mgvpn247 para todos los usuarios'));
 console.log(chalk.green('✅ PLANES CON 2 CONEXIONES'));
+console.log(chalk.green('✅ OPCIÓN 0 para salir en WhatsApp'));
+console.log(chalk.green('✅ NOTIFICACIONES automáticas de vencimiento'));
 
 // Servidor APK
 let apkServer = null;
@@ -725,6 +761,134 @@ async function checkPendingPayments() {
     });
 }
 
+// ✅ FUNCIÓN NUEVA: ENVIAR NOTIFICACIONES DE VENCIMIENTO
+async function checkExpiringAccounts() {
+    console.log(chalk.cyan('🔔 Verificando cuentas por vencer...'));
+    
+    const now = moment();
+    
+    // Verificar cuentas que expiran en 7 días
+    const sevenDaysFromNow = moment().add(7, 'days').format('YYYY-MM-DD HH:mm:ss');
+    db.all(`SELECT * FROM users WHERE status = 1 AND tipo = 'premium' AND expires_at <= ? AND notified_7_days = 0`, 
+        [sevenDaysFromNow], async (err, users) => {
+            if (!err && users && users.length > 0) {
+                for (const user of users) {
+                    const daysLeft = moment(user.expires_at).diff(now, 'days');
+                    
+                    if (daysLeft <= 7 && daysLeft > 3) {
+                        const message = `╔══════════════════════════════════════╗
+║   ⏰ *RECORDATORIO DE VENCIMIENTO*     ║
+╚══════════════════════════════════════╝
+
+📢 Hola! Tu plan está por vencer pronto
+
+👤 Usuario: *${user.username}*
+⏰ Vence: ${moment(user.expires_at).format('DD/MM/YYYY')}
+📅 Quedan *${daysLeft} días*
+
+💡 *RENOVAR TU PLAN:*
+💰 *2* - Ver planes disponibles
+
+⚠️ Si no renuevas, perderás el acceso
+
+Gracias por confiar en nosotros!`;
+                        
+                        try {
+                            await client.sendMessage(user.phone, message, { sendSeen: false });
+                            db.run(`UPDATE users SET notified_7_days = 1 WHERE id = ?`, [user.id]);
+                            console.log(chalk.yellow(`🔔 Notificación 7 días enviada a ${user.username}`));
+                        } catch (error) {
+                            console.error(chalk.red(`❌ Error enviando notificación a ${user.username}:`), error.message);
+                        }
+                    }
+                }
+            }
+        });
+    
+    // Verificar cuentas que expiran en 3 días
+    const threeDaysFromNow = moment().add(3, 'days').format('YYYY-MM-DD HH:mm:ss');
+    db.all(`SELECT * FROM users WHERE status = 1 AND tipo = 'premium' AND expires_at <= ? AND notified_3_days = 0`, 
+        [threeDaysFromNow], async (err, users) => {
+            if (!err && users && users.length > 0) {
+                for (const user of users) {
+                    const daysLeft = moment(user.expires_at).diff(now, 'days');
+                    
+                    if (daysLeft <= 3 && daysLeft > 1) {
+                        const message = `╔══════════════════════════════════════╗
+║   ⚠️ *RECORDATORIO URGENTE*             ║
+╚══════════════════════════════════════╝
+
+📢 TU PLAN VENCE PRONTO!
+
+👤 Usuario: *${user.username}*
+⏰ Vence: ${moment(user.expires_at).format('DD/MM/YYYY')}
+📅 Quedan *${daysLeft} días*
+
+🔥 *RENOVAR AHORA:*
+💰 *2* - Ver planes y precios
+
+🛑 El servicio se suspenderá automáticamente
+   al vencimiento
+
+💬 Soporte: *Escribe 6*`;
+                        
+                        try {
+                            await client.sendMessage(user.phone, message, { sendSeen: false });
+                            db.run(`UPDATE users SET notified_3_days = 1 WHERE id = ?`, [user.id]);
+                            console.log(chalk.yellow(`🔔 Notificación 3 días enviada a ${user.username}`));
+                        } catch (error) {
+                            console.error(chalk.red(`❌ Error enviando notificación a ${user.username}:`), error.message);
+                        }
+                    }
+                }
+            }
+        });
+    
+    // Verificar cuentas que expiran en 1 día
+    const oneDayFromNow = moment().add(1, 'days').format('YYYY-MM-DD HH:mm:ss');
+    db.all(`SELECT * FROM users WHERE status = 1 AND tipo = 'premium' AND expires_at <= ? AND notified_1_day = 0`, 
+        [oneDayFromNow], async (err, users) => {
+            if (!err && users && users.length > 0) {
+                for (const user of users) {
+                    const hoursLeft = moment(user.expires_at).diff(now, 'hours');
+                    
+                    if (hoursLeft <= 24 && hoursLeft > 0) {
+                        const message = `╔══════════════════════════════════════╗
+║   🚨 *VENCIMIENTO INMINENTE*           ║
+╚══════════════════════════════════════╝
+
+🚨 ATENCIÓN! TU PLAN VENCE HOY!
+
+👤 Usuario: *${user.username}*
+⏰ Vence: ${moment(user.expires_at).format('DD/MM/YYYY HH:mm')}
+🕐 Quedan *${hoursLeft} horas*
+
+🔥 *RENOVACIÓN URGENTE:*
+💰 *2* - Ver planes disponibles
+
+🛑 *El acceso se cortará automáticamente*
+   cuando expire tu plan
+
+📞 Soporte inmediato: *Escribe 6*`;
+                        
+                        try {
+                            await client.sendMessage(user.phone, message, { sendSeen: false });
+                            db.run(`UPDATE users SET notified_1_day = 1 WHERE id = ?`, [user.id]);
+                            console.log(chalk.red(`🔔 Notificación 1 día enviada a ${user.username}`));
+                        } catch (error) {
+                            console.error(chalk.red(`❌ Error enviando notificación a ${user.username}:`), error.message);
+                        }
+                    }
+                }
+            }
+        });
+    
+    // Resetear notificaciones para usuarios que renovaron
+    const expiredUsers = moment().subtract(1, 'day').format('YYYY-MM-DD HH:mm:ss');
+    db.run(`UPDATE users SET notified_1_day = 0, notified_3_days = 0, notified_7_days = 0 WHERE expires_at > ?`, 
+        [expiredUsers]);
+}
+
 client.on('message', async (msg) => {
     const text = msg.body.toLowerCase().trim();
     const phone = msg.from;
@@ -746,8 +910,28 @@ client.on('message', async (msg) => {
 💳 *4* - Estado de pago
 📱 *5* - Descargar APP
 🔧 *6* - Soporte
+🚪 *0* - Salir
 
 💬 Responde con el número`, { sendSeen: false });
+    }
+    else if (text === '0') {
+        await client.sendMessage(phone, `╔══════════════════════════════════════╗
+║   👋 *¡HASTA PRONTO!*              ║
+╚══════════════════════════════════════╝
+
+✅ Gracias por usar nuestro servicio
+
+💡 Recuerda:
+• Tu usuario sigue activo hasta la fecha de expiración
+• Puedes volver escribiendo *menu* en cualquier momento
+• Para renovar, escribe *2*
+
+📞 Soporte 24/7:
+${config.links.support}
+
+¡Que tengas un excelente día! 👋`, { sendSeen: false });
+        
+        console.log(chalk.yellow(`👋 Usuario ${phone.split('@')[0]} salió del bot`));
     }
     else if (text === '1') {
         if (!(await canCreateTest(phone))) {
@@ -972,7 +1156,8 @@ ${error.message}
 
 `;
                 });
-                msg += `📱 Para conectar descarga la app (Escribe *5*)`;
+                msg += `📱 Para conectar descarga la app (Escribe *5*)
+💰 Para renovar escribe *2*`;
                 await client.sendMessage(phone, msg, { sendSeen: false });
             });
     }
@@ -1114,7 +1299,8 @@ ${config.links.support}
 
 🔑 *Contraseña predeterminada:* mgvpn247
 
-💬 Escribe "menu" para volver al inicio`, { sendSeen: false });
+💬 Escribe "menu" para volver al inicio
+🚪 Escribe "0" para salir`, { sendSeen: false });
     }
 });
 
@@ -1122,6 +1308,12 @@ ${config.links.support}
 cron.schedule('*/2 * * * *', () => {
     console.log(chalk.yellow('🔄 Verificando pagos pendientes...'));
     checkPendingPayments();
+});
+
+// ✅ Verificar notificaciones de vencimiento cada hora
+cron.schedule('0 * * * *', () => {
+    console.log(chalk.cyan('🔔 Verificando notificaciones de vencimiento...'));
+    checkExpiringAccounts();
 });
 
 // ✅ Limpiar usuarios expirados cada 15 minutos
@@ -1179,12 +1371,12 @@ console.log(chalk.green('\n🚀 Inicializando bot...\n'));
 client.initialize();
 BOTEOF
 
-echo -e "${GREEN}✅ Bot creado con FIX de múltiples enlaces${NC}"
+echo -e "${GREEN}✅ Bot creado con FIX de múltiples enlaces y notificaciones${NC}"
 
 # ================================================
-# CREAR PANEL DE CONTROL
+# CREAR PANEL DE CONTROL ACTUALIZADO
 # ================================================
-echo -e "\n${CYAN}${BOLD}🎛️  CREANDO PANEL DE CONTROL...${NC}"
+echo -e "\n${CYAN}${BOLD}🎛️  CREANDO PANEL DE CONTROL ACTUALIZADO...${NC}"
 
 cat > /usr/local/bin/sshbot << 'PANELEOF'
 #!/bin/bash
@@ -1202,6 +1394,7 @@ show_header() {
     echo -e "${CYAN}║              🎛️  PANEL SSH BOT PRO v8.7                    ║${NC}"
     echo -e "${CYAN}║               🔧 FIX: 1 PAGO = 1 ENLACE                    ║${NC}"
     echo -e "${CYAN}║               🔐 CONTRASEÑA FIJA: mgvpn247                 ║${NC}"
+    echo -e "${CYAN}║               ⏰ NOTIFICACIONES ACTIVAS                    ║${NC}"
     echo -e "${CYAN}╚══════════════════════════════════════════════════════════════╝${NC}\n"
 }
 
@@ -1211,6 +1404,11 @@ while true; do
     TOTAL_USERS=$(sqlite3 "$DB" "SELECT COUNT(*) FROM users" 2>/dev/null || echo "0")
     ACTIVE_USERS=$(sqlite3 "$DB" "SELECT COUNT(*) FROM users WHERE status=1" 2>/dev/null || echo "0")
     PENDING_PAYMENTS=$(sqlite3 "$DB" "SELECT COUNT(*) FROM payments WHERE status='pending'" 2>/dev/null || echo "0")
+    
+    # Contar usuarios por vencer
+    EXPIRING_7D=$(sqlite3 "$DB" "SELECT COUNT(*) FROM users WHERE status=1 AND tipo='premium' AND expires_at <= datetime('now', '+7 days') AND expires_at > datetime('now')" 2>/dev/null || echo "0")
+    EXPIRING_3D=$(sqlite3 "$DB" "SELECT COUNT(*) FROM users WHERE status=1 AND tipo='premium' AND expires_at <= datetime('now', '+3 days') AND expires_at > datetime('now')" 2>/dev/null || echo "0")
+    EXPIRING_1D=$(sqlite3 "$DB" "SELECT COUNT(*) FROM users WHERE status=1 AND tipo='premium' AND expires_at <= datetime('now', '+1 day') AND expires_at > datetime('now')" 2>/dev/null || echo "0")
     
     STATUS=$(pm2 jlist 2>/dev/null | jq -r '.[] | select(.name=="ssh-bot") | .pm2_env.status' 2>/dev/null || echo "stopped")
     if [[ "$STATUS" == "online" ]]; then
@@ -1238,11 +1436,13 @@ while true; do
     echo -e "  Bot: $BOT_STATUS"
     echo -e "  Usuarios: ${CYAN}$ACTIVE_USERS/$TOTAL_USERS${NC} activos/total"
     echo -e "  Pagos pendientes: ${CYAN}$PENDING_PAYMENTS${NC}"
+    echo -e "  Por vencer: ${YELLOW}7d:${NC}${EXPIRING_7D} ${YELLOW}3d:${NC}${EXPIRING_3D} ${YELLOW}1d:${NC}${EXPIRING_1D}"
     echo -e "  MercadoPago: $MP_STATUS"
     echo -e "  APK: $APK_FOUND"
     echo -e "  Test: ${GREEN}2 horas${NC} | Limpieza: ${GREEN}cada 15 min${NC}"
     echo -e "  Contraseña: ${GREEN}mgvpn247${NC} (FIJA PARA TODOS)"
-    echo -e "  FIX: ${GREEN}1 pago = 1 enlace${NC} (NO múltiples)"
+    echo -e "  Notificaciones: ${GREEN}ACTIVAS (7,3,1 días)${NC}"
+    echo -e "  Opción 0: ${GREEN}Salir en WhatsApp${NC}"
     echo -e ""
     
     echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
@@ -1261,6 +1461,8 @@ while true; do
     echo -e "${CYAN}[12]${NC} 📝  Ver logs"
     echo -e "${CYAN}[13]${NC} 🔧  Reparar bot"
     echo -e "${CYAN}[14]${NC} 🧪  Test MercadoPago"
+    echo -e "${CYAN}[15]${NC} 🔔  Ver notificaciones pendientes"
+    echo -e "${CYAN}[16]${NC} ⏰  Forzar notificaciones"
     echo -e "${CYAN}[0]${NC}  🚪  Salir"
     echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     
@@ -1347,6 +1549,7 @@ while true; do
             sqlite3 -column -header "$DB" "SELECT username, 'mgvpn247' as password, tipo, expires_at, max_connections as conex, substr(phone,1,12) as tel FROM users WHERE status = 1 ORDER BY expires_at DESC LIMIT 20"
             echo -e "\n${YELLOW}Total: ${ACTIVE_USERS} activos${NC}"
             echo -e "${GREEN}🔐 Contraseña: mgvpn247 para todos${NC}"
+            echo -e "${CYAN}💡 Los usuarios recibirán notificaciones a 7, 3 y 1 día del vencimiento${NC}"
             read -p "Presiona Enter..." 
             ;;
         6)
@@ -1507,6 +1710,11 @@ while true; do
             TODAY=$(date +%Y-%m-%d)
             sqlite3 "$DB" "SELECT 'Tests: ' || COUNT(*) FROM daily_tests WHERE date = '$TODAY'"
             
+            echo -e "\n${YELLOW}🔔 NOTIFICACIONES:${NC}"
+            echo -e "  Por vencer (7 días): ${EXPIRING_7D}"
+            echo -e "  Por vencer (3 días): ${EXPIRING_3D}"
+            echo -e "  Por vencer (1 día): ${EXPIRING_1D}"
+            
             read -p "\nPresiona Enter..." 
             ;;
         11)
@@ -1539,6 +1747,11 @@ while true; do
             else
                 echo -e "  Estado: ${RED}NO CONFIGURADO${NC}"
             fi
+            
+            echo -e "\n${YELLOW}🔔 NOTIFICACIONES:${NC}"
+            echo -e "  Estado: $(get_val '.notifications.enabled' || echo 'true')"
+            echo -e "  Días: $(get_val '.notifications.days_before_expire' || echo '[1,3,7]')"
+            echo -e "  Intervalo: $(get_val '.notifications.check_interval_minutes' || echo '60') minutos"
             
             echo -e "\n${YELLOW}🔐 SEGURIDAD:${NC}"
             echo -e "  Contraseña predeterminada: ${GREEN}mgvpn247${NC} (FIJA PARA TODOS)"
@@ -1606,6 +1819,84 @@ while true; do
             
             read -p "\nPresiona Enter..." 
             ;;
+        15)
+            clear
+            echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
+            echo -e "${CYAN}║              🔔 NOTIFICACIONES PENDIENTES                  ║${NC}"
+            echo -e "${CYAN}╚══════════════════════════════════════════════════════════════╝${NC}\n"
+            
+            echo -e "${YELLOW}👥 USUARIOS POR VENCER:${NC}\n"
+            
+            # Usuarios que vencen en 7 días
+            echo -e "${CYAN}📅 Vencen en 7 días:${NC}"
+            sqlite3 -column -header "$DB" "SELECT username, phone, expires_at, max_connections FROM users WHERE status=1 AND tipo='premium' AND expires_at <= datetime('now', '+7 days') AND expires_at > datetime('now') ORDER BY expires_at LIMIT 10"
+            
+            echo -e "\n${CYAN}📅 Vencen en 3 días:${NC}"
+            sqlite3 -column -header "$DB" "SELECT username, phone, expires_at, max_connections FROM users WHERE status=1 AND tipo='premium' AND expires_at <= datetime('now', '+3 days') AND expires_at > datetime('now') ORDER BY expires_at LIMIT 10"
+            
+            echo -e "\n${CYAN}📅 Vencen en 1 día:${NC}"
+            sqlite3 -column -header "$DB" "SELECT username, phone, expires_at, max_connections FROM users WHERE status=1 AND tipo='premium' AND expires_at <= datetime('now', '+1 day') AND expires_at > datetime('now') ORDER BY expires_at LIMIT 10"
+            
+            echo -e "\n${YELLOW}📊 RESUMEN:${NC}"
+            echo -e "  Total por vencer (7d): ${EXPIRING_7D}"
+            echo -e "  Total por vencer (3d): ${EXPIRING_3D}"
+            echo -e "  Total por vencer (1d): ${EXPIRING_1D}"
+            
+            read -p "\nPresiona Enter..." 
+            ;;
+        16)
+            clear
+            echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
+            echo -e "${CYAN}║              ⏰ FORZAR NOTIFICACIONES                       ║${NC}"
+            echo -e "${CYAN}╚══════════════════════════════════════════════════════════════╝${NC}\n"
+            
+            echo -e "${YELLOW}⚠️  Esto enviará notificaciones a todos los usuarios por vencer${NC}\n"
+            echo -e "1. Enviar notificaciones de 7 días"
+            echo -e "2. Enviar notificaciones de 3 días"
+            echo -e "3. Enviar notificaciones de 1 día"
+            echo -e "4. Resetear todas las notificaciones"
+            echo -e "5. Test con un usuario específico"
+            read -p "Selecciona: " NOTIF_OPT
+            
+            case $NOTIF_OPT in
+                1)
+                    sqlite3 "$DB" "UPDATE users SET notified_7_days = 0 WHERE status=1 AND tipo='premium'"
+                    echo -e "${GREEN}✅ Notificaciones de 7 días reseteadas${NC}"
+                    echo -e "${YELLOW}Se enviarán en la próxima verificación (cada hora)${NC}"
+                    ;;
+                2)
+                    sqlite3 "$DB" "UPDATE users SET notified_3_days = 0 WHERE status=1 AND tipo='premium'"
+                    echo -e "${GREEN}✅ Notificaciones de 3 días reseteadas${NC}"
+                    echo -e "${YELLOW}Se enviarán en la próxima verificación (cada hora)${NC}"
+                    ;;
+                3)
+                    sqlite3 "$DB" "UPDATE users SET notified_1_day = 0 WHERE status=1 AND tipo='premium'"
+                    echo -e "${GREEN}✅ Notificaciones de 1 día reseteadas${NC}"
+                    echo -e "${YELLOW}Se enviarán en la próxima verificación (cada hora)${NC}"
+                    ;;
+                4)
+                    sqlite3 "$DB" "UPDATE users SET notified_1_day = 0, notified_3_days = 0, notified_7_days = 0 WHERE status=1 AND tipo='premium'"
+                    echo -e "${GREEN}✅ Todas las notificaciones reseteadas${NC}"
+                    ;;
+                5)
+                    read -p "Ingresa el username para test: " TEST_USER
+                    USER_INFO=$(sqlite3 "$DB" "SELECT phone, expires_at FROM users WHERE username = '$TEST_USER' AND status=1" 2>/dev/null)
+                    if [[ -n "$USER_INFO" ]]; then
+                        PHONE=$(echo "$USER_INFO" | cut -d'|' -f1)
+                        EXPIRES=$(echo "$USER_INFO" | cut -d'|' -f2)
+                        DAYS_LEFT=$(( ($(date -d "$EXPIRES" +%s) - $(date +%s)) / 86400 ))
+                        echo -e "${GREEN}✅ Usuario encontrado${NC}"
+                        echo -e "📞 Teléfono: ${PHONE}"
+                        echo -e "⏰ Vence: ${EXPIRES}"
+                        echo -e "📅 Días restantes: ${DAYS_LEFT}"
+                        echo -e "${YELLOW}Se enviará notificación en la próxima verificación${NC}"
+                    else
+                        echo -e "${RED}❌ Usuario no encontrado o inactivo${NC}"
+                    fi
+                    ;;
+            esac
+            read -p "Presiona Enter..." 
+            ;;
         0)
             echo -e "\n${GREEN}👋 Hasta pronto${NC}\n"
             exit 0
@@ -1624,7 +1915,7 @@ echo -e "${GREEN}✅ Panel de control creado${NC}"
 # ================================================
 # INICIAR BOT
 # ================================================
-echo -e "\n${CYAN}${BOLD}🚀 INICIANDO BOT CON FIX DE MÚLTIPLES ENLACES...${NC}"
+echo -e "\n${CYAN}${BOLD}🚀 INICIANDO BOT CON FIX DE MÚLTIPLES ENLACES + NOTIFICACIONES...${NC}"
 
 cd "$USER_HOME"
 pm2 start bot.js --name ssh-bot
@@ -1648,6 +1939,8 @@ cat << "FINAL"
 ║           🤖 WhatsApp Web parcheado                         ║
 ║           🔌 PLANES CON 2 CONEXIONES                        ║
 ║           🔐 CONTRASEÑA FIJA: mgvpn247 PARA TODOS           ║
+║           🚪 OPCIÓN 0 PARA SALIR EN WHATSAPP                ║
+║           ⏰ NOTIFICACIONES AUTOMÁTICAS DE VENCIMIENTO      ║
 ║                                                              ║
 ╚══════════════════════════════════════════════════════════════╝
 FINAL
@@ -1661,6 +1954,8 @@ echo -e "${GREEN}✅ Reutiliza enlaces de pagos pendientes${NC}"
 echo -e "${GREEN}✅ WhatsApp Web parcheado (no markedUnread error)${NC}"
 echo -e "${GREEN}✅ Planes con 1 y 2 conexiones${NC}"
 echo -e "${GREEN}✅ CONTRASEÑA FIJA: mgvpn247 para todos los usuarios${NC}"
+echo -e "${GREEN}✅ OPCIÓN 0 para salir en WhatsApp${NC}"
+echo -e "${GREEN}✅ NOTIFICACIONES automáticas a 7, 3 y 1 día del vencimiento${NC}"
 echo -e "${CYAN}══════════════════════════════════════════════════════════════${NC}\n"
 
 echo -e "${YELLOW}📋 COMANDOS:${NC}\n"
@@ -1686,16 +1981,30 @@ echo -e "  • 30 días (2 conexiones): ${GREEN}comprar30x2${NC}\n"
 echo -e "${YELLOW}🔐 CONTRASEÑA:${NC}"
 echo -e "  • ${GREEN}mgvpn247${NC} para TODOS los usuarios\n"
 
+echo -e "${YELLOW}🚪 NUEVA OPCIÓN 0:${NC}"
+echo -e "  • Los usuarios pueden escribir ${GREEN}0${NC} para salir"
+echo -e "  • Mensaje de despedida amigable"
+echo -e "  • Pueden volver escribiendo ${GREEN}menu${NC}\n"
+
+echo -e "${YELLOW}⏰ NOTIFICACIONES AUTOMÁTICAS:${NC}"
+echo -e "  • ${CYAN}7 días antes:${NC} Recordatorio suave"
+echo -e "  • ${CYAN}3 días antes:${NC} Recordatorio urgente"
+echo -e "  • ${CYAN}1 día antes:${NC} Vencimiento inminente"
+echo -e "  • ${GREEN}Verificación cada hora${NC}"
+echo -e "  • ${GREEN}Sin notificaciones duplicadas${NC}\n"
+
 echo -e "${YELLOW}🔧 CÓMO FUNCIONA EL FIX:${NC}"
 echo -e "  1. Cuando un usuario escribe 'comprar30x2' por primera vez → Crea pago nuevo"
 echo -e "  2. Si vuelve a escribir 'comprar30x2' → Muestra el pago existente"
 echo -e "  3. NO crea múltiples pagos para la misma compra"
-echo -e "  4. Los pagos pendientes se verifican cada 2 minutos\n"
+echo -e "  4. Los pagos pendientes se verifican cada 2 minutos"
+echo -e "  5. Las notificaciones se envían automáticamente\n"
 
 echo -e "${YELLOW}📊 INFO:${NC}"
 echo -e "  IP: ${CYAN}$SERVER_IP${NC}"
 echo -e "  BD: ${CYAN}$DB_FILE${NC}"
-echo -e "  Config: ${CYAN}$CONFIG_FILE${NC}\n"
+echo -e "  Config: ${CYAN}$CONFIG_FILE${NC}"
+echo -e "  Notificaciones: ${CYAN}$INSTALL_DIR/notifications${NC}\n"
 
 echo -e "${CYAN}══════════════════════════════════════════════════════════════${NC}\n"
 
@@ -1709,6 +2018,6 @@ else
     echo -e "\n${YELLOW}💡 Ejecuta: ${GREEN}sshbot${NC}\n"
 fi
 
-echo -e "${GREEN}${BOLD}¡Instalación exitosa con FIX de múltiples enlaces! 🚀${NC}\n"
+echo -e "${GREEN}${BOLD}¡Instalación exitosa con FIX de múltiples enlaces y notificaciones! 🚀${NC}\n"
 
 exit 0
