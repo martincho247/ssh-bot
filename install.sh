@@ -789,30 +789,30 @@ client.on('message', async (msg) => {
 
 🔌 *1 CONEXIÓN*
 🗓 *7 días* - $${config.prices.price_7d_1conn} ARS
-     _Escribe: *1*_
+     _Escribe: *comprar7*_
 
 🗓 *15 días* - $${config.prices.price_15d_1conn} ARS
-     _Escribe: *2*_
+     _Escribe: *comprar15*_
 
 🗓 *30 días* - $${config.prices.price_30d_1conn} ARS
-     _Escribe: *3*_
+     _Escribe: *comprar30*_
 
 🔌🔌 *2 CONEXIONES SIMULTÁNEAS*
 🗓 *7 días* - $${config.prices.price_7d_2conn} ARS
-     _Escribe: *4*_
+     _Escribe: *comprar7x2*_
 
 🗓 *15 días* - $${config.prices.price_15d_2conn} ARS
-     _Escribe: *5*_
+     _Escribe: *comprar15x2*_
 
 🗓 *30 días* - $${config.prices.price_30d_2conn} ARS
-     _Escribe: *6*_
+     _Escribe: *comprar30x2*_
 
 💳 Pago: MercadoPago
 ⚡ Activación: 2-5 min
 
-Responde con el numero`, { sendSeen: false });
+Escribe el comando`, { sendSeen: false });
     }
-    else if (['1', '2', '3', '4', '5', '6'].includes(text)) {
+    else if (['comprar7', 'comprar15', 'comprar30', 'comprar7x2', 'comprar15x2', 'comprar30x2'].includes(text)) {
         config = loadConfig();
         
         console.log(chalk.yellow(`🔑 Verificando token MP...`));
@@ -841,12 +841,12 @@ El sistema de pagos no está disponible.
         }
         
         const planMap = {
-            '1': { days: 7, amount: config.prices.price_7d_1conn, plan: '7d', conn: 1 },
-            '2': { days: 15, amount: config.prices.price_15d_1conn, plan: '15d', conn: 1 },
-            '3': { days: 30, amount: config.prices.price_30d_1conn, plan: '30d', conn: 1 },
-            '4': { days: 7, amount: config.prices.price_7d_2conn, plan: '7d', conn: 2 },
-            '5': { days: 15, amount: config.prices.price_15d_2conn, plan: '15d', conn: 2 },
-            '6': { days: 30, amount: config.prices.price_30d_2conn, plan: '30d', conn: 2 }
+            'comprar7': { days: 7, amount: config.prices.price_7d_1conn, plan: '7d', conn: 1 },
+            'comprar15': { days: 15, amount: config.prices.price_15d_1conn, plan: '15d', conn: 1 },
+            'comprar30': { days: 30, amount: config.prices.price_30d_1conn, plan: '30d', conn: 1 },
+            'comprar7x2': { days: 7, amount: config.prices.price_7d_2conn, plan: '7d', conn: 2 },
+            'comprar15x2': { days: 15, amount: config.prices.price_15d_2conn, plan: '15d', conn: 2 },
+            'comprar30x2': { days: 30, amount: config.prices.price_30d_2conn, plan: '30d', conn: 2 }
         };
         
         const p = planMap[text];
