@@ -1,16 +1,16 @@
 #!/bin/bash
 # ================================================
-# SSH BOT PRO v8.7 - PLAN PERSONALIZABLE
+# SSH BOT PRO v8.6 - TODOS LOS FIXES APLICADOS
 # Correcciones aplicadas:
 # 1. ✅ Validación token MercadoPago FIXED
 # 2. ✅ Fechas ISO 8601 correctas (MP SDK v2.x)
 # 3. ✅ Parche error markedUnread de WhatsApp Web
 # 4. ✅ Inicialización MP SDK corregida
 # 5. ✅ Panel de control funcionando 100%
+# AJUSTES ESPECÍFICOS:
 # 6. ✅ Test cambiado a 2 horas
 # 7. ✅ Cron limpieza cambiado a cada 15 minutos
 # 8. ✅ CONTRASEÑA FIJA: mgvpn247 PARA TODOS LOS USUARIOS
-# 9. ✅ PLAN PERSONALIZABLE: Configurar días, precio y conexiones
 # ================================================
 
 set -e
@@ -39,14 +39,13 @@ cat << "BANNER"
 ║     ╚══════╝╚══════╝╚═╝  ╚═╝    ╚═════╝  ╚═════╝    ╚═╝     ║
 ╠══════════════════════════════════════════════════════════════╣
 ║                                                              ║
-║           🚀 SSH BOT PRO v8.7 - PLAN PERSONALIZABLE         ║
+║           🚀 SSH BOT PRO v8.6 - ALL FIXES APPLIED           ║
 ║               💳 MercadoPago SDK v2.x FULLY FIXED           ║
 ║               📅 ISO 8601 Dates Corrected                   ║
 ║               🔑 Token Validation Fixed                      ║
 ║               🤖 WhatsApp markedUnread Patched              ║
 ║               📱 APK Auto + 2h Test                         ║
 ║               🔐 CONTRASEÑA FIJA: mgvpn247                  ║
-║               ⚡ PLAN PERSONALIZABLE (días, precio, conex)  ║
 ║                                                              ║
 ╚══════════════════════════════════════════════════════════════╝
 BANNER
@@ -61,7 +60,6 @@ echo -e "  🟣 ${PURPLE}FIX 5:${NC} Panel de control 100% funcional"
 echo -e "  ⏰ ${CYAN}FIX 6:${NC} Test ajustado a 2 horas"
 echo -e "  ⚡ ${CYAN}FIX 7:${NC} Cron limpieza ajustado a cada 15 minutos"
 echo -e "  🔐 ${CYAN}FIX 8:${NC} Contraseña fija: mgvpn247 para todos los usuarios"
-echo -e "  ⚡ ${CYAN}FIX 9:${NC} Plan personalizable (días, precio, conexiones)"
 echo -e "${CYAN}══════════════════════════════════════════════════════════════${NC}\n"
 
 # Verificar root
@@ -81,39 +79,16 @@ fi
 
 echo -e "${GREEN}✅ IP detectada: ${CYAN}$SERVER_IP${NC}\n"
 
-# CONFIGURACIÓN DE PLAN PERSONALIZADO
-echo -e "${YELLOW}${BOLD}⚡ CONFIGURACIÓN DEL PLAN PERSONALIZADO${NC}\n"
-
-# Solicitar configuración del plan
-echo -e "${CYAN}Configura los detalles de tu plan personalizado:${NC}"
-read -p "📅 Duración en días (ej: 30): " PLAN_DAYS
-read -p "💰 Precio en ARS (ej: 1500.00): " PLAN_PRICE
-read -p "🔌 Número de conexiones (ej: 2): " PLAN_CONNECTIONS
-read -p "📝 Nombre del plan (ej: premium30): " PLAN_NAME
-
-# Valores por defecto si no se ingresan
-PLAN_DAYS=${PLAN_DAYS:-30}
-PLAN_PRICE=${PLAN_PRICE:-1500.00}
-PLAN_CONNECTIONS=${PLAN_CONNECTIONS:-2}
-PLAN_NAME=${PLAN_NAME:-"personalizado"}
-
-echo -e "\n${GREEN}✅ Plan configurado:${NC}"
-echo -e "  📅 Duración: ${CYAN}${PLAN_DAYS} días${NC}"
-echo -e "  💰 Precio: ${CYAN}$${PLAN_PRICE} ARS${NC}"
-echo -e "  🔌 Conexiones: ${CYAN}${PLAN_CONNECTIONS}${NC}"
-echo -e "  📝 Nombre: ${CYAN}${PLAN_NAME}${NC}"
-
 # Confirmar instalación
-echo -e "\n${YELLOW}⚠️  ESTE INSTALADOR HARÁ:${NC}"
+echo -e "${YELLOW}⚠️  ESTE INSTALADOR HARÁ:${NC}"
 echo -e "   • Instalar Node.js 20.x + Chrome"
-echo -e "   • Crear SSH Bot Pro v8.7 CON TODOS LOS FIXES"
+echo -e "   • Crear SSH Bot Pro v8.6 CON TODOS LOS FIXES"
 echo -e "   • Aplicar parche error WhatsApp Web"
 echo -e "   • Configurar fechas ISO 8601 correctas"
 echo -e "   • Panel de control 100% funcional"
 echo -e "   • APK automático + Test 2h"
 echo -e "   • Cron limpieza cada 15 minutos"
 echo -e "   • 🔐 CONTRASEÑA FIJA: mgvpn247 para todos los usuarios"
-echo -e "   • ⚡ PLAN PERSONALIZADO: ${PLAN_DAYS}d - $${PLAN_PRICE} - ${PLAN_CONNECTIONS} conexiones"
 echo -e "\n${RED}⚠️  Se eliminarán instalaciones anteriores${NC}"
 
 read -p "$(echo -e "${YELLOW}¿Continuar con la instalación? (s/N): ${NC}")" -n 1 -r
@@ -192,12 +167,12 @@ mkdir -p /root/.wwebjs_auth
 chmod -R 755 "$INSTALL_DIR"
 chmod -R 700 /root/.wwebjs_auth
 
-# Crear configuración con plan personalizado
+# Crear configuración
 cat > "$CONFIG_FILE" << EOF
 {
     "bot": {
         "name": "SSH Bot Pro",
-        "version": "8.7-PLAN-PERSONALIZABLE",
+        "version": "8.6-ALL-FIXES",
         "server_ip": "$SERVER_IP",
         "default_password": "mgvpn247"
     },
@@ -206,13 +181,6 @@ cat > "$CONFIG_FILE" << EOF
         "price_7d": 500.00,
         "price_15d": 800.00,
         "price_30d": 1200.00,
-        "custom_plan": {
-            "enabled": true,
-            "name": "$PLAN_NAME",
-            "days": $PLAN_DAYS,
-            "price": $PLAN_PRICE,
-            "connections": $PLAN_CONNECTIONS
-        },
         "currency": "ARS"
     },
     "mercadopago": {
@@ -280,9 +248,9 @@ SQL
 echo -e "${GREEN}✅ Estructura creada${NC}"
 
 # ================================================
-# CREAR BOT CON PLAN PERSONALIZADO
+# CREAR BOT CON TODOS LOS FIXES
 # ================================================
-echo -e "\n${CYAN}${BOLD}🤖 CREANDO BOT CON PLAN PERSONALIZADO...${NC}"
+echo -e "\n${CYAN}${BOLD}🤖 CREANDO BOT CON TODOS LOS FIXES...${NC}"
 
 cd "$USER_HOME"
 
@@ -290,7 +258,7 @@ cd "$USER_HOME"
 cat > package.json << 'PKGEOF'
 {
     "name": "ssh-bot-pro",
-    "version": "8.7.0",
+    "version": "8.6.0",
     "main": "bot.js",
     "dependencies": {
         "whatsapp-web.js": "^1.24.0",
@@ -316,8 +284,8 @@ find node_modules/whatsapp-web.js -name "Client.js" -type f -exec sed -i 's/cons
 
 echo -e "${GREEN}✅ Parche markedUnread aplicado${NC}"
 
-# Crear bot.js CON PLAN PERSONALIZADO Y CONTRASEÑA FIJA mgvpn247
-echo -e "${YELLOW}📝 Creando bot.js con plan personalizado...${NC}"
+# Crear bot.js CON TODOS LOS FIXES Y CONTRASEÑA FIJA mgvpn247
+echo -e "${YELLOW}📝 Creando bot.js con contraseña fija mgvpn247...${NC}"
 
 cat > "bot.js" << 'BOTEOF'
 const { Client, LocalAuth, MessageMedia } = require('whatsapp-web.js');
@@ -380,21 +348,9 @@ let mpEnabled = initMercadoPago();
 moment.locale('es');
 
 console.log(chalk.cyan.bold('\n╔══════════════════════════════════════════════════════════════╗'));
-console.log(chalk.cyan.bold('║      🤖 SSH BOT PRO v8.7 - PLAN PERSONALIZABLE               ║'));
+console.log(chalk.cyan.bold('║      🤖 SSH BOT PRO v8.6 - ALL FIXES APPLIED                ║'));
 console.log(chalk.cyan.bold('║               🔐 CONTRASEÑA FIJA: mgvpn247                  ║'));
 console.log(chalk.cyan.bold('╚══════════════════════════════════════════════════════════════╝\n'));
-
-// Mostrar información del plan personalizado
-const customPlan = config.prices.custom_plan;
-if (customPlan.enabled) {
-    console.log(chalk.green.bold('⚡ PLAN PERSONALIZADO ACTIVO:'));
-    console.log(chalk.cyan(`   📝 Nombre: ${customPlan.name}`));
-    console.log(chalk.cyan(`   📅 Días: ${customPlan.days}`));
-    console.log(chalk.cyan(`   💰 Precio: $${customPlan.price} ARS`));
-    console.log(chalk.cyan(`   🔌 Conexiones: ${customPlan.connections}`));
-    console.log('');
-}
-
 console.log(chalk.yellow(`📍 IP: ${config.bot.server_ip}`));
 console.log(chalk.yellow(`💳 MercadoPago: ${mpEnabled ? '✅ SDK v2.x ACTIVO' : '❌ NO CONFIGURADO'}`));
 console.log(chalk.green('✅ WhatsApp Web parcheado (no markedUnread error)'));
@@ -455,7 +411,7 @@ function startAPKServer(apkPath) {
 }
 
 const client = new Client({
-    authStrategy: new LocalAuth({dataPath: '/root/.wwebjs_auth', clientId: 'ssh-bot-v87'}),
+    authStrategy: new LocalAuth({dataPath: '/root/.wwebjs_auth', clientId: 'ssh-bot-v86'}),
     puppeteer: {
         headless: true,
         executablePath: config.paths.chromium,
@@ -483,16 +439,6 @@ client.on('loading_screen', (p, m) => console.log(chalk.yellow(`⏳ Cargando: ${
 client.on('ready', () => {
     console.clear();
     console.log(chalk.green.bold('\n✅ BOT CONECTADO Y OPERATIVO\n'));
-    
-    // Mostrar plan personalizado en ready
-    const customPlan = config.prices.custom_plan;
-    if (customPlan.enabled) {
-        console.log(chalk.cyan.bold('⚡ PLAN PERSONALIZADO ACTIVO:'));
-        console.log(chalk.cyan(`   Comando: *comprar${customPlan.name}*`));
-        console.log(chalk.cyan(`   ${customPlan.days} días - $${customPlan.price} ARS`));
-        console.log(chalk.cyan(`   ${customPlan.connections} conexiones simultáneas\n`));
-    }
-    
     console.log(chalk.cyan('💬 Envía "menu" a tu WhatsApp\n'));
     qrCount = 0;
 });
@@ -538,8 +484,7 @@ async function createSSHUser(phone, username, password, days, connections = 1) {
                     password: 'mgvpn247',  // ✅ CONTRASEÑA FIJA
                     expires: expireFull,
                     tipo: 'test',
-                    duration: '2 horas',
-                    connections: 1
+                    duration: '2 horas'
                 }));
         });
     } else {
@@ -548,7 +493,6 @@ async function createSSHUser(phone, username, password, days, connections = 1) {
         const expireFull = moment().add(days, 'days').format('YYYY-MM-DD 23:59:59');
         
         console.log(chalk.yellow(`⌛ Premium ${username} expira: ${expireDate}`));
-        console.log(chalk.cyan(`🔌 Conexiones permitidas: ${connections}`));
         
         try {
             await execPromise(`useradd -M -s /bin/false -e ${expireDate} ${username} && echo "${username}:mgvpn247" | chpasswd`);  // ✅ CONTRASEÑA FIJA
@@ -560,14 +504,13 @@ async function createSSHUser(phone, username, password, days, connections = 1) {
         const tipo = 'premium';
         return new Promise((resolve, reject) => {
             db.run(`INSERT INTO users (phone, username, password, tipo, expires_at, max_connections, status) VALUES (?, ?, ?, ?, ?, ?, 1)`,
-                [phone, username, 'mgvpn247', tipo, expireFull, connections],  // ✅ CONEXIONES PERSONALIZADAS
+                [phone, username, 'mgvpn247', tipo, expireFull, 1],  // ✅ CONTRASEÑA FIJA
                 (err) => err ? reject(err) : resolve({ 
                     username, 
                     password: 'mgvpn247',  // ✅ CONTRASEÑA FIJA
                     expires: expireFull,
                     tipo: 'premium',
-                    duration: `${days} días`,
-                    connections: connections
+                    duration: `${days} días`
                 }));
         });
     }
@@ -586,7 +529,7 @@ function registerTest(phone) {
 }
 
 // ✅ FIX 2: MERCADOPAGO SDK V2.X - FECHAS ISO 8601 CORREGIDAS
-async function createMercadoPagoPayment(phone, plan, days, amount, connections, planName) {
+async function createMercadoPagoPayment(phone, plan, days, amount, connections) {
     try {
         config = loadConfig();
         
@@ -614,17 +557,11 @@ async function createMercadoPagoPayment(phone, plan, days, amount, connections, 
         const expirationDate = moment().add(24, 'hours');
         const isoDate = expirationDate.toISOString();
         
-        // Título del plan personalizado
-        let planTitle = `SERVICIO PREMIUM ${days} DÍAS`;
-        if (planName) {
-            planTitle = `PLAN ${planName.toUpperCase()} - ${days} DÍAS`;
-        }
-        
         // ✅ PREFERENCIA CON SDK V2.X - FECHAS CORREGIDAS
         const preferenceData = {
             items: [{
-                title: planTitle,
-                description: `Acceso completo por ${days} días | ${connections} conexiones simultáneas`,
+                title: `SERVICIO PREMIUM ${days} DÍAS`,
+                description: `Acceso completo por ${days} días`,
                 quantity: 1,
                 currency_id: config.prices.currency || 'ARS',
                 unit_price: parseFloat(amount)
@@ -645,7 +582,6 @@ async function createMercadoPagoPayment(phone, plan, days, amount, connections, 
         
         console.log(chalk.yellow(`📦 Producto: ${preferenceData.items[0].title}`));
         console.log(chalk.yellow(`💰 Monto: $${amount} ${config.prices.currency}`));
-        console.log(chalk.yellow(`🔌 Conexiones: ${connections}`));
         console.log(chalk.yellow(`📅 Expiración ISO 8601: ${isoDate}`));
         
         // ✅ CREAR PREFERENCIA CON SDK V2.X
@@ -745,18 +681,8 @@ async function checkPendingPayments() {
                         
                         const username = generateUsername();
                         const password = 'mgvpn247'; // ✅ CONTRASEÑA FIJA
-                        
-                        // Determinar conexiones según plan
-                        let connections = 1;
-                        if (payment.plan === 'custom') {
-                            connections = config.prices.custom_plan.connections;
-                        } else if (payment.plan === '7d') {
-                            connections = 1;
-                        } else if (payment.plan === '15d') {
-                            connections = 1;
-                        } else if (payment.plan === '30d') {
-                            connections = 1;
-                        }
+                        const connMap = { '7d': 1, '15d': 1, '30d': 1 };
+                        const connections = connMap[payment.plan] || 1;
                         
                         const result = await createSSHUser(payment.phone, username, password, payment.days, connections);
                         
@@ -775,7 +701,7 @@ async function checkPendingPayments() {
 🔑 Contraseña: *mgvpn247*
 
 ⏰ *VÁLIDO HASTA:* ${expireDate}
-🔌 *CONEXIÓN:* ${connections}
+🔌 *CONEXIÓN:* 1
 
 📱 *INSTALACIÓN:*
 1. Descarga la app (Escribe *5*)
@@ -788,7 +714,7 @@ async function checkPendingPayments() {
 💬 Soporte: *Escribe 6*`;
                         
                         await client.sendMessage(payment.phone, message, { sendSeen: false });
-                        console.log(chalk.green(`✅ Usuario creado y notificado: ${username} (${connections} conexiones)`));
+                        console.log(chalk.green(`✅ Usuario creado y notificado: ${username}`));
                     }
                 } else {
                     console.log(chalk.gray(`⏳ Sin respuesta para ${payment.payment_id}`));
@@ -861,17 +787,6 @@ client.on('message', async (msg) => {
         }
     }
     else if (text === '2') {
-        const customPlan = config.prices.custom_plan;
-        let customPlanText = '';
-        
-        if (customPlan.enabled) {
-            customPlanText = `
-⚡ *${customPlan.days} días (${customPlan.connections} conexiones)* - $${customPlan.price} ARS
-   Conexión simultánea: ${customPlan.connections}
-     _Escribe: *comprar${customPlan.name}*_
-`;
-        }
-        
         await client.sendMessage(phone, `💎 *PLANES INTERNET*
 
 🗓 *7 días* - $${config.prices.price_7d} ARS
@@ -884,14 +799,14 @@ client.on('message', async (msg) => {
 
 🗓 *30 días* - $${config.prices.price_30d} ARS
    1 conexión
-     _Escribe: *comprar30*_
-${customPlanText}
+   📝 _Escribe: *comprar30*_
+
 💳 Pago: MercadoPago
 ⚡ Activación: 2-5 min
 
 Escribe el comando`, { sendSeen: false });
     }
-    else if (['comprar7', 'comprar15', 'comprar30', `comprar${config.prices.custom_plan.name}`].includes(text)) {
+    else if (['comprar7', 'comprar15', 'comprar30'].includes(text)) {
         config = loadConfig();
         
         console.log(chalk.yellow(`🔑 Verificando token MP...`));
@@ -920,39 +835,10 @@ El sistema de pagos no está disponible.
             return;
         }
         
-        // Plan personalizado
-        const customPlan = config.prices.custom_plan;
-        const customPlanCommand = `comprar${customPlan.name}`;
-        
         const planMap = {
-            'comprar7': { 
-                days: 7, 
-                amount: config.prices.price_7d, 
-                plan: '7d', 
-                conn: 1,
-                name: '7 días'
-            },
-            'comprar15': { 
-                days: 15, 
-                amount: config.prices.price_15d, 
-                plan: '15d', 
-                conn: 1,
-                name: '15 días'
-            },
-            'comprar30': { 
-                days: 30, 
-                amount: config.prices.price_30d, 
-                plan: '30d', 
-                conn: 1,
-                name: '30 días'
-            },
-            [customPlanCommand]: { 
-                days: customPlan.days, 
-                amount: customPlan.price, 
-                plan: 'custom', 
-                conn: customPlan.connections,
-                name: customPlan.name
-            }
+            'comprar7': { days: 7, amount: config.prices.price_7d, plan: '7d', conn: 1 },
+            'comprar15': { days: 15, amount: config.prices.price_15d, plan: '15d', conn: 1 },
+            'comprar30': { days: 30, amount: config.prices.price_30d, plan: '30d', conn: 1 }
         };
         
         const p = planMap[text];
@@ -960,19 +846,19 @@ El sistema de pagos no está disponible.
 
 📦 Plan: ${p.days} días
 💰 Monto: $${p.amount} ARS
-🔌 Conexiones: ${p.conn}
+🔌 Conexión: ${p.conn}
 
 ⏰ Procesando...`, { sendSeen: false });
         
         try {
-            const payment = await createMercadoPagoPayment(phone, p.plan, p.days, p.amount, p.conn, p.name);
+            const payment = await createMercadoPagoPayment(phone, p.plan, p.days, p.amount, p.conn);
             
             if (payment.success) {
                 await client.sendMessage(phone, `💳 *PAGO GENERADO EXITOSAMENTE*
 
 📦 Plan: ${p.days} días
 💰 $${p.amount} ARS
-🔌 ${p.conn} conexión(es)
+🔌 ${p.conn} conexión
 
 🔗 *ENLACE DE PAGO:*
 ${payment.paymentUrl}
@@ -1036,7 +922,7 @@ ${error.message}
 `;
                     msg += `⏰ ${expira}
 `;
-                    msg += `🔌 ${a.max_connections} conexión(es)
+                    msg += `🔌 ${a.max_connections} conexión
 
 `;
                 });
@@ -1177,7 +1063,7 @@ ${config.links.support}
 📞 Canal de soporte:
 ${config.links.support}
 
-⏰ Horario: 9AM - 00PM
+⏰ Horario: 9AM - 10PM
 
 🔑 *Contraseña predeterminada:* mgvpn247
 
@@ -1225,16 +1111,15 @@ cron.schedule('0 0 * * *', () => {
     });
 });
 
-// ✅ MONITOR AUTOMÁTICO - VERIFICA CADA 30 SEGUNDOS SI HAY MÁS CONEXIONES DE LAS PERMITIDAS
+// ✅ MONITOR AUTOMÁTICO - VERIFICA CADA 30 SEGUNDOS SI HAY MÁS DE 1 CONEXIÓN
 setInterval(() => {
-    db.all('SELECT username, max_connections FROM users WHERE status = 1', (err, rows) => {
+    db.all('SELECT username FROM users WHERE status = 1', (err, rows) => {
         if (!err && rows) {
             rows.forEach(user => {
                 require('child_process').exec(`ps aux | grep "^${user.username}" | grep -v grep | wc -l`, (e, out) => {
                     const cnt = parseInt(out) || 0;
-                    const maxConn = user.max_connections || 1;
-                    if (cnt > maxConn) {
-                        console.log(chalk.red(`⚠️ ${user.username} tiene ${cnt} conexiones (>${maxConn} permitidas)`));
+                    if (cnt > 1) {
+                        console.log(chalk.red(`⚠️ ${user.username} tiene ${cnt} conexiones (>1)`));
                         require('child_process').exec(`pkill -u ${user.username} 2>/dev/null; sleep 1; pkill -u ${user.username} 2>/dev/null`);
                     }
                 });
@@ -1247,12 +1132,12 @@ console.log(chalk.green('\n🚀 Inicializando bot...\n'));
 client.initialize();
 BOTEOF
 
-echo -e "${GREEN}✅ Bot creado con plan personalizado${NC}"
+echo -e "${GREEN}✅ Bot creado con contraseña fija mgvpn247${NC}"
 
 # ================================================
-# CREAR PANEL DE CONTROL CON PLAN PERSONALIZADO
+# CREAR PANEL DE CONTROL CON CONTRASEÑA FIJA
 # ================================================
-echo -e "\n${CYAN}${BOLD}🎛️  CREANDO PANEL DE CONTROL CON PLAN PERSONALIZADO...${NC}"
+echo -e "\n${CYAN}${BOLD}🎛️  CREANDO PANEL DE CONTROL CON CONTRASEÑA FIJA mgvpn247...${NC}"
 
 cat > /usr/local/bin/sshbot << 'PANELEOF'
 #!/bin/bash
@@ -1267,10 +1152,9 @@ set_val() { local t=$(mktemp); jq "$1 = $2" "$CONFIG" > "$t" && mv "$t" "$CONFIG
 show_header() {
     clear
     echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
-    echo -e "${CYAN}║              🎛️  PANEL SSH BOT PRO v8.7                    ║${NC}"
+    echo -e "${CYAN}║              🎛️  PANEL SSH BOT PRO v8.6                    ║${NC}"
     echo -e "${CYAN}║               💳 MercadoPago SDK v2.x ALL FIXES            ║${NC}"
     echo -e "${CYAN}║               🔐 CONTRASEÑA FIJA: mgvpn247                 ║${NC}"
-    echo -e "${CYAN}║               ⚡ PLAN PERSONALIZADO ACTIVO                 ║${NC}"
     echo -e "${CYAN}╚══════════════════════════════════════════════════════════════╝${NC}\n"
 }
 
@@ -1302,25 +1186,13 @@ while true; do
         APK_FOUND="${RED}❌ NO ENCONTRADO${NC}"
     fi
     
-    # Información del plan personalizado
-    CUSTOM_PLAN_ENABLED=$(get_val '.prices.custom_plan.enabled')
-    if [[ "$CUSTOM_PLAN_ENABLED" == "true" ]]; then
-        PLAN_NAME=$(get_val '.prices.custom_plan.name')
-        PLAN_DAYS=$(get_val '.prices.custom_plan.days')
-        PLAN_PRICE=$(get_val '.prices.custom_plan.price')
-        PLAN_CONNECTIONS=$(get_val '.prices.custom_plan.connections')
-        PLAN_INFO="${GREEN}✅ ${PLAN_DAYS}d - $${PLAN_PRICE} - ${PLAN_CONNECTIONS} conex${NC}"
-    else
-        PLAN_INFO="${RED}❌ DESACTIVADO${NC}"
-    fi
-    
     echo -e "${YELLOW}📊 ESTADO DEL SISTEMA${NC}"
     echo -e "  Bot: $BOT_STATUS"
     echo -e "  Usuarios: ${CYAN}$ACTIVE_USERS/$TOTAL_USERS${NC} activos/total"
     echo -e "  MercadoPago: $MP_STATUS"
     echo -e "  APK: $APK_FOUND"
-    echo -e "  Plan Personalizado: $PLAN_INFO"
     echo -e "  Test: ${GREEN}2 horas${NC} | Limpieza: ${GREEN}cada 15 min${NC}"
+    echo -e "  Conexión por usuario: ${GREEN}1${NC}"
     echo -e "  Contraseña: ${GREEN}mgvpn247${NC} (FIJA PARA TODOS)"
     echo -e ""
     
@@ -1333,14 +1205,13 @@ while true; do
     echo -e "${CYAN}[6]${NC}  🗑️   Eliminar usuario"
     echo -e ""
     echo -e "${CYAN}[7]${NC}  💰  Cambiar precios"
-    echo -e "${CYAN}[8]${NC}  ⚡  Configurar plan personalizado"
-    echo -e "${CYAN}[9]${NC}  🔑  Configurar MercadoPago"
-    echo -e "${CYAN}[10]${NC} 📱  Gestionar APK"
-    echo -e "${CYAN}[11]${NC} 📊  Ver estadísticas"
-    echo -e "${CYAN}[12]${NC} ⚙️   Ver configuración"
-    echo -e "${CYAN}[13]${NC} 📝  Ver logs"
-    echo -e "${CYAN}[14]${NC} 🔧  Reparar bot"
-    echo -e "${CYAN}[15]${NC} 🧪  Test MercadoPago"
+    echo -e "${CYAN}[8]${NC}  🔑  Configurar MercadoPago"
+    echo -e "${CYAN}[9]${NC}  📱  Gestionar APK"
+    echo -e "${CYAN}[10]${NC} 📊  Ver estadísticas"
+    echo -e "${CYAN}[11]${NC} ⚙️   Ver configuración"
+    echo -e "${CYAN}[12]${NC} 📝  Ver logs"
+    echo -e "${CYAN}[13]${NC} 🔧  Reparar bot"
+    echo -e "${CYAN}[14]${NC} 🧪  Test MercadoPago"
     echo -e "${CYAN}[0]${NC}  🚪  Salir"
     echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     
@@ -1388,7 +1259,7 @@ while true; do
                 esac
             else
                 echo -e "${YELLOW}⚠️  QR no generado aún${NC}\n"
-                echo -e "${CYAN}Ejecuta opción 1 o 14 para generar QR${NC}\n"
+                echo -e "${CYAN}Ejecuta opción 1 o 13 para generar QR${NC}\n"
                 read -p "¿Ver logs? (s/N): " VER
                 [[ "$VER" == "s" ]] && pm2 logs ssh-bot --lines 50
             fi
@@ -1421,12 +1292,12 @@ while true; do
             fi
             
             if [[ $? -eq 0 ]]; then
-                sqlite3 "$DB" "INSERT INTO users (phone, username, password, tipo, expires_at, max_connections, status) VALUES ('$PHONE', '$USERNAME', 'mgvpn247', '$TIPO', '$EXPIRE_DATE', $CONNECTIONS, 1)"
+                sqlite3 "$DB" "INSERT INTO users (phone, username, password, tipo, expires_at, max_connections, status) VALUES ('$PHONE', '$USERNAME', 'mgvpn247', '$TIPO', '$EXPIRE_DATE', 1, 1)"
                 echo -e "\n${GREEN}✅ USUARIO CREADO${NC}"
                 echo -e "👤 Usuario: ${USERNAME}"
                 echo -e "🔑 Contraseña: mgvpn247"
                 echo -e "⏰ Expira: ${EXPIRE_DATE}"
-                echo -e "🔌 Conexiones: ${CONNECTIONS}"
+                echo -e "🔌 Conexiones: 1"
             else
                 echo -e "\n${RED}❌ Error creando usuario${NC}"
             fi
@@ -1482,65 +1353,11 @@ while true; do
             [[ -n "$NEW_30D" ]] && set_val '.prices.price_30d' "$NEW_30D"
             
             echo -e "\n${GREEN}✅ Precios actualizados${NC}"
-            echo -e "${YELLOW}⚠️  Nota: Plan personalizado en opción 8${NC}"
+            echo -e "${YELLOW}⚠️  Nota: Todos los planes tienen 1 conexión${NC}"
             echo -e "${YELLOW}🔐 Contraseña: mgvpn247 para todos los usuarios${NC}"
             read -p "Presiona Enter..." 
             ;;
         8)
-            clear
-            echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
-            echo -e "${CYAN}║              ⚡ CONFIGURAR PLAN PERSONALIZADO               ║${NC}"
-            echo -e "${CYAN}╚══════════════════════════════════════════════════════════════╝${NC}\n"
-            
-            CURRENT_ENABLED=$(get_val '.prices.custom_plan.enabled')
-            CURRENT_NAME=$(get_val '.prices.custom_plan.name')
-            CURRENT_DAYS=$(get_val '.prices.custom_plan.days')
-            CURRENT_PRICE=$(get_val '.prices.custom_plan.price')
-            CURRENT_CONNECTIONS=$(get_val '.prices.custom_plan.connections')
-            
-            echo -e "${YELLOW}Plan actual:${NC}"
-            echo -e "  Estado: $( [[ "$CURRENT_ENABLED" == "true" ]] && echo "✅ ACTIVO" || echo "❌ DESACTIVADO" )"
-            echo -e "  Nombre: ${CURRENT_NAME}"
-            echo -e "  Días: ${CURRENT_DAYS}"
-            echo -e "  Precio: $${CURRENT_PRICE} ARS"
-            echo -e "  Conexiones: ${CURRENT_CONNECTIONS}"
-            echo -e "  Comando: *comprar${CURRENT_NAME}*"
-            echo -e ""
-            
-            echo -e "${CYAN}Configuración nueva:${NC}"
-            read -p "¿Activar plan? (s/N): " ACTIVAR
-            if [[ "$ACTIVAR" == "s" ]]; then
-                set_val '.prices.custom_plan.enabled' "true"
-                
-                read -p "Nombre del plan (sin espacios, ej: premium30x2): " NEW_NAME
-                read -p "Duración en días [${CURRENT_DAYS}]: " NEW_DAYS
-                read -p "Precio en ARS [${CURRENT_PRICE}]: " NEW_PRICE
-                read -p "Conexiones simultáneas [${CURRENT_CONNECTIONS}]: " NEW_CONNECTIONS
-                
-                [[ -n "$NEW_NAME" ]] && set_val '.prices.custom_plan.name' "\"$NEW_NAME\""
-                [[ -n "$NEW_DAYS" ]] && set_val '.prices.custom_plan.days' "$NEW_DAYS"
-                [[ -n "$NEW_PRICE" ]] && set_val '.prices.custom_plan.price' "$NEW_PRICE"
-                [[ -n "$NEW_CONNECTIONS" ]] && set_val '.prices.custom_plan.connections' "$NEW_CONNECTIONS"
-                
-                echo -e "\n${GREEN}✅ Plan personalizado configurado${NC}"
-                echo -e "${YELLOW}📋 Detalles:${NC}"
-                echo -e "  Nombre: $(get_val '.prices.custom_plan.name')"
-                echo -e "  Días: $(get_val '.prices.custom_plan.days')"
-                echo -e "  Precio: $${PLAN_PRICE} ARS"
-                echo -e "  Conexiones: $(get_val '.prices.custom_plan.connections')"
-                echo -e "  Comando: *comprar$(get_val '.prices.custom_plan.name')*"
-                
-                echo -e "\n${YELLOW}🔄 Reiniciando bot...${NC}"
-                cd /root/ssh-bot && pm2 restart ssh-bot
-                sleep 2
-                echo -e "${GREEN}✅ Plan activado${NC}"
-            else
-                set_val '.prices.custom_plan.enabled' "false"
-                echo -e "\n${YELLOW}⚠️  Plan personalizado desactivado${NC}"
-            fi
-            read -p "Presiona Enter..." 
-            ;;
-        9)
             clear
             echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
             echo -e "${CYAN}║              🔑 CONFIGURAR MERCADOPAGO SDK v2.x             ║${NC}"
@@ -1582,7 +1399,7 @@ while true; do
             fi
             read -p "Presiona Enter..." 
             ;;
-        10)
+        9)
             clear
             echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
             echo -e "${CYAN}║                     📱 GESTIONAR APK                         ║${NC}"
@@ -1621,7 +1438,7 @@ while true; do
             fi
             read -p "Presiona Enter..." 
             ;;
-        11)
+        10)
             clear
             echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
             echo -e "${CYAN}║                     📊 ESTADÍSTICAS                         ║${NC}"
@@ -1638,14 +1455,12 @@ while true; do
             sqlite3 "$DB" "SELECT 'Tests: ' || COUNT(*) FROM daily_tests WHERE date = '$TODAY'"
             
             echo -e "\n${YELLOW}🔌 CONEXIONES:${NC}"
-            echo -e "  Test: 1 conexión"
-            echo -e "  Planes básicos: 1 conexión"
-            echo -e "  Plan personalizado: $(get_val '.prices.custom_plan.connections') conexiones"
+            echo -e "  Configuración: 1 por usuario"
             echo -e "  Contraseña: mgvpn247 (FIJA)"
             
             read -p "\nPresiona Enter..." 
             ;;
-        12)
+        11)
             clear
             echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
             echo -e "${CYAN}║                     ⚙️  CONFIGURACIÓN                        ║${NC}"
@@ -1659,15 +1474,6 @@ while true; do
             echo -e "  7d: $(get_val '.prices.price_7d') ARS (1 conexión)"
             echo -e "  15d: $(get_val '.prices.price_15d') ARS (1 conexión)"
             echo -e "  30d: $(get_val '.prices.price_30d') ARS (1 conexión)"
-            
-            CUSTOM_ENABLED=$(get_val '.prices.custom_plan.enabled')
-            if [[ "$CUSTOM_ENABLED" == "true" ]]; then
-                echo -e "  Plan Personalizado: $(get_val '.prices.custom_plan.days')d - $${PLAN_PRICE} ARS ($(get_val '.prices.custom_plan.connections') conexiones)"
-                echo -e "  Comando: *comprar$(get_val '.prices.custom_plan.name')*"
-            else
-                echo -e "  Plan Personalizado: ❌ DESACTIVADO"
-            fi
-            
             echo -e "  Test: $(get_val '.prices.test_hours') horas (1 conexión)"
             
             echo -e "\n${YELLOW}💳 MERCADOPAGO:${NC}"
@@ -1681,6 +1487,7 @@ while true; do
             
             echo -e "\n${YELLOW}🔐 SEGURIDAD:${NC}"
             echo -e "  Contraseña predeterminada: ${GREEN}mgvpn247${NC} (FIJA PARA TODOS)"
+            echo -e "  Conexión por usuario: 1"
             
             echo -e "\n${YELLOW}⚡ AJUSTES:${NC}"
             echo -e "  Limpieza: cada 15 minutos"
@@ -1688,11 +1495,11 @@ while true; do
             
             read -p "\nPresiona Enter..." 
             ;;
-        13)
+        12)
             echo -e "\n${YELLOW}📝 Logs (Ctrl+C para salir)...${NC}\n"
             pm2 logs ssh-bot --lines 100
             ;;
-        14)
+        13)
             clear
             echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
             echo -e "${CYAN}║                     🔧 REPARAR BOT                          ║${NC}"
@@ -1716,7 +1523,7 @@ while true; do
             fi
             read -p "Presiona Enter..." 
             ;;
-        15)
+        14)
             clear
             echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
             echo -e "${CYAN}║                 🧪 TEST MERCADOPAGO SDK v2.x                ║${NC}"
@@ -1762,7 +1569,7 @@ done
 PANELEOF
 
 chmod +x /usr/local/bin/sshbot
-echo -e "${GREEN}✅ Panel creado con plan personalizado${NC}"
+echo -e "${GREEN}✅ Panel creado con contraseña fija mgvpn247${NC}"
 
 # ================================================
 # INICIAR BOT
@@ -1784,9 +1591,9 @@ echo -e "${GREEN}${BOLD}"
 cat << "FINAL"
 ╔══════════════════════════════════════════════════════════════╗
 ║                                                              ║
-║      🎉 INSTALACIÓN COMPLETADA - PLAN PERSONALIZADO 🎉      ║
+║      🎉 INSTALACIÓN COMPLETADA - ALL FIXES APPLIED 🎉       ║
 ║                                                              ║
-║         SSH BOT PRO v8.7 - PLAN PERSONALIZABLE              ║
+║         SSH BOT PRO v8.6 - TODOS LOS FIXES APLICADOS        ║
 ║           💳 MercadoPago SDK v2.x FULLY FIXED               ║
 ║           📅 Fechas ISO 8601 corregidas                     ║
 ║           🤖 WhatsApp markedUnread parcheado                ║
@@ -1795,22 +1602,20 @@ cat << "FINAL"
 ║           ⚡ Limpieza: cada 15 minutos (ajustado)           ║
 ║           📱 APK Automático                                 ║
 ║           🔐 CONTRASEÑA FIJA: mgvpn247 PARA TODOS           ║
-║           ⚡ PLAN PERSONALIZADO: CONFIGURABLE               ║
 ║                                                              ║
 ╚══════════════════════════════════════════════════════════════╝
 FINAL
 echo -e "${NC}"
 
 echo -e "${CYAN}══════════════════════════════════════════════════════════════${NC}"
-echo -e "${GREEN}✅ Bot instalado con plan personalizado${NC}"
-echo -e "${GREEN}✅ Panel de control con plan personalizable${NC}"
+echo -e "${GREEN}✅ Bot instalado con TODOS los fixes aplicados${NC}"
+echo -e "${GREEN}✅ Panel de control con validación corregida${NC}"
 echo -e "${GREEN}✅ Fechas ISO 8601 corregidas para MP v2.x${NC}"
 echo -e "${GREEN}✅ Error WhatsApp Web parcheado (markedUnread)${NC}"
 echo -e "${GREEN}✅ Validación de token MP corregida${NC}"
 echo -e "${GREEN}✅ Test ajustado a 2 horas exactas${NC}"
 echo -e "${GREEN}✅ Limpieza ajustada a cada 15 minutos${NC}"
 echo -e "${GREEN}✅ CONTRASEÑA FIJA: mgvpn247 para todos los usuarios${NC}"
-echo -e "${GREEN}✅ PLAN PERSONALIZADO: ${PLAN_DAYS}d - $${PLAN_PRICE} - ${PLAN_CONNECTIONS} conex${NC}"
 echo -e "${CYAN}══════════════════════════════════════════════════════════════${NC}\n"
 
 echo -e "${YELLOW}📋 COMANDOS:${NC}\n"
@@ -1820,18 +1625,10 @@ echo -e "  ${GREEN}pm2 restart ssh-bot${NC} - Reiniciar\n"
 
 echo -e "${YELLOW}🔧 CONFIGURACIÓN:${NC}\n"
 echo -e "  1. Ejecuta: ${GREEN}sshbot${NC}"
-echo -e "  2. Opción ${CYAN}[8]${NC} - Configurar Plan Personalizado"
-echo -e "  3. Opción ${CYAN}[9]${NC} - Configurar MercadoPago"
-echo -e "  4. Opción ${CYAN}[15]${NC} - Test MercadoPago"
-echo -e "  5. Opción ${CYAN}[3]${NC} - Escanear QR WhatsApp"
-echo -e "  6. Sube APK a /root/app.apk\n"
-
-echo -e "${YELLOW}⚡ PLAN PERSONALIZADO:${NC}"
-echo -e "  • Nombre: ${CYAN}${PLAN_NAME}${NC}"
-echo -e "  • Días: ${CYAN}${PLAN_DAYS}${NC}"
-echo -e "  • Precio: ${CYAN}$${PLAN_PRICE} ARS${NC}"
-echo -e "  • Conexiones: ${CYAN}${PLAN_CONNECTIONS}${NC}"
-echo -e "  • Comando: ${CYAN}comprar${PLAN_NAME}${NC}\n"
+echo -e "  2. Opción ${CYAN}[8]${NC} - Configurar MercadoPago"
+echo -e "  3. Opción ${CYAN}[14]${NC} - Test MercadoPago"
+echo -e "  4. Opción ${CYAN}[3]${NC} - Escanear QR WhatsApp"
+echo -e "  5. Sube APK a /root/app.apk\n"
 
 echo -e "${YELLOW}🔐 CONTRASEÑA:${NC}"
 echo -e "  • ${GREEN}mgvpn247${NC} para TODOS los usuarios (test y premium)"
@@ -1840,6 +1637,7 @@ echo -e "  • Solo el nombre de usuario cambia\n"
 echo -e "${YELLOW}⚡ AJUSTES APLICADOS:${NC}"
 echo -e "  • Test: ${GREEN}2 horas${NC}"
 echo -e "  • Limpieza: ${GREEN}cada 15 minutos${NC}"
+echo -e "  • Conexión por usuario: ${GREEN}1${NC}"
 echo -e "  • Contraseña: ${GREEN}mgvpn247${NC} (FIJA)\n"
 
 echo -e "${YELLOW}📊 INFO:${NC}"
@@ -1857,10 +1655,10 @@ if [[ $REPLY =~ ^[Ss]$ ]]; then
     /usr/local/bin/sshbot
 else
     echo -e "\n${YELLOW}💡 Ejecuta: ${GREEN}sshbot${NC}\n"
-    echo -e "${RED}⚠️  Recuerda configurar MercadoPago (opción 9)${NC}\n"
+    echo -e "${RED}⚠️  Recuerda configurar MercadoPago (opción 8)${NC}\n"
 fi
 
-echo -e "${GREEN}${BOLD}¡Instalación exitosa con plan personalizado! 🚀${NC}\n"
+echo -e "${GREEN}${BOLD}¡Instalación exitosa con todos los fixes y contraseña fija mgvpn247! 🚀${NC}\n"
 
 # ================================================
 # AUTO-DESTRUCCIÓN DEL SCRIPT (SEGURIDAD)
@@ -1902,5 +1700,4 @@ echo -e "${YELLOW}Comandos disponibles:${NC}"
 echo -e "  ${CYAN}sshbot${NC}          - Panel de control"
 echo -e "  ${CYAN}pm2 logs ssh-bot${NC} - Ver logs en tiempo real"
 echo -e "${YELLOW}Contraseña predeterminada: ${GREEN}mgvpn247${NC}"
-echo -e "${YELLOW}Plan personalizado: ${GREEN}comprar${PLAN_NAME}${NC}"
 exit 0
