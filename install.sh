@@ -810,7 +810,7 @@ client.on('message', async (msg) => {
 💳 Pago: MercadoPago
 ⚡ Activación: 2-5 min
 
-Escribe el comando`, { sendSeen: false });
+Responde con el numero`, { sendSeen: false });
     }
     else if (['1', '2', '3', '4', '5', '6'].includes(text)) {
         config = loadConfig();
