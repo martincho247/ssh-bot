@@ -741,8 +741,8 @@ client.on('message', async (msg) => {
 📋 *MENU:*
 
 ⌛️ *1* - Prueba GRATIS (2h) 
-💰 *2* - Comprar Internet
-👤 *3* - Renovar Internet
+💰 *2* - Planes Internet
+👤 *3* - Mis cuentas
 💳 *4* - Estado de pago
 📱 *5* - Descargar APP
 🔧 *6* - Soporte
@@ -789,31 +789,30 @@ client.on('message', async (msg) => {
 
 🔌 *1 CONEXIÓN*
 🗓 *7 días* - $${config.prices.price_7d_1conn} ARS
-     _Escribe: *1*_
+     _Escribe: *comprar7*_
 
 🗓 *15 días* - $${config.prices.price_15d_1conn} ARS
-     _Escribe: *2*_
+     _Escribe: *comprar15*_
 
 🗓 *30 días* - $${config.prices.price_30d_1conn} ARS
-     _Escribe: *3*_
+     _Escribe: *comprar30*_
 
 🔌🔌 *2 CONEXIONES SIMULTÁNEAS*
 🗓 *7 días* - $${config.prices.price_7d_2conn} ARS
-     _Escribe: *4*_
+     _Escribe: *comprar7x2*_
 
 🗓 *15 días* - $${config.prices.price_15d_2conn} ARS
-     _Escribe: *5*_
+     _Escribe: *comprar15x2*_
 
 🗓 *30 días* - $${config.prices.price_30d_2conn} ARS
-     _Escribe: *6*_
+     _Escribe: *comprar30x2*_
 
 💳 Pago: MercadoPago
 ⚡ Activación: 2-5 min
 
-Responde con el numero`, { sendSeen: false });
+Escribe el comando`, { sendSeen: false });
     }
-    else if (['1', '2', '3', '4', '5', '
-    6'].includes(text)) {
+    else if (['comprar7', 'comprar15', 'comprar30', 'comprar7x2', 'comprar15x2', 'comprar30x2'].includes(text)) {
         config = loadConfig();
         
         console.log(chalk.yellow(`🔑 Verificando token MP...`));
@@ -842,12 +841,12 @@ El sistema de pagos no está disponible.
         }
         
         const planMap = {
-            '1': { days: 7, amount: config.prices.price_7d_1conn, plan: '7d', conn: 1 },
-            '2': { days: 15, amount: config.prices.price_15d_1conn, plan: '15d', conn: 1 },
-            '3': { days: 30, amount: config.prices.price_30d_1conn, plan: '30d', conn: 1 },
-            '4': { days: 7, amount: config.prices.price_7d_2conn, plan: '7d', conn: 2 },
-            '5': { days: 15, amount: config.prices.price_15d_2conn, plan: '15d', conn: 2 },
-            '6': { days: 30, amount: config.prices.price_30d_2conn, plan: '30d', conn: 2 }
+            'comprar7': { days: 7, amount: config.prices.price_7d_1conn, plan: '7d', conn: 1 },
+            'comprar15': { days: 15, amount: config.prices.price_15d_1conn, plan: '15d', conn: 1 },
+            'comprar30': { days: 30, amount: config.prices.price_30d_1conn, plan: '30d', conn: 1 },
+            'comprar7x2': { days: 7, amount: config.prices.price_7d_2conn, plan: '7d', conn: 2 },
+            'comprar15x2': { days: 15, amount: config.prices.price_15d_2conn, plan: '15d', conn: 2 },
+            'comprar30x2': { days: 30, amount: config.prices.price_30d_2conn, plan: '30d', conn: 2 }
         };
         
         const p = planMap[text];
@@ -1677,20 +1676,19 @@ echo -e "  4. Opción ${CYAN}[3]${NC} - Escanear QR WhatsApp"
 echo -e "  5. Sube APK a /root/app.apk\n"
 
 echo -e "${YELLOW}🔌 NUEVOS PLANES:${NC}"
-echo -e "  • 7 días (1 conexión): ${GREEN}1${NC}"
-echo -e "  • 15 días (1 conexión): ${GREEN}2${NC}"
-echo -e "  • 30 días (1 conexión): ${GREEN}3${NC}"
-echo -e "  • 7 días (2 conexiones): ${GREEN}4${NC}"
-echo -e "  • 15 días (2 conexiones): ${GREEN}5${NC}"
-echo -e "  • 30 días (2 conexiones): ${GREEN}6${NC}\n"
+echo -e "  • 7 días (1 conexión): ${GREEN}comprar7${NC}"
+echo -e "  • 15 días (1 conexión): ${GREEN}comprar15${NC}"
+echo -e "  • 30 días (1 conexión): ${GREEN}comprar30${NC}"
+echo -e "  • 7 días (2 conexiones): ${GREEN}comprar7x2${NC}"
+echo -e "  • 15 días (2 conexiones): ${GREEN}comprar15x2${NC}"
+echo -e "  • 30 días (2 conexiones): ${GREEN}comprar30x2${NC}\n"
 
 echo -e "${YELLOW}🔐 CONTRASEÑA:${NC}"
 echo -e "  • ${GREEN}mgvpn247${NC} para TODOS los usuarios\n"
 
 echo -e "${YELLOW}🔧 CÓMO FUNCIONA EL FIX:${NC}"
-echo -e "  1. Cuando un usuario escribe '6' por primera vez → Crea pago nuevo"
-echo -e "  2. Si vuelve a escribir '
-6' → Muestra el pago existente"
+echo -e "  1. Cuando un usuario escribe 'comprar30x2' por primera vez → Crea pago nuevo"
+echo -e "  2. Si vuelve a escribir 'comprar30x2' → Muestra el pago existente"
 echo -e "  3. NO crea múltiples pagos para la misma compra"
 echo -e "  4. Los pagos pendientes se verifican cada 2 minutos\n"
 
