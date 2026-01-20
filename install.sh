@@ -718,7 +718,7 @@ async function checkPendingPayments() {
 
 📱 *INSTALACIÓN:*
 1. Descarga la app (Escribe *5*)
-2. Seleccionar servidor
+2. Seleccionar servidor 1
 3. Ingresar Usuario y Contraseña
 4. ¡Conéctate automáticamente!
 
