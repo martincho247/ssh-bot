@@ -810,19 +810,19 @@ client.on('message', async (msg) => {
         await client.sendMessage(phone, `💎 *PLANES INTERNET - ELIGE UN PLAN*
 
 🔌 *1 CONEXIÓN*
-⚡ *1* - 7 días - $${config.prices.price_7d_1conn} ARS
-⚡ *2* - 15 días - $${config.prices.price_15d_1conn} ARS
-⚡ *3* - 30 días - $${config.prices.price_30d_1conn} ARS
+🗓 *1* - 7 días - $${config.prices.price_7d_1conn} ARS
+🗓 *2* - 15 días - $${config.prices.price_15d_1conn} ARS
+🗓 *3* - 30 días - $${config.prices.price_30d_1conn} ARS
 
 🔌🔌 *2 CONEXIONES SIMULTÁNEAS*
-⚡ *4* - 7 días - $${config.prices.price_7d_2conn} ARS
-⚡ *5* - 15 días - $${config.prices.price_15d_2conn} ARS
-⚡ *6* - 30 días - $${config.prices.price_30d_2conn} ARS
+🗓 *4* - 7 días - $${config.prices.price_7d_2conn} ARS
+🗓 *5* - 15 días - $${config.prices.price_15d_2conn} ARS
+🗓 *6* - 30 días - $${config.prices.price_30d_2conn} ARS
 
 💳 Pago: MercadoPago
 ⚡ Activación: 2-5 min
 
-📝 *PARA COMPRAR:* Escribe el número del plan (1-6)
+💰 *PARA COMPRAR:* Escribe el número del plan (1-6)
 💬 *Para volver:* Escribe "menu"`, { sendSeen: false });
     }
     else if ((text === '1' || text === '2' || text === '3' || text === '4' || text === '5' || text === '6') && userState.state === 'viewing_plans') {
