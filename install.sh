@@ -981,7 +981,7 @@ ${existingPayment.payment_url}
 💰 Monto: *$${plan.price} ARS*
 🔌 Conexión: *${connText}*
 
-⏰ *GENERANDO ENLACE DE PAGO...*`, { sendSeen: false });
+📥 *GENERANDO ENLACE DE PAGO...*`, { sendSeen: false });
         
         try {
             const payment = await createMercadoPagoPayment(phone, plan.id, plan.name, plan.days, plan.price, plan.connections);
@@ -1007,7 +1007,7 @@ ${payment.paymentUrl}
                     try {
                         const media = MessageMedia.fromFilePath(payment.qrPath);
                         await client.sendMessage(phone, media, { 
-                            caption: `📱 *ESCAPEA CON MERCADOPAGO*
+                            caption: `📱 *ESCANEA CON MERCADOPAGO*
                             
 ⚡ ${plan.name}
 💰 $${plan.price} ARS
@@ -1046,7 +1046,7 @@ ${error.message}
                 if (!rows || rows.length === 0) {
                     await client.sendMessage(phone, `📋 *SIN CUENTAS ACTIVAS*
 
-🆓 *Escribe 1* - Prueba gratis
+⌛️ *Escribe 1* - Prueba gratis
 💰 *Escribe 2* - Ver planes premium`, { sendSeen: false });
                     return;
                 }
@@ -1143,22 +1143,22 @@ ${error.message}
                 
                 await client.sendMessage(phone, `📱 *DESCARGANDO APP*
 
-📦 Archivo: ${apkName}
+📦 Archivo: ${MGVPN}
 📊 Tamaño: ${fileSize} MB
 
 ⏳ Enviando archivo, espera...`, { sendSeen: false });
                 
                 const media = MessageMedia.fromFilePath(apkFound);
                 await client.sendMessage(phone, media, {
-                    caption: `📱 *${apkName}*
+                    caption: `📱 *${MGVPN}*
 
 ✅ Archivo enviado correctamente
 
 📱 *INSTRUCCIONES:*
 1. Toca el archivo para instalar
 2. Permite "Fuentes desconocidas" si te lo pide
-3. Abre la app
-4. Ingresa tus datos de acceso
+3. Abre la app busca una red wifi para actualizar los servidores
+4. Ingresar los datos
    👤 Usuario: (tu usuario)
    🔑 Contraseña: mgvpn247
 
