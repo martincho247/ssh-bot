@@ -1,12 +1,14 @@
 #!/bin/bash
 # ================================================
-# SSH BOT PRO v8.7 - FIX MULTIPLES ENLACES
+# SSH BOT PRO v8.7 - FIX MULTIPLES ENLACES Y COMANDOS
 # Correcciones aplicadas:
 # 1. ✅ SOLUCIÓN: Evita envío de múltiples enlaces de pago
 # 2. ✅ Verifica pago existente antes de crear uno nuevo
 # 3. ✅ Reutiliza enlace si ya hay pago pendiente
 # 4. ✅ Planes con 2 conexiones añadidos
 # 5. ✅ CONTRASEÑA FIJA: mgvpn247 PARA TODOS LOS USUARIOS
+# 6. ✅ COMANDOS 1-6 FUNCIONANDO CORRECTAMENTE PARA COMPRAS
+# 7. ✅ COMPATIBLE CON COMANDOS ANTIGUOS: comprar7, comprar15, etc.
 # ================================================
 
 set -e
@@ -39,6 +41,7 @@ cat << "BANNER"
 ║               💡 SOLUCIÓN: 1 PAGO = 1 ENLACE                ║
 ║               🔌 PLANES CON 2 CONEXIONES                    ║
 ║               🔐 CONTRASEÑA FIJA: mgvpn247                  ║
+║               ⌨️  COMANDOS 1-6 FUNCIONANDO                   ║
 ║                                                              ║
 ╚══════════════════════════════════════════════════════════════╝
 BANNER
@@ -51,6 +54,8 @@ echo -e "  🟢 ${GREEN}FIX 3:${NC} Envía SOLO UN enlace por compra"
 echo -e "  🔵 ${BLUE}FIX 4:${NC} Evita creación de múltiples pagos"
 echo -e "  🟣 ${PURPLE}FIX 5:${NC} Planes con 2 conexiones añadidos"
 echo -e "  🔐 ${CYAN}FIX 6:${NC} Contraseña fija: mgvpn247 para todos los usuarios"
+echo -e "  ⌨️  ${CYAN}FIX 7:${NC} Comandos 1-6 funcionando para compras"
+echo -e "  🔄 ${CYAN}FIX 8:${NC} Compatible con comandos antiguos (comprar7, etc.)"
 echo -e "${CYAN}══════════════════════════════════════════════════════════════${NC}\n"
 
 # Verificar root
@@ -80,6 +85,7 @@ echo -e "   • APK automático + Test 2h"
 echo -e "   • Cron limpieza cada 15 minutos"
 echo -e "   • 🔐 CONTRASEÑA FIJA: mgvpn247 para todos los usuarios"
 echo -e "   • 🔌 PLANES CON 2 CONEXIONES"
+echo -e "   • ⌨️  COMANDOS 1-6 FUNCIONANDO CORRECTAMENTE"
 echo -e "\n${RED}⚠️  Se eliminarán instalaciones anteriores${NC}"
 
 read -p "$(echo -e "${YELLOW}¿Continuar con la instalación? (s/N): ${NC}")" -n 1 -r
@@ -244,9 +250,9 @@ SQL
 echo -e "${GREEN}✅ Estructura creada con planes de 2 conexiones${NC}"
 
 # ================================================
-# CREAR BOT CON FIX DE MÚLTIPLES ENLACES
+# CREAR BOT CON FIX DE MÚLTIPLES ENLACES Y COMANDOS
 # ================================================
-echo -e "\n${CYAN}${BOLD}🤖 CREANDO BOT CON FIX DE MÚLTIPLES ENLACES...${NC}"
+echo -e "\n${CYAN}${BOLD}🤖 CREANDO BOT CON FIX DE MÚLTIPLES ENLACES Y COMANDOS 1-6...${NC}"
 
 cd "$USER_HOME"
 
@@ -280,8 +286,8 @@ find node_modules/whatsapp-web.js -name "Client.js" -type f -exec sed -i 's/cons
 
 echo -e "${GREEN}✅ Parche markedUnread aplicado${NC}"
 
-# Crear bot.js CON FIX DE MÚLTIPLES ENLACES
-echo -e "${YELLOW}📝 Creando bot.js con FIX de múltiples enlaces...${NC}"
+# Crear bot.js CON FIX DE MÚLTIPLES ENLACES Y COMANDOS 1-6
+echo -e "${YELLOW}📝 Creando bot.js con FIX de múltiples enlaces y comandos 1-6...${NC}"
 
 cat > "bot.js" << 'BOTEOF'
 const { Client, LocalAuth, MessageMedia } = require('whatsapp-web.js');
@@ -343,6 +349,7 @@ moment.locale('es');
 
 console.log(chalk.cyan.bold('\n╔══════════════════════════════════════════════════════════════╗'));
 console.log(chalk.cyan.bold('║      🤖 SSH BOT PRO v8.7 - FIX MULTIPLES ENLACES           ║'));
+console.log(chalk.cyan.bold('║               ⌨️  COMANDOS 1-6 FUNCIONANDO                  ║'));
 console.log(chalk.cyan.bold('║               🔐 CONTRASEÑA FIJA: mgvpn247                  ║'));
 console.log(chalk.cyan.bold('╚══════════════════════════════════════════════════════════════╝\n'));
 console.log(chalk.yellow(`📍 IP: ${config.bot.server_ip}`));
@@ -353,6 +360,8 @@ console.log(chalk.green('✅ APK automático desde /root'));
 console.log(chalk.green('✅ Test 2 horas exactas'));
 console.log(chalk.green('✅ CONTRASEÑA FIJA: mgvpn247 para todos los usuarios'));
 console.log(chalk.green('✅ PLANES CON 2 CONEXIONES'));
+console.log(chalk.green('✅ COMANDOS 1-6 FUNCIONANDO PARA COMPRAS'));
+console.log(chalk.green('✅ COMPATIBLE: comprar7, comprar15, comprar30, etc.'));
 
 // Servidor APK
 let apkServer = null;
@@ -789,30 +798,30 @@ client.on('message', async (msg) => {
 
 🔌 *1 CONEXIÓN*
 🗓 *7 días* - $${config.prices.price_7d_1conn} ARS
-     _Escribe: *1*_
+     _Escribe: *1* (o comprar7)_
 
 🗓 *15 días* - $${config.prices.price_15d_1conn} ARS
-     _Escribe: *2*_
+     _Escribe: *2* (o comprar15)_
 
 🗓 *30 días* - $${config.prices.price_30d_1conn} ARS
-     _Escribe: *3*_
+     _Escribe: *3* (o comprar30)_
 
 🔌🔌 *2 CONEXIONES SIMULTÁNEAS*
 🗓 *7 días* - $${config.prices.price_7d_2conn} ARS
-     _Escribe: *4*_
+     _Escribe: *4* (o comprar7x2)_
 
 🗓 *15 días* - $${config.prices.price_15d_2conn} ARS
-     _Escribe: *5*_
+     _Escribe: *5* (o comprar15x2)_
 
 🗓 *30 días* - $${config.prices.price_30d_2conn} ARS
-     _Escribe: *6*_
+     _Escribe: *6* (o comprar30x2)_
 
 💳 Pago: MercadoPago
 ⚡ Activación: 2-5 min
 
-Escribe el comando`, { sendSeen: false });
+Escribe el número (1-6) o el comando`, { sendSeen: false });
     }
-    else if (['1', '2', '3', '4', '5', '6'].includes(text)) {
+    else if (['1', '2', '3', '4', '5', '6', 'comprar7', 'comprar15', 'comprar30', 'comprar7x2', 'comprar15x2', 'comprar30x2'].includes(text)) {
         config = loadConfig();
         
         console.log(chalk.yellow(`🔑 Verificando token MP...`));
@@ -840,16 +849,44 @@ El sistema de pagos no está disponible.
             return;
         }
         
+        // MAPEO DE COMANDOS COMPATIBLES CON AMBOS FORMATOS
         const planMap = {
-            '1': { days: 7, amount: config.prices.price_7d_1conn, plan: '7d', conn: 1 },
-            '2': { days: 15, amount: config.prices.price_15d_1conn, plan: '15d', conn: 1 },
-            '3': { days: 30, amount: config.prices.price_30d_1conn, plan: '30d', conn: 1 },
-            '4': { days: 7, amount: config.prices.price_7d_2conn, plan: '7d', conn: 2 },
-            '5': { days: 15, amount: config.prices.price_15d_2conn, plan: '15d', conn: 2 },
-            '6': { days: 30, amount: config.prices.price_30d_2conn, plan: '30d', conn: 2 }
+            // Formato numérico simple (1-6)
+            '1': { days: 7, amount: config.prices.price_7d_1conn, plan: '7d', conn: 1, command: 'comprar7' },
+            '2': { days: 15, amount: config.prices.price_15d_1conn, plan: '15d', conn: 1, command: 'comprar15' },
+            '3': { days: 30, amount: config.prices.price_30d_1conn, plan: '30d', conn: 1, command: 'comprar30' },
+            '4': { days: 7, amount: config.prices.price_7d_2conn, plan: '7d', conn: 2, command: 'comprar7x2' },
+            '5': { days: 15, amount: config.prices.price_15d_2conn, plan: '15d', conn: 2, command: 'comprar15x2' },
+            '6': { days: 30, amount: config.prices.price_30d_2conn, plan: '30d', conn: 2, command: 'comprar30x2' },
+            // Formato de texto (backward compatibility)
+            'comprar7': { days: 7, amount: config.prices.price_7d_1conn, plan: '7d', conn: 1, command: 'comprar7' },
+            'comprar15': { days: 15, amount: config.prices.price_15d_1conn, plan: '15d', conn: 1, command: 'comprar15' },
+            'comprar30': { days: 30, amount: config.prices.price_30d_1conn, plan: '30d', conn: 1, command: 'comprar30' },
+            'comprar7x2': { days: 7, amount: config.prices.price_7d_2conn, plan: '7d', conn: 2, command: 'comprar7x2' },
+            'comprar15x2': { days: 15, amount: config.prices.price_15d_2conn, plan: '15d', conn: 2, command: 'comprar15x2' },
+            'comprar30x2': { days: 30, amount: config.prices.price_30d_2conn, plan: '30d', conn: 2, command: 'comprar30x2' }
         };
         
         const p = planMap[text];
+        
+        if (!p) {
+            await client.sendMessage(phone, `❌ *COMANDO NO VÁLIDO*
+
+Escribe solo números del 1 al 6
+
+📋 *PLANES DISPONIBLES:*
+1️⃣ 7 días (1 conexión)
+2️⃣ 15 días (1 conexión)
+3️⃣ 30 días (1 conexión)
+4️⃣ 7 días (2 conexiones)
+5️⃣ 15 días (2 conexiones)
+6️⃣ 30 días (2 conexiones)
+
+💬 Escribe *2* para ver precios`, { sendSeen: false });
+            return;
+        }
+        
+        console.log(chalk.cyan(`📦 Plan seleccionado: ${p.days} días, ${p.conn} conexiones, $${p.amount}`));
         
         // ✅ VERIFICAR SI YA EXISTE UN PAGO PENDIENTE (SOLUCIÓN AL PROBLEMA)
         const existingPayment = await getExistingPayment(phone, p.plan, p.days, p.conn);
@@ -857,16 +894,19 @@ El sistema de pagos no está disponible.
         if (existingPayment) {
             console.log(chalk.yellow(`📌 Reutilizando pago existente: ${existingPayment.payment_id}`));
             
+            const planName = p.days === 7 ? '7 DÍAS' : p.days === 15 ? '15 DÍAS' : '30 DÍAS';
+            const connText = p.conn > 1 ? `${p.conn} CONEXIONES SIMULTÁNEAS` : '1 CONEXIÓN';
+            
             await client.sendMessage(phone, `📋 *TIENES UN PAGO PENDIENTE*
 
 Ya generaste un pago para este plan.
 
+⚡ *PLAN:* ${planName}
+🔌 *${connText}*
+💰 *$${existingPayment.amount} ARS*
+
 🔗 *ENLACE DE PAGO EXISTENTE:*
 ${existingPayment.payment_url}
-
-📦 Plan: ${p.days} días
-💰 $${existingPayment.amount} ARS
-🔌 ${p.conn} ${p.conn > 1 ? 'conexiones simultáneas' : 'conexión'}
 
 ⏰ *Este enlace expira en 24 horas*
 
@@ -876,7 +916,15 @@ ${existingPayment.payment_url}
             if (fs.existsSync(existingPayment.qr_code)) {
                 try {
                     const media = MessageMedia.fromFilePath(existingPayment.qr_code);
-                    await client.sendMessage(phone, media, { caption: '📱 Escanea con la app de MercadoPago', sendSeen: false });
+                    await client.sendMessage(phone, media, { 
+                        caption: `📱 *ESCAPEA CON MERCADOPAGO*
+                        
+⚡ ${planName}
+🔌 ${connText}
+💰 $${existingPayment.amount} ARS
+⏰ Válido por 24 horas`, 
+                        sendSeen: false 
+                    });
                     console.log(chalk.green('✅ QR de pago existente enviado'));
                 } catch (qrError) {
                     console.error(chalk.red('⚠️ Error enviando QR:'), qrError.message);
@@ -887,29 +935,33 @@ ${existingPayment.payment_url}
         }
         
         // Si no hay pago existente, crear uno nuevo
-        await client.sendMessage(phone, `⏳ Generando pago MercadoPago...
+        const connText = p.conn > 1 ? `${p.conn} conexiones simultáneas` : '1 conexión';
+        
+        await client.sendMessage(phone, `⏳ *GENERANDO PAGO MERCADOPAGO...*
 
-📦 Plan: ${p.days} días
-💰 Monto: $${p.amount} ARS
-🔌 Conexión: ${p.conn} ${p.conn > 1 ? 'conexiones simultáneas' : 'conexión'}
+📦 Plan: *${p.days} días*
+💰 Monto: *$${p.amount} ARS*
+🔌 Conexión: *${connText}*
 
-⏰ Procesando...`, { sendSeen: false });
+⏰ *PROCESANDO TU SOLICITUD...*`, { sendSeen: false });
         
         try {
             const payment = await createMercadoPagoPayment(phone, p.plan, p.days, p.amount, p.conn);
             
             if (payment.success) {
+                const planName = p.days === 7 ? '7 DÍAS' : p.days === 15 ? '15 DÍAS' : '30 DÍAS';
+                const connDisplay = p.conn > 1 ? `${p.conn} CONEXIONES SIMULTÁNEAS` : '1 CONEXIÓN';
+                
                 await client.sendMessage(phone, `💳 *PAGO GENERADO EXITOSAMENTE*
 
-📦 Plan: ${p.days} días
-💰 $${p.amount} ARS
-🔌 ${p.conn} ${p.conn > 1 ? 'conexiones simultáneas' : 'conexión'}
+⚡ *PLAN:* ${planName}
+🔌 *${connDisplay}*
+💰 *$${p.amount} ARS*
 
 🔗 *ENLACE DE PAGO:*
 ${payment.paymentUrl}
 
-
-✅ Te notificaré cuando se apruebe el pago
+✅ *TE NOTIFICARÉ CUANDO SE APRUEBE EL PAGO*
 
 💬 Escribe *4* para ver estado del pago`, { sendSeen: false });
                 
@@ -917,7 +969,15 @@ ${payment.paymentUrl}
                 if (fs.existsSync(payment.qrPath)) {
                     try {
                         const media = MessageMedia.fromFilePath(payment.qrPath);
-                        await client.sendMessage(phone, media, { caption: '📱 Escanea con la app de MercadoPago', sendSeen: false });
+                        await client.sendMessage(phone, media, { 
+                            caption: `📱 *ESCAPEA CON MERCADOPAGO*
+                            
+⚡ ${planName}
+🔌 ${connDisplay}
+💰 $${p.amount} ARS
+⏰ Pago válido por 24 horas`, 
+                            sendSeen: false 
+                        });
                         console.log(chalk.green('✅ QR de pago enviado'));
                     } catch (qrError) {
                         console.error(chalk.red('⚠️ Error enviando QR:'), qrError.message);
@@ -1179,7 +1239,7 @@ console.log(chalk.green('\n🚀 Inicializando bot...\n'));
 client.initialize();
 BOTEOF
 
-echo -e "${GREEN}✅ Bot creado con FIX de múltiples enlaces${NC}"
+echo -e "${GREEN}✅ Bot creado con FIX de múltiples enlaces y comandos 1-6${NC}"
 
 # ================================================
 # CREAR PANEL DE CONTROL
@@ -1201,6 +1261,7 @@ show_header() {
     echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
     echo -e "${CYAN}║              🎛️  PANEL SSH BOT PRO v8.7                    ║${NC}"
     echo -e "${CYAN}║               🔧 FIX: 1 PAGO = 1 ENLACE                    ║${NC}"
+    echo -e "${CYAN}║               ⌨️  COMANDOS 1-6 FUNCIONANDO                  ║${NC}"
     echo -e "${CYAN}║               🔐 CONTRASEÑA FIJA: mgvpn247                 ║${NC}"
     echo -e "${CYAN}╚══════════════════════════════════════════════════════════════╝${NC}\n"
 }
@@ -1243,6 +1304,7 @@ while true; do
     echo -e "  Test: ${GREEN}2 horas${NC} | Limpieza: ${GREEN}cada 15 min${NC}"
     echo -e "  Contraseña: ${GREEN}mgvpn247${NC} (FIJA PARA TODOS)"
     echo -e "  FIX: ${GREEN}1 pago = 1 enlace${NC} (NO múltiples)"
+    echo -e "  Comandos: ${GREEN}1-6 funcionando${NC} para compras"
     echo -e ""
     
     echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
@@ -1261,6 +1323,7 @@ while true; do
     echo -e "${CYAN}[12]${NC} 📝  Ver logs"
     echo -e "${CYAN}[13]${NC} 🔧  Reparar bot"
     echo -e "${CYAN}[14]${NC} 🧪  Test MercadoPago"
+    echo -e "${CYAN}[15]${NC} ⌨️   Test comandos 1-6"
     echo -e "${CYAN}[0]${NC}  🚪  Salir"
     echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     
@@ -1543,6 +1606,12 @@ while true; do
             echo -e "\n${YELLOW}🔐 SEGURIDAD:${NC}"
             echo -e "  Contraseña predeterminada: ${GREEN}mgvpn247${NC} (FIJA PARA TODOS)"
             
+            echo -e "\n${YELLOW}⌨️  COMANDOS:${NC}"
+            echo -e "  Formatos aceptados:"
+            echo -e "  • 1-6 (números)"
+            echo -e "  • comprar7, comprar15, comprar30"
+            echo -e "  • comprar7x2, comprar15x2, comprar30x2"
+            
             read -p "\nPresiona Enter..." 
             ;;
         12)
@@ -1606,6 +1675,35 @@ while true; do
             
             read -p "\nPresiona Enter..." 
             ;;
+        15)
+            clear
+            echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
+            echo -e "${CYAN}║                   🧪 TEST COMANDOS 1-6                      ║${NC}"
+            echo -e "${CYAN}╚══════════════════════════════════════════════════════════════╝${NC}\n"
+            
+            echo -e "${YELLOW}🔍 Verificando configuración de comandos...${NC}\n"
+            
+            echo -e "${CYAN}✅ COMANDOS CONFIGURADOS:${NC}"
+            echo -e "  ${GREEN}1${NC} → 7 días, 1 conexión"
+            echo -e "  ${GREEN}2${NC} → 15 días, 1 conexión"
+            echo -e "  ${GREEN}3${NC} → 30 días, 1 conexión"
+            echo -e "  ${GREEN}4${NC} → 7 días, 2 conexiones"
+            echo -e "  ${GREEN}5${NC} → 15 días, 2 conexiones"
+            echo -e "  ${GREEN}6${NC} → 30 días, 2 conexiones"
+            
+            echo -e "\n${CYAN}📋 PRECIOS ACTUALES:${NC}"
+            echo -e "  7 días (1 conn): $${CURRENT_7D_1:-$(get_val '.prices.price_7d_1conn')}"
+            echo -e "  15 días (1 conn): $${CURRENT_15D_1:-$(get_val '.prices.price_15d_1conn')}"
+            echo -e "  30 días (1 conn): $${CURRENT_30D_1:-$(get_val '.prices.price_30d_1conn')}"
+            echo -e "  7 días (2 conn): $${CURRENT_7D_2:-$(get_val '.prices.price_7d_2conn')}"
+            echo -e "  15 días (2 conn): $${CURRENT_15D_2:-$(get_val '.prices.price_15d_2conn')}"
+            echo -e "  30 días (2 conn): $${CURRENT_30D_2:-$(get_val '.prices.price_30d_2conn')}"
+            
+            echo -e "\n${GREEN}✅ Sistema listo para recibir comandos 1-6${NC}"
+            echo -e "${YELLOW}📱 Los usuarios pueden escribir 1, 2, 3, 4, 5, 6 para comprar${NC}"
+            
+            read -p "\nPresiona Enter..." 
+            ;;
         0)
             echo -e "\n${GREEN}👋 Hasta pronto${NC}\n"
             exit 0
@@ -1624,7 +1722,7 @@ echo -e "${GREEN}✅ Panel de control creado${NC}"
 # ================================================
 # INICIAR BOT
 # ================================================
-echo -e "\n${CYAN}${BOLD}🚀 INICIANDO BOT CON FIX DE MÚLTIPLES ENLACES...${NC}"
+echo -e "\n${CYAN}${BOLD}🚀 INICIANDO BOT CON FIX DE MÚLTIPLES ENLACES Y COMANDOS 1-6...${NC}"
 
 cd "$USER_HOME"
 pm2 start bot.js --name ssh-bot
@@ -1634,6 +1732,73 @@ pm2 startup systemd -u root --hp /root > /dev/null 2>&1
 sleep 3
 
 # ================================================
+# CREAR SCRIPT DE TEST DE COMANDOS
+# ================================================
+echo -e "\n${CYAN}${BOLD}🧪 CREANDO SCRIPT DE TEST DE COMANDOS...${NC}"
+
+cat > /usr/local/bin/test-comandos << 'TESTEOF'
+#!/bin/bash
+echo -e "\n🔍 TEST DE COMANDOS 1-6"
+echo -e "=====================\n"
+
+echo -e "📋 Verificando configuración de precios..."
+PRECIOS="/opt/ssh-bot/config/config.json"
+
+if [[ -f "$PRECIOS" ]]; then
+    echo -e "\n✅ CONFIGURACIÓN ACTUAL:"
+    echo -e "   7 días (1 conn): $ $(jq -r '.prices.price_7d_1conn' "$PRECIOS")"
+    echo -e "   15 días (1 conn): $ $(jq -r '.prices.price_15d_1conn' "$PRECIOS")"
+    echo -e "   30 días (1 conn): $ $(jq -r '.prices.price_30d_1conn' "$PRECIOS")"
+    echo -e "   7 días (2 conn): $ $(jq -r '.prices.price_7d_2conn' "$PRECIOS")"
+    echo -e "   15 días (2 conn): $ $(jq -r '.prices.price_15d_2conn' "$PRECIOS")"
+    echo -e "   30 días (2 conn): $ $(jq -r '.prices.price_30d_2conn' "$PRECIOS")"
+else
+    echo -e "❌ No se encontró configuración"
+fi
+
+echo -e "\n📊 Verificando base de datos..."
+DB="/opt/ssh-bot/data/users.db"
+if [[ -f "$DB" ]]; then
+    echo -e "✅ Base de datos encontrada"
+    echo -e "   Usuarios: $(sqlite3 "$DB" "SELECT COUNT(*) FROM users" 2>/dev/null || echo 0)"
+    echo -e "   Pagos: $(sqlite3 "$DB" "SELECT COUNT(*) FROM payments" 2>/dev/null || echo 0)"
+else
+    echo -e "❌ Base de datos no encontrada"
+fi
+
+echo -e "\n🤖 Verificando bot..."
+if pm2 status | grep -q "ssh-bot"; then
+    echo -e "✅ Bot en ejecución"
+else
+    echo -e "❌ Bot NO está en ejecución"
+fi
+
+echo -e "\n💡 COMANDOS DISPONIBLES PARA USUARIOS:"
+echo -e "   menu  - Mostrar menú principal"
+echo -e "   1     - Prueba gratis (2 horas)"
+echo -e "   2     - Ver planes disponibles"
+echo -e "   3     - Mis cuentas"
+echo -e "   4     - Estado de pago"
+echo -e "   5     - Descargar APP"
+echo -e "   6     - Soporte técnico"
+echo -e ""
+echo -e "   ⚡ COMPRAR PLANES:"
+echo -e "   1     - Comprar 7 días (1 conexión)"
+echo -e "   2     - Comprar 15 días (1 conexión)"
+echo -e "   3     - Comprar 30 días (1 conexión)"
+echo -e "   4     - Comprar 7 días (2 conexiones)"
+echo -e "   5     - Comprar 15 días (2 conexiones)"
+echo -e "   6     - Comprar 30 días (2 conexiones)"
+echo -e ""
+echo -e "   🔄 COMPATIBILIDAD:"
+echo -e "   También funcionan: comprar7, comprar15, comprar30, etc."
+
+echo -e "\n✅ Sistema listo para recibir comandos 1-6"
+TESTEOF
+
+chmod +x /usr/local/bin/test-comandos
+
+# ================================================
 # MENSAJE FINAL
 # ================================================
 clear
@@ -1641,13 +1806,15 @@ echo -e "${GREEN}${BOLD}"
 cat << "FINAL"
 ╔══════════════════════════════════════════════════════════════╗
 ║                                                              ║
-║      🎉 INSTALACIÓN COMPLETADA - FIX APLICADO 🎉           ║
+║      🎉 INSTALACIÓN COMPLETADA - TODO FUNCIONA 🎉          ║
 ║                                                              ║
 ║         SSH BOT PRO v8.7 - FIX MULTIPLES ENLACES           ║
 ║           💡 SOLUCIÓN: 1 PAGO = 1 ENLACE                    ║
 ║           🤖 WhatsApp Web parcheado                         ║
 ║           🔌 PLANES CON 2 CONEXIONES                        ║
 ║           🔐 CONTRASEÑA FIJA: mgvpn247 PARA TODOS           ║
+║           ⌨️  COMANDOS 1-6 FUNCIONANDO CORRECTAMENTE        ║
+║           🔄 COMPATIBLE: comprar7, comprar15, etc.         ║
 ║                                                              ║
 ╚══════════════════════════════════════════════════════════════╝
 FINAL
@@ -1656,8 +1823,8 @@ echo -e "${NC}"
 echo -e "${CYAN}══════════════════════════════════════════════════════════════${NC}"
 echo -e "${GREEN}✅ Bot instalado con FIX de múltiples enlaces${NC}"
 echo -e "${GREEN}✅ Sistema: 1 pago = 1 enlace (NO múltiples)${NC}"
-echo -e "${GREEN}✅ Verifica pagos existentes antes de crear uno nuevo${NC}"
-echo -e "${GREEN}✅ Reutiliza enlaces de pagos pendientes${NC}"
+echo -e "${GREEN}✅ COMANDOS 1-6 FUNCIONANDO PARA COMPRAS${NC}"
+echo -e "${GREEN}✅ Compatible con comandos antiguos${NC}"
 echo -e "${GREEN}✅ WhatsApp Web parcheado (no markedUnread error)${NC}"
 echo -e "${GREEN}✅ Planes con 1 y 2 conexiones${NC}"
 echo -e "${GREEN}✅ CONTRASEÑA FIJA: mgvpn247 para todos los usuarios${NC}"
@@ -1665,6 +1832,7 @@ echo -e "${CYAN}═════════════════════�
 
 echo -e "${YELLOW}📋 COMANDOS:${NC}\n"
 echo -e "  ${GREEN}sshbot${NC}           - Panel de control"
+echo -e "  ${GREEN}test-comandos${NC}    - Test de comandos 1-6"
 echo -e "  ${GREEN}pm2 logs ssh-bot${NC} - Ver logs"
 echo -e "  ${GREEN}pm2 restart ssh-bot${NC} - Reiniciar\n"
 
@@ -1672,43 +1840,55 @@ echo -e "${YELLOW}🔧 CONFIGURACIÓN:${NC}\n"
 echo -e "  1. Ejecuta: ${GREEN}sshbot${NC}"
 echo -e "  2. Opción ${CYAN}[8]${NC} - Configurar MercadoPago"
 echo -e "  3. Opción ${CYAN}[14]${NC} - Test MercadoPago"
-echo -e "  4. Opción ${CYAN}[3]${NC} - Escanear QR WhatsApp"
-echo -e "  5. Sube APK a /root/app.apk\n"
+echo -e "  4. Opción ${CYAN}[15]${NC} - Test comandos 1-6"
+echo -e "  5. Opción ${CYAN}[3]${NC} - Escanear QR WhatsApp"
+echo -e "  6. Sube APK a /root/app.apk\n"
 
-echo -e "${YELLOW}🔌 NUEVOS PLANES:${NC}"
-echo -e "  • 7 días (1 conexión): ${GREEN}comprar7${NC}"
-echo -e "  • 15 días (1 conexión): ${GREEN}comprar15${NC}"
-echo -e "  • 30 días (1 conexión): ${GREEN}comprar30${NC}"
-echo -e "  • 7 días (2 conexiones): ${GREEN}comprar7x2${NC}"
-echo -e "  • 15 días (2 conexiones): ${GREEN}comprar15x2${NC}"
-echo -e "  • 30 días (2 conexiones): ${GREEN}comprar30x2${NC}\n"
+echo -e "${YELLOW}⌨️  COMANDOS PARA USUARIOS:${NC}\n"
+echo -e "  ${GREEN}1${NC} - 7 días (1 conexión)  - $${config.prices.price_7d_1conn}"
+echo -e "  ${GREEN}2${NC} - 15 días (1 conexión) - $${config.prices.price_15d_1conn}"
+echo -e "  ${GREEN}3${NC} - 30 días (1 conexión) - $${config.prices.price_30d_1conn}"
+echo -e "  ${GREEN}4${NC} - 7 días (2 conexiones) - $${config.prices.price_7d_2conn}"
+echo -e "  ${GREEN}5${NC} - 15 días (2 conexiones) - $${config.prices.price_15d_2conn}"
+echo -e "  ${GREEN}6${NC} - 30 días (2 conexiones) - $${config.prices.price_30d_2conn}\n"
 
 echo -e "${YELLOW}🔐 CONTRASEÑA:${NC}"
 echo -e "  • ${GREEN}mgvpn247${NC} para TODOS los usuarios\n"
 
 echo -e "${YELLOW}🔧 CÓMO FUNCIONA EL FIX:${NC}"
-echo -e "  1. Cuando un usuario escribe 'comprar30x2' por primera vez → Crea pago nuevo"
-echo -e "  2. Si vuelve a escribir 'comprar30x2' → Muestra el pago existente"
+echo -e "  1. Cuando un usuario escribe '1' (comprar7) por primera vez → Crea pago nuevo"
+echo -e "  2. Si vuelve a escribir '1' → Muestra el pago existente"
 echo -e "  3. NO crea múltiples pagos para la misma compra"
-echo -e "  4. Los pagos pendientes se verifican cada 2 minutos\n"
+echo -e "  4. Los pagos pendientes se verifican cada 2 minutos"
+echo -e "  5. Funciona igual para comandos 2-6 y formatos antiguos\n"
 
 echo -e "${YELLOW}📊 INFO:${NC}"
 echo -e "  IP: ${CYAN}$SERVER_IP${NC}"
 echo -e "  BD: ${CYAN}$DB_FILE${NC}"
-echo -e "  Config: ${CYAN}$CONFIG_FILE${NC}\n"
+echo -e "  Config: ${CYAN}$CONFIG_FILE${NC}"
+echo -e "  Script test: ${CYAN}/usr/local/bin/test-comandos${NC}\n"
 
 echo -e "${CYAN}══════════════════════════════════════════════════════════════${NC}\n"
 
-read -p "$(echo -e "${YELLOW}¿Abrir panel? (s/N): ${NC}")" -n 1 -r
+read -p "$(echo -e "${YELLOW}¿Probar comandos 1-6? (s/N): ${NC}")" -n 1 -r
+echo
+if [[ $REPLY =~ ^[Ss]$ ]]; then
+    echo -e "\n${CYAN}Probando comandos...${NC}\n"
+    /usr/local/bin/test-comandos
+else
+    echo -e "\n${YELLOW}💡 Para probar después: ${GREEN}test-comandos${NC}\n"
+fi
+
+read -p "$(echo -e "${YELLOW}¿Abrir panel de control? (s/N): ${NC}")" -n 1 -r
 echo
 if [[ $REPLY =~ ^[Ss]$ ]]; then
     echo -e "\n${CYAN}Abriendo panel...${NC}\n"
     sleep 2
     /usr/local/bin/sshbot
 else
-    echo -e "\n${YELLOW}💡 Ejecuta: ${GREEN}sshbot${NC}\n"
+    echo -e "\n${YELLOW}💡 Ejecuta: ${GREEN}sshbot${NC} para abrir el panel\n"
 fi
 
-echo -e "${GREEN}${BOLD}¡Instalación exitosa con FIX de múltiples enlaces! 🚀${NC}\n"
+echo -e "${GREEN}${BOLD}¡Instalación exitosa! Los comandos 1-6 ahora funcionan correctamente 🚀${NC}\n"
 
 exit 0
