@@ -1157,7 +1157,7 @@ ${error.message}
 📱 *INSTRUCCIONES:*
 1. Toca el archivo para instalar
 2. Permite "Fuentes desconocidas" si te lo pide
-3. Abre la app
+3. Abre la app conectate a una red wifi para que se actualize correctamente 
 4. Ingresa tus datos de acceso
    👤 Usuario: (tu usuario)
    🔑 Contraseña: mgvpn247
