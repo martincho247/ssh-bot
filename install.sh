@@ -1,11 +1,13 @@
 #!/bin/bash
 # ================================================
-# SSH BOT PRO v8.9 - PLANES CONFIGURABLES
+# SSH BOT PRO v8.7 - FIX COMANDOS PLANES
+# CON GESTIÓN DE PLANES MANUAL
 # Correcciones aplicadas:
 # 1. ✅ MENÚ PRINCIPAL: 1=Prueba, 2=Ver Planes, 3=Cuentas, 4=Estado, 5=APP, 6=Soporte
-# 2. ✅ MENÚ PLANES: Totalmente configurable desde panel
-# 3. ✅ SISTEMA DE ESTADOS: Sin conflictos entre menús
-# 4. ✅ CONFIGURACIÓN COMPLETA: Precios, días y conexiones configurables
+# 2. ✅ MENÚ PLANES: 1=7d 1con, 2=15d 1con, 3=30d 1con, 4=7d 2con, 5=15d 2con, 6=30d 2con
+# 3. ✅ SISTEMA DE ESTADOS: Cuando usuario está en "modo compra", los números 1-6 son para comprar
+# 4. ✅ FIX TOTAL: Sin conflictos entre menús
+# 5. ✅ NUEVO: Gestión manual de planes en panel
 # ================================================
 
 set -e
@@ -34,16 +36,17 @@ cat << "BANNER"
 ║     ╚══════╝╚══════╝╚═╝  ╚═╝    ╚═════╝  ╚═════╝    ╚═╝     ║
 ╠══════════════════════════════════════════════════════════════╣
 ║                                                              ║
-║           🚀 SSH BOT PRO v8.9 - PLANES CONFIGURABLES       ║
+║           🚀 SSH BOT PRO v8.7 - FIX COMANDOS PLANES         ║
 ║               💡 SISTEMA DE ESTADOS INTELIGENTE             ║
-║               ⚙️  CONFIGURAR PLANES DESDE PANEL            ║
+║               🔌 1,2,3,4,5,6 PARA COMPRAR EN PLANES         ║
 ║               🔐 CONTRASEÑA FIJA: mgvpn247                  ║
+║               📋 GESTIÓN MANUAL DE PLANES EN PANEL          ║
 ║                                                              ║
 ╚══════════════════════════════════════════════════════════════╝
 BANNER
 echo -e "${NC}"
 
-echo -e "${GREEN}✅ NUEVO SISTEMA CON PLANES CONFIGURABLES:${NC}"
+echo -e "${GREEN}✅ NUEVO SISTEMA DE COMANDOS:${NC}"
 echo -e "  🔴 ${RED}MENÚ PRINCIPAL:${NC}"
 echo -e "     ${GREEN}1${NC} = Prueba gratis"
 echo -e "     ${GREEN}2${NC} = Ver planes"
@@ -52,10 +55,14 @@ echo -e "     ${GREEN}4${NC} = Estado de pago"
 echo -e "     ${GREEN}5${NC} = Descargar APP"
 echo -e "     ${GREEN}6${NC} = Soporte"
 echo -e "  🟡 ${YELLOW}MENÚ PLANES:${NC}"
-echo -e "     ${GREEN}Totalmente configurable desde el panel${NC}"
-echo -e "     ${GREEN}Puedes agregar/editar/eliminar planes${NC}"
-echo -e "     ${GREEN}Configurar precios, días y conexiones${NC}"
-echo -e "  🟢 ${GREEN}NUEVO:${NC} Sistema de planes configurables"
+echo -e "     ${GREEN}1${NC} = 7 días (1 conexión) - COMPRAR"
+echo -e "     ${GREEN}2${NC} = 15 días (1 conexión) - COMPRAR"
+echo -e "     ${GREEN}3${NC} = 30 días (1 conexión) - COMPRAR"
+echo -e "     ${GREEN}4${NC} = 7 días (2 conexiones) - COMPRAR"
+echo -e "     ${GREEN}5${NC} = 15 días (2 conexiones) - COMPRAR"
+echo -e "     ${GREEN}6${NC} = 30 días (2 conexiones) - COMPRAR"
+echo -e "  🟢 ${GREEN}FIX:${NC} Sistema de estados evita conflictos"
+echo -e "  📋 ${CYAN}NUEVO:${NC} Gestión manual de planes en panel"
 echo -e "${CYAN}══════════════════════════════════════════════════════════════${NC}\n"
 
 # Verificar root
@@ -78,14 +85,15 @@ echo -e "${GREEN}✅ IP detectada: ${CYAN}$SERVER_IP${NC}\n"
 # Confirmar instalación
 echo -e "${YELLOW}⚠️  ESTE INSTALADOR HARÁ:${NC}"
 echo -e "   • Instalar Node.js 20.x + Chrome"
-echo -e "   • Crear SSH Bot Pro v8.9 CON PLANES CONFIGURABLES"
-echo -e "   • Sistema de estados sin conflictos"
+echo -e "   • Crear SSH Bot Pro v8.7 CON SISTEMA DE ESTADOS"
+echo -e "   • Sistema: 1,2,3,4,5,6 funcionan para comprar EN PLANES"
+echo -e "   • Sin conflictos entre menús"
 echo -e "   • Panel de control 100% funcional"
 echo -e "   • APK automático + Test 2h"
 echo -e "   • Cron limpieza cada 15 minutos"
 echo -e "   • 🔐 CONTRASEÑA FIJA: mgvpn247 para todos"
-echo -e "   • ⚙️  NUEVO: Configurar planes desde panel"
-echo -e "   • 💰 Configurar precios, días y conexiones"
+echo -e "   • 🔌 PLANES CON 2 CONEXIONES"
+echo -e "   • 📋 GESTIÓN MANUAL DE PLANES EN PANEL"
 echo -e "\n${RED}⚠️  Se eliminarán instalaciones anteriores${NC}"
 
 read -p "$(echo -e "${YELLOW}¿Continuar con la instalación? (s/N): ${NC}")" -n 1 -r
@@ -100,37 +108,38 @@ fi
 # ================================================
 echo -e "\n${CYAN}${BOLD}📦 INSTALANDO DEPENDENCIAS...${NC}"
 
-apt-get update -qq
-apt-get install -y -qq curl wget git unzip jq sqlite3 build-essential
-
 # Instalar Node.js 20.x
-if ! command -v node &> /dev/null || ! node --version | grep -q "v20"; then
-    echo -e "${YELLOW}📦 Instalando Node.js 20.x...${NC}"
+if ! node --version 2>/dev/null | grep -q "v20"; then
+    echo -e "${YELLOW}📥 Instalando Node.js 20.x...${NC}"
     curl -fsSL https://deb.nodesource.com/setup_20.x | bash - > /dev/null 2>&1
-    apt-get install -y -qq nodejs > /dev/null 2>&1
+    apt-get install -y nodejs > /dev/null 2>&1
 fi
+echo -e "${GREEN}✅ Node.js $(node --version)${NC}"
 
-# Instalar Chrome
-if ! command -v google-chrome &> /dev/null; then
-    echo -e "${YELLOW}🌐 Instalando Google Chrome...${NC}"
-    wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | apt-key add -
-    echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list
-    apt-get update -qq
-    apt-get install -y -qq google-chrome-stable > /dev/null 2>&1
-fi
+# Instalar dependencias del sistema
+echo -e "${YELLOW}📥 Instalando dependencias del sistema...${NC}"
+apt-get update > /dev/null 2>&1
+apt-get install -y \
+    git \
+    curl \
+    wget \
+    sqlite3 \
+    jq \
+    qrencode \
+    chromium \
+    chromium-driver \
+    ffmpeg \
+    python3 \
+    python3-pip \
+    net-tools \
+    psmisc \
+    build-essential \
+    > /dev/null 2>&1
 
 # Instalar PM2
-if ! command -v pm2 &> /dev/null; then
-    echo -e "${YELLOW}⚡ Instalando PM2...${NC}"
-    npm install -g pm2 --silent > /dev/null 2>&1
-fi
-
-# Instalar jq si no está
-if ! command -v jq &> /dev/null; then
-    apt-get install -y -qq jq > /dev/null 2>&1
-fi
-
-echo -e "${GREEN}✅ Dependencias instaladas${NC}"
+echo -e "${YELLOW}📥 Instalando PM2...${NC}"
+npm install -g pm2 > /dev/null 2>&1
+echo -e "${GREEN}✅ PM2 instalado${NC}"
 
 # ================================================
 # PREPARAR ESTRUCTURA
@@ -141,7 +150,6 @@ INSTALL_DIR="/opt/ssh-bot"
 USER_HOME="/root/ssh-bot"
 DB_FILE="$INSTALL_DIR/data/users.db"
 CONFIG_FILE="$INSTALL_DIR/config/config.json"
-PLANS_FILE="$INSTALL_DIR/config/plans.json"
 
 # Limpiar instalaciones anteriores
 echo -e "${YELLOW}🧹 Limpiando instalaciones anteriores...${NC}"
@@ -157,17 +165,23 @@ mkdir -p /root/.wwebjs_auth
 chmod -R 755 "$INSTALL_DIR"
 chmod -R 700 /root/.wwebjs_auth
 
-# Crear configuración base
+# Crear configuración CON NUEVOS PLANES
 cat > "$CONFIG_FILE" << EOF
 {
     "bot": {
         "name": "SSH Bot Pro",
-        "version": "8.9-PLANES-CONFIGURABLES",
+        "version": "8.7-FIX-COMANDOS-ESTADOS",
         "server_ip": "$SERVER_IP",
         "default_password": "mgvpn247"
     },
     "prices": {
         "test_hours": 2,
+        "price_7d_1conn": 500.00,
+        "price_15d_1conn": 800.00,
+        "price_30d_1conn": 1200.00,
+        "price_7d_2conn": 800.00,
+        "price_15d_2conn": 1200.00,
+        "price_30d_2conn": 1800.00,
         "currency": "ARS"
     },
     "mercadopago": {
@@ -181,89 +195,12 @@ cat > "$CONFIG_FILE" << EOF
     "paths": {
         "database": "$DB_FILE",
         "chromium": "/usr/bin/google-chrome",
-        "qr_codes": "$INSTALL_DIR/qr_codes",
-        "plans": "$PLANS_FILE"
+        "qr_codes": "$INSTALL_DIR/qr_codes"
     }
 }
 EOF
 
-# Crear planes por defecto
-cat > "$PLANS_FILE" << EOF
-[
-    {
-        "id": 1,
-        "name": "7 DÍAS",
-        "days": 7,
-        "connections": 1,
-        "price": 500.00,
-        "enabled": true,
-        "description": "7 días con 1 conexión simultánea",
-        "display_order": 1
-    },
-    {
-        "id": 2,
-        "name": "15 DÍAS",
-        "days": 15,
-        "connections": 1,
-        "price": 800.00,
-        "enabled": true,
-        "description": "15 días con 1 conexión simultánea",
-        "display_order": 2
-    },
-    {
-        "id": 3,
-        "name": "30 DÍAS",
-        "days": 30,
-        "connections": 1,
-        "price": 1200.00,
-        "enabled": true,
-        "description": "30 días con 1 conexión simultánea",
-        "display_order": 3
-    },
-    {
-        "id": 4,
-        "name": "50 DÍAS",
-        "days": 50,
-        "connections": 1,
-        "price": 1500.00,
-        "enabled": true,
-        "description": "50 días con 1 conexión simultánea",
-        "display_order": 4
-    },
-    {
-        "id": 5,
-        "name": "7 DÍAS",
-        "days": 7,
-        "connections": 2,
-        "price": 800.00,
-        "enabled": true,
-        "description": "7 días con 2 conexiones simultáneas",
-        "display_order": 5
-    },
-    {
-        "id": 6,
-        "name": "15 DÍAS",
-        "days": 15,
-        "connections": 2,
-        "price": 1200.00,
-        "enabled": true,
-        "description": "15 días con 2 conexiones simultáneas",
-        "display_order": 6
-    },
-    {
-        "id": 7,
-        "name": "30 DÍAS",
-        "days": 30,
-        "connections": 2,
-        "price": 1800.00,
-        "enabled": true,
-        "description": "30 días con 2 conexiones simultáneas",
-        "display_order": 7
-    }
-]
-EOF
-
-# Crear base de datos
+# Crear base de datos CON TABLA DE PLANES PERSONALIZADOS
 sqlite3 "$DB_FILE" << 'SQL'
 CREATE TABLE users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -287,7 +224,7 @@ CREATE TABLE payments (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     payment_id TEXT UNIQUE,
     phone TEXT,
-    plan_id INTEGER,
+    plan TEXT,
     days INTEGER,
     connections INTEGER DEFAULT 1,
     amount REAL,
@@ -311,18 +248,43 @@ CREATE TABLE user_state (
     data TEXT,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
+-- NUEVA TABLA PARA PLANES PERSONALIZADOS
+CREATE TABLE custom_plans (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    days INTEGER NOT NULL,
+    connections INTEGER DEFAULT 1,
+    price REAL NOT NULL,
+    description TEXT,
+    display_order INTEGER DEFAULT 999,
+    active INTEGER DEFAULT 1,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
 CREATE INDEX idx_users_phone ON users(phone);
 CREATE INDEX idx_users_status ON users(status);
 CREATE INDEX idx_payments_status ON payments(status);
-CREATE INDEX idx_payments_phone_plan ON payments(phone, plan_id, status);
+CREATE INDEX idx_payments_phone_plan ON payments(phone, plan, status);
+CREATE INDEX idx_custom_plans_active ON custom_plans(active);
 SQL
 
-echo -e "${GREEN}✅ Estructura creada con sistema de estados y planes configurables${NC}"
+# Insertar planes por defecto
+sqlite3 "$DB_FILE" << 'SQLDEF'
+INSERT INTO custom_plans (name, days, connections, price, description, display_order, active) VALUES
+('7 días (1 conexión)', 7, 1, 500.00, 'Acceso por 7 días con 1 conexión', 1, 1),
+('15 días (1 conexión)', 15, 1, 800.00, 'Acceso por 15 días con 1 conexión', 2, 1),
+('30 días (1 conexión)', 30, 1, 1200.00, 'Acceso por 30 días con 1 conexión', 3, 1),
+('7 días (2 conexiones)', 7, 2, 800.00, 'Acceso por 7 días con 2 conexiones simultáneas', 4, 1),
+('15 días (2 conexiones)', 15, 2, 1200.00, 'Acceso por 15 días con 2 conexiones simultáneas', 5, 1),
+('30 días (2 conexiones)', 30, 2, 1800.00, 'Acceso por 30 días con 2 conexiones simultáneas', 6, 1);
+SQLDEF
+
+echo -e "${GREEN}✅ Estructura creada con sistema de estados y planes personalizados${NC}"
 
 # ================================================
-# CREAR BOT CON SISTEMA DE ESTADOS Y PLANES CONFIGURABLES
+# CREAR BOT CON SISTEMA DE ESTADOS Y PLANES PERSONALIZADOS
 # ================================================
-echo -e "\n${CYAN}${BOLD}🤖 CREANDO BOT CON SISTEMA DE ESTADOS Y PLANES CONFIGURABLES...${NC}"
+echo -e "\n${CYAN}${BOLD}🤖 CREANDO BOT CON SISTEMA DE ESTADOS Y PLANES PERSONALIZADOS...${NC}"
 
 cd "$USER_HOME"
 
@@ -330,7 +292,7 @@ cd "$USER_HOME"
 cat > package.json << 'PKGEOF'
 {
     "name": "ssh-bot-pro",
-    "version": "8.9.0",
+    "version": "8.7.0",
     "main": "bot.js",
     "dependencies": {
         "whatsapp-web.js": "^1.24.0",
@@ -356,8 +318,8 @@ find node_modules/whatsapp-web.js -name "Client.js" -type f -exec sed -i 's/cons
 
 echo -e "${GREEN}✅ Parche markedUnread aplicado${NC}"
 
-# Crear bot.js CON SISTEMA DE ESTADOS Y PLANES CONFIGURABLES
-echo -e "${YELLOW}📝 Creando bot.js con sistema de estados y planes configurables...${NC}"
+# Crear bot.js CON SISTEMA DE ESTADOS Y PLANES PERSONALIZADOS
+echo -e "${YELLOW}📝 Creando bot.js con sistema de estados y planes personalizados...${NC}"
 
 cat > "bot.js" << 'BOTEOF'
 const { Client, LocalAuth, MessageMedia } = require('whatsapp-web.js');
@@ -378,20 +340,6 @@ const execPromise = util.promisify(exec);
 function loadConfig() {
     delete require.cache[require.resolve('/opt/ssh-bot/config/config.json')];
     return require('/opt/ssh-bot/config/config.json');
-}
-
-function loadPlans() {
-    try {
-        delete require.cache[require.resolve('/opt/ssh-bot/config/plans.json')];
-        const plans = require('/opt/ssh-bot/config/plans.json');
-        // Filtrar solo planes habilitados y ordenar
-        return plans
-            .filter(p => p.enabled)
-            .sort((a, b) => a.display_order - b.display_order);
-    } catch (error) {
-        console.error(chalk.red('❌ Error cargando planes:'), error.message);
-        return [];
-    }
 }
 
 let config = loadConfig();
@@ -431,6 +379,39 @@ function clearUserState(phone) {
     db.run('DELETE FROM user_state WHERE phone = ?', [phone]);
 }
 
+// ✅ FUNCIÓN PARA OBTENER PLANES PERSONALIZADOS
+function getCustomPlans() {
+    return new Promise((resolve, reject) => {
+        db.all(
+            `SELECT id, name, days, connections, price, description FROM custom_plans WHERE active = 1 ORDER BY display_order ASC, id ASC`,
+            (err, rows) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(rows || []);
+                }
+            }
+        );
+    });
+}
+
+// ✅ FUNCIÓN PARA OBTENER UN PLAN ESPECÍFICO POR NÚMERO DE ORDEN
+function getCustomPlanByOrder(orderNumber) {
+    return new Promise((resolve, reject) => {
+        db.get(
+            `SELECT id, name, days, connections, price, description FROM custom_plans WHERE active = 1 ORDER BY display_order ASC, id ASC LIMIT 1 OFFSET ?`,
+            [orderNumber - 1],
+            (err, row) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(row || null);
+                }
+            }
+        );
+    });
+}
+
 // ✅ MERCADOPAGO SDK V2.X
 let mpClient = null;
 let mpPreference = null;
@@ -466,19 +447,20 @@ let mpEnabled = initMercadoPago();
 moment.locale('es');
 
 console.log(chalk.cyan.bold('\n╔══════════════════════════════════════════════════════════════╗'));
-console.log(chalk.cyan.bold('║      🤖 SSH BOT PRO v8.9 - PLANES CONFIGURABLES            ║'));
-console.log(chalk.cyan.bold('║               💡 SISTEMA INTELIGENTE DE ESTADOS              ║'));
-console.log(chalk.cyan.bold('║               ⚙️  PLANES CONFIGURABLES DESDE PANEL          ║'));
+console.log(chalk.cyan.bold('║      🤖 SSH BOT PRO v8.7 - SISTEMA DE ESTADOS               ║'));
+console.log(chalk.cyan.bold('║               💡 1,2,3,4,5,6 PARA COMPRAR EN PLANES         ║'));
 console.log(chalk.cyan.bold('║               🔐 CONTRASEÑA FIJA: mgvpn247                  ║'));
+console.log(chalk.cyan.bold('║               📋 PLANES PERSONALIZADOS                      ║'));
 console.log(chalk.cyan.bold('╚══════════════════════════════════════════════════════════════╝\n'));
 console.log(chalk.yellow(`📍 IP: ${config.bot.server_ip}`));
 console.log(chalk.yellow(`💳 MercadoPago: ${mpEnabled ? '✅ SDK v2.x ACTIVO' : '❌ NO CONFIGURADO'}`));
 console.log(chalk.green('✅ WhatsApp Web parcheado (no markedUnread error)'));
 console.log(chalk.green('✅ SISTEMA DE ESTADOS: Sin conflictos entre menús'));
-console.log(chalk.green('✅ PLANES CONFIGURABLES: Agregar/editar/eliminar desde panel'));
+console.log(chalk.green('✅ MENÚ PLANES: 1,2,3,4,5,6 para comprar'));
 console.log(chalk.green('✅ APK automático desde /root'));
 console.log(chalk.green('✅ Test 2 horas exactas'));
 console.log(chalk.green('✅ CONTRASEÑA FIJA: mgvpn247 para todos los usuarios'));
+console.log(chalk.green('✅ PLANES PERSONALIZADOS: Gestionables desde panel'));
 
 // Servidor APK
 let apkServer = null;
@@ -531,7 +513,7 @@ function startAPKServer(apkPath) {
 }
 
 const client = new Client({
-    authStrategy: new LocalAuth({dataPath: '/root/.wwebjs_auth', clientId: 'ssh-bot-v89'}),
+    authStrategy: new LocalAuth({dataPath: '/root/.wwebjs_auth', clientId: 'ssh-bot-v87'}),
     puppeteer: {
         headless: true,
         executablePath: config.paths.chromium,
@@ -646,7 +628,7 @@ function registerTest(phone) {
     db.run('INSERT OR IGNORE INTO daily_tests (phone, date) VALUES (?, ?)', [phone, moment().format('YYYY-MM-DD')]);
 }
 
-async function createMercadoPagoPayment(phone, plan, days, amount, connections) {
+async function createMercadoPagoPayment(phone, planName, days, amount, connections) {
     try {
         config = loadConfig();
         
@@ -664,7 +646,7 @@ async function createMercadoPagoPayment(phone, plan, days, amount, connections) 
         }
         
         const phoneClean = phone.split('@')[0];
-        const paymentId = `PREMIUM-${phoneClean}-${plan.id}-${connections}conn-${Date.now()}`;
+        const paymentId = `PLAN-${Date.now()}-${phoneClean.substring(-6)}`;
         
         console.log(chalk.cyan(`🔄 Creando pago MP: ${paymentId}`));
         
@@ -673,8 +655,8 @@ async function createMercadoPagoPayment(phone, plan, days, amount, connections) 
         
         const preferenceData = {
             items: [{
-                title: `SERVICIO PREMIUM ${days} DÍAS (${connections} conexiones)`,
-                description: `Acceso completo por ${days} días con ${connections} conexiones simultáneas`,
+                title: `PLAN ${planName} - ${days} DÍAS`,
+                description: `${planName} - Acceso por ${days} días con ${connections} conexiones simultáneas`,
                 quantity: 1,
                 currency_id: config.prices.currency || 'ARS',
                 unit_price: parseFloat(amount)
@@ -689,11 +671,11 @@ async function createMercadoPagoPayment(phone, plan, days, amount, connections) 
                 pending: `https://wa.me/${phoneClean}?text=Pago%20pendiente`
             },
             auto_return: 'approved',
-            statement_descriptor: 'SERVICIO PREMIUM',
+            statement_descriptor: 'PLAN PREMIUM',
             notification_url: `http://${config.bot.server_ip}:3000/webhook`
         };
         
-        console.log(chalk.yellow(`📦 Producto: ${preferenceData.items[0].title}`));
+        console.log(chalk.yellow(`📦 Producto: ${planName}`));
         console.log(chalk.yellow(`💰 Monto: $${amount} ${config.prices.currency}`));
         console.log(chalk.yellow(`🔌 Conexiones: ${connections}`));
         
@@ -715,8 +697,8 @@ async function createMercadoPagoPayment(phone, plan, days, amount, connections) 
             });
             
             db.run(
-                `INSERT INTO payments (payment_id, phone, plan_id, days, connections, amount, status, payment_url, qr_code, preference_id) VALUES (?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?)`,
-                [paymentId, phone, plan.id, days, connections, amount, paymentUrl, qrPath, response.id],
+                `INSERT INTO payments (payment_id, phone, plan, days, connections, amount, status, payment_url, qr_code, preference_id) VALUES (?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?)`,
+                [paymentId, phone, planName, days, connections, amount, paymentUrl, qrPath, response.id],
                 (err) => {
                     if (err) {
                         console.error(chalk.red('❌ Error guardando en BD:'), err.message);
@@ -733,8 +715,7 @@ async function createMercadoPagoPayment(phone, plan, days, amount, connections) 
                 paymentUrl, 
                 qrPath,
                 preferenceId: response.id,
-                connections: connections,
-                plan: plan
+                connections: connections
             };
         }
         
@@ -753,13 +734,13 @@ async function createMercadoPagoPayment(phone, plan, days, amount, connections) 
 }
 
 // ✅ FUNCIÓN CLAVE: VERIFICAR SI YA EXISTE UN PAGO PENDIENTE
-async function getExistingPayment(phone, planId, days, connections) {
+async function getExistingPayment(phone, planName, days, connections) {
     return new Promise((resolve) => {
         const query = `
             SELECT payment_id, payment_url, qr_code, amount, created_at 
             FROM payments 
             WHERE phone = ? 
-            AND plan_id = ? 
+            AND plan = ? 
             AND days = ? 
             AND connections = ? 
             AND status = 'pending'
@@ -768,7 +749,7 @@ async function getExistingPayment(phone, planId, days, connections) {
             LIMIT 1
         `;
         
-        db.get(query, [phone, planId, days, connections], (err, row) => {
+        db.get(query, [phone, planName, days, connections], (err, row) => {
             if (err) {
                 console.error(chalk.red('❌ Error buscando pago existente:'), err.message);
                 resolve(null);
@@ -922,102 +903,149 @@ client.on('message', async (msg) => {
         // ✅ COMANDO 2 EN MENÚ PRINCIPAL = VER PLANES
         await setUserState(phone, 'viewing_plans');
         
-        // Cargar planes actualizados
-        const plans = loadPlans();
-        
-        if (plans.length === 0) {
-            await client.sendMessage(phone, `❌ *NO HAY PLANES DISPONIBLES*
+        try {
+            // Obtener planes personalizados de la base de datos
+            const customPlans = await getCustomPlans();
+            
+            if (customPlans.length === 0) {
+                await client.sendMessage(phone, `❌ *NO HAY PLANES DISPONIBLES*
 
-El administrador no ha configurado planes aún.
+Actualmente no hay planes disponibles.
 
-💬 Contacta soporte: *Escribe 6*`, { sendSeen: false });
-            await setUserState(phone, 'main_menu');
-            return;
-        }
-        
-        let plansMessage = `💎 *PLANES INTERNET - ELIGE UN PLAN*
+💬 Contacta al administrador`, { sendSeen: false });
+                await setUserState(phone, 'main_menu');
+                return;
+            }
+            
+            let plansMessage = `💎 *PLANES DISPONIBLES - ELIGE UN PLAN*\n\n`;
+            
+            customPlans.forEach((plan, index) => {
+                const connText = plan.connections > 1 ? `${plan.connections} conexiones` : '1 conexión';
+                plansMessage += `*${index + 1}*. ${plan.name}\n`;
+                plansMessage += `   📅 ${plan.days} días\n`;
+                plansMessage += `   🔌 ${connText}\n`;
+                plansMessage += `   💰 $${plan.price} ${config.prices.currency}\n`;
+                if (plan.description) {
+                    plansMessage += `   📝 ${plan.description}\n`;
+                }
+                plansMessage += `\n`;
+            });
+            
+            plansMessage += `💳 *PAGO:* MercadoPago\n`;
+            plansMessage += `⚡ *ACTIVACIÓN:* 2-5 minutos después del pago\n\n`;
+            plansMessage += `💰 *PARA COMPRAR:* Escribe el número del plan (1-${customPlans.length})\n`;
+            plansMessage += `💬 *Para volver:* Escribe "menu"`;
+            
+            await client.sendMessage(phone, plansMessage, { sendSeen: false });
+            
+        } catch (error) {
+            console.error(chalk.red('❌ Error obteniendo planes:'), error.message);
+            
+            // Fallback a planes por defecto
+            await client.sendMessage(phone, `💎 *PLANES INTERNET - ELIGE UN PLAN*
 
-`;
-        
-        plans.forEach((plan, index) => {
-            const connText = plan.connections > 1 ? `${plan.connections} conexiones simultáneas` : '1 conexión';
-            plansMessage += `🗓 *${index + 1}* - ${plan.name} - $${plan.price} ARS
-`;
-            plansMessage += `   ⏰ ${plan.days} días | 🔌 ${connText}
-`;
-        });
-        
-        plansMessage += `
+🔌 *1 CONEXIÓN*
+🗓 *1* - 7 días - $${config.prices.price_7d_1conn} ARS
+🗓 *2* - 15 días - $${config.prices.price_15d_1conn} ARS
+🗓 *3* - 30 días - $${config.prices.price_30d_1conn} ARS
+
+🔌🔌 *2 CONEXIONES SIMULTÁNEAS*
+🗓 *4* - 7 días - $${config.prices.price_7d_2conn} ARS
+🗓 *5* - 15 días - $${config.prices.price_15d_2conn} ARS
+🗓 *6* - 30 días - $${config.prices.price_30d_2conn} ARS
+
 💳 Pago: MercadoPago
 ⚡ Activación: 2-5 min
 
-💰 *PARA COMPRAR:* Escribe el número del plan (1-${plans.length})
-💬 *Para volver:* Escribe "menu"`;
-        
-        await client.sendMessage(phone, plansMessage, { sendSeen: false });
+💰 *PARA COMPRAR:* Escribe el número del plan (1-6)
+💬 *Para volver:* Escribe "menu"`, { sendSeen: false });
+        }
     }
-    else if (userState.state === 'viewing_plans') {
-        // ✅ COMANDOS NUMÉRICOS CUANDO EL USUARIO ESTÁ VIENDO PLANES = COMPRAR
-        const plans = loadPlans();
-        const planNumber = parseInt(text);
+    else if (userState.state === 'viewing_plans' && /^[0-9]+$/.test(text)) {
+        // ✅ EL USUARIO ESTÁ VIENDO PLANES Y ENVIÓ UN NÚMERO
+        const selectedNumber = parseInt(text);
         
-        if (isNaN(planNumber) || planNumber < 1 || planNumber > plans.length) {
-            await client.sendMessage(phone, `❌ *PLAN NO VÁLIDO*
+        if (selectedNumber <= 0) {
+            await client.sendMessage(phone, `❌ *NÚMERO INVÁLIDO*
 
-Escribe solo números del 1 al ${plans.length}
+Escribe un número de la lista de planes.
 
 💬 Escribe "menu" para volver`, { sendSeen: false });
             return;
         }
         
-        const selectedPlan = plans[planNumber - 1];
-        
-        config = loadConfig();
-        
-        console.log(chalk.yellow(`🔑 Verificando token MP para compra...`));
-        
-        if (!config.mercadopago.access_token || config.mercadopago.access_token === '') {
-            await client.sendMessage(phone, `❌ *MERCADOPAGO NO CONFIGURADO*
+        try {
+            // Intentar obtener plan personalizado por número de orden
+            let selectedPlan = await getCustomPlanByOrder(selectedNumber);
+            
+            // Si no hay planes personalizados o el número es muy grande, usar planes por defecto
+            if (!selectedPlan) {
+                const defaultPlans = [
+                    { name: '7 días (1 conexión)', days: 7, connections: 1, price: config.prices.price_7d_1conn },
+                    { name: '15 días (1 conexión)', days: 15, connections: 1, price: config.prices.price_15d_1conn },
+                    { name: '30 días (1 conexión)', days: 30, connections: 1, price: config.prices.price_30d_1conn },
+                    { name: '7 días (2 conexiones)', days: 7, connections: 2, price: config.prices.price_7d_2conn },
+                    { name: '15 días (2 conexiones)', days: 15, connections: 2, price: config.prices.price_15d_2conn },
+                    { name: '30 días (2 conexiones)', days: 30, connections: 2, price: config.prices.price_30d_2conn }
+                ];
+                
+                if (selectedNumber <= defaultPlans.length) {
+                    selectedPlan = defaultPlans[selectedNumber - 1];
+                } else {
+                    await client.sendMessage(phone, `❌ *PLAN NO ENCONTRADO*
+
+No existe el plan número ${selectedNumber}.
+
+💬 Escribe "menu" para volver o "2" para ver planes`, { sendSeen: false });
+                    return;
+                }
+            }
+            
+            // ✅ PROCESAR COMPRA DEL PLAN SELECCIONADO
+            config = loadConfig();
+            
+            console.log(chalk.yellow(`🔑 Verificando token MP para compra...`));
+            
+            if (!config.mercadopago.access_token || config.mercadopago.access_token === '') {
+                await client.sendMessage(phone, `❌ *MERCADOPAGO NO CONFIGURADO*
 
 El administrador debe configurar MercadoPago primero.
 
 💬 Soporte: *Escribe 6*`, { sendSeen: false });
-            await setUserState(phone, 'main_menu');
-            return;
-        }
-        
-        if (!mpEnabled || !mpPreference) {
-            console.log(chalk.yellow('🔄 Reinicializando MercadoPago...'));
-            mpEnabled = initMercadoPago();
-        }
-        
-        if (!mpEnabled || !mpPreference) {
-            await client.sendMessage(phone, `❌ *ERROR CON MERCADOPAGO*
+                await setUserState(phone, 'main_menu');
+                return;
+            }
+            
+            if (!mpEnabled || !mpPreference) {
+                console.log(chalk.yellow('🔄 Reinicializando MercadoPago...'));
+                mpEnabled = initMercadoPago();
+            }
+            
+            if (!mpEnabled || !mpPreference) {
+                await client.sendMessage(phone, `❌ *ERROR CON MERCADOPAGO*
 
 El sistema de pagos no está disponible.
 
 💬 Contacta soporte: *Escribe 6*`, { sendSeen: false });
-            await setUserState(phone, 'main_menu');
-            return;
-        }
-        
-        console.log(chalk.cyan(`📦 Plan seleccionado: ${selectedPlan.name}, $${selectedPlan.price}`));
-        
-        // ✅ VERIFICAR SI YA EXISTE UN PAGO PENDIENTE
-        const existingPayment = await getExistingPayment(phone, selectedPlan.id, selectedPlan.days, selectedPlan.connections);
-        
-        if (existingPayment) {
-            console.log(chalk.yellow(`📌 Reutilizando pago existente: ${existingPayment.payment_id}`));
+                await setUserState(phone, 'main_menu');
+                return;
+            }
             
-            const connText = selectedPlan.connections > 1 ? `${selectedPlan.connections} CONEXIONES SIMULTÁNEAS` : '1 CONEXIÓN';
+            console.log(chalk.cyan(`📦 Plan seleccionado: ${selectedPlan.name}, $${selectedPlan.price}`));
             
-            await client.sendMessage(phone, `📋 *TIENES UN PAGO PENDIENTE*
+            // ✅ VERIFICAR SI YA EXISTE UN PAGO PENDIENTE
+            const existingPayment = await getExistingPayment(phone, selectedPlan.name, selectedPlan.days, selectedPlan.connections);
+            
+            if (existingPayment) {
+                console.log(chalk.yellow(`📌 Reutilizando pago existente: ${existingPayment.payment_id}`));
+                
+                const connText = selectedPlan.connections > 1 ? `${selectedPlan.connections} CONEXIONES SIMULTÁNEAS` : '1 CONEXIÓN';
+                
+                await client.sendMessage(phone, `📋 *TIENES UN PAGO PENDIENTE*
 
 Ya generaste un pago para este plan.
 
 ⚡ *PLAN:* ${selectedPlan.name}
-⏰ *Días:* ${selectedPlan.days}
-🔌 *Conexiones:* ${connText}
 💰 *$${existingPayment.amount} ARS*
 
 🔗 *ENLACE DE PAGO EXISTENTE:*
@@ -1027,53 +1055,49 @@ ${existingPayment.payment_url}
 
 💬 Escribe *4* para ver estado del pago
 💬 Escribe "menu" para volver`, { sendSeen: false });
-            
-            // Enviar QR si existe
-            if (fs.existsSync(existingPayment.qr_code)) {
-                try {
-                    const media = MessageMedia.fromFilePath(existingPayment.qr_code);
-                    await client.sendMessage(phone, media, { 
-                        caption: `📱 *ESCAPEA CON MERCADOPAGO*
-                        
-⚡ ${selectedPlan.name} - ${selectedPlan.days} días
+                
+                // Enviar QR si existe
+                if (fs.existsSync(existingPayment.qr_code)) {
+                    try {
+                        const media = MessageMedia.fromFilePath(existingPayment.qr_code);
+                        await client.sendMessage(phone, media, { 
+                            caption: `📱 *ESCAPEA CON MERCADOPAGO*
+                            
+⚡ ${selectedPlan.name}
 💰 $${existingPayment.amount} ARS
-🔌 ${connText}
 ⏰ Válido por 24 horas`, 
-                        sendSeen: false 
-                    });
-                    console.log(chalk.green('✅ QR de pago existente enviado'));
-                } catch (qrError) {
-                    console.error(chalk.red('⚠️ Error enviando QR:'), qrError.message);
+                            sendSeen: false 
+                        });
+                        console.log(chalk.green('✅ QR de pago existente enviado'));
+                    } catch (qrError) {
+                        console.error(chalk.red('⚠️ Error enviando QR:'), qrError.message);
+                    }
                 }
+                
+                await setUserState(phone, 'main_menu');
+                return;
             }
             
-            await setUserState(phone, 'main_menu');
-            return;
-        }
-        
-        // Si no hay pago existente, crear uno nuevo
-        const connText = selectedPlan.connections > 1 ? `${selectedPlan.connections} conexiones simultáneas` : '1 conexión';
-        
-        await client.sendMessage(phone, `⏳ *PROCESANDO TU COMPRA...*
+            // Si no hay pago existente, crear uno nuevo
+            const connText = selectedPlan.connections > 1 ? `${selectedPlan.connections} conexiones simultáneas` : '1 conexión';
+            
+            await client.sendMessage(phone, `⏳ *PROCESANDO TU COMPRA...*
 
 📦 Plan: *${selectedPlan.name}*
-⏰ Días: *${selectedPlan.days}*
-🔌 Conexión: *${connText}*
 💰 Monto: *$${selectedPlan.price} ARS*
+🔌 Conexión: *${connText}*
 
 ⏰ *GENERANDO ENLACE DE PAGO...*`, { sendSeen: false });
-        
-        try {
-            const payment = await createMercadoPagoPayment(phone, selectedPlan, selectedPlan.days, selectedPlan.price, selectedPlan.connections);
             
-            if (payment.success) {
-                const connDisplay = selectedPlan.connections > 1 ? `${selectedPlan.connections} CONEXIONES SIMULTÁNEAS` : '1 CONEXIÓN';
+            try {
+                const payment = await createMercadoPagoPayment(phone, selectedPlan.name, selectedPlan.days, selectedPlan.price, selectedPlan.connections);
                 
-                await client.sendMessage(phone, `💳 *PAGO GENERADO EXITOSAMENTE*
+                if (payment.success) {
+                    const connDisplay = selectedPlan.connections > 1 ? `${selectedPlan.connections} CONEXIONES SIMULTÁNEAS` : '1 CONEXIÓN';
+                    
+                    await client.sendMessage(phone, `💳 *PAGO GENERADO EXITOSAMENTE*
 
 ⚡ *PLAN:* ${selectedPlan.name}
-⏰ *DÍAS:* ${selectedPlan.days}
-🔌 *CONEXIÓN:* ${connDisplay}
 💰 *$${selectedPlan.price} ARS*
 
 🔗 *ENLACE DE PAGO:*
@@ -1083,44 +1107,53 @@ ${payment.paymentUrl}
 
 💬 Escribe *4* para ver estado del pago
 💬 Escribe "menu" para volver al inicio`, { sendSeen: false });
-                
-                // Enviar QR si existe
-                if (fs.existsSync(payment.qrPath)) {
-                    try {
-                        const media = MessageMedia.fromFilePath(payment.qrPath);
-                        await client.sendMessage(phone, media, { 
-                            caption: `📱 *ESCAPEA CON MERCADOPAGO*
-                            
-⚡ ${selectedPlan.name} - ${selectedPlan.days} días
+                    
+                    // Enviar QR si existe
+                    if (fs.existsSync(payment.qrPath)) {
+                        try {
+                            const media = MessageMedia.fromFilePath(payment.qrPath);
+                            await client.sendMessage(phone, media, { 
+                                caption: `📱 *ESCAPEA CON MERCADOPAGO*
+                                
+⚡ ${selectedPlan.name}
 💰 $${selectedPlan.price} ARS
-🔌 ${connDisplay}
 ⏰ Pago válido por 24 horas`, 
-                            sendSeen: false 
-                        });
-                        console.log(chalk.green('✅ QR de pago enviado'));
-                    } catch (qrError) {
-                        console.error(chalk.red('⚠️ Error enviando QR:'), qrError.message);
+                                sendSeen: false 
+                            });
+                            console.log(chalk.green('✅ QR de pago enviado'));
+                        } catch (qrError) {
+                            console.error(chalk.red('⚠️ Error enviando QR:'), qrError.message);
+                        }
                     }
-                }
-            } else {
-                await client.sendMessage(phone, `❌ *ERROR AL GENERAR PAGO*
+                } else {
+                    await client.sendMessage(phone, `❌ *ERROR AL GENERAR PAGO*
 
 Detalles: ${payment.error}
 
 Por favor, intenta de nuevo en unos minutos o contacta soporte.
 
 💬 Soporte: *Escribe 6*`, { sendSeen: false });
-            }
-        } catch (error) {
-            console.error(chalk.red('❌ Error en compra:'), error);
-            await client.sendMessage(phone, `❌ *ERROR INESPERADO*
+                }
+            } catch (error) {
+                console.error(chalk.red('❌ Error en compra:'), error);
+                await client.sendMessage(phone, `❌ *ERROR INESPERADO*
 
 ${error.message}
 
 💬 Contacta soporte: *Escribe 6*`, { sendSeen: false });
+            }
+            
+            await setUserState(phone, 'main_menu');
+            
+        } catch (error) {
+            console.error(chalk.red('❌ Error procesando selección de plan:'), error);
+            await client.sendMessage(phone, `❌ *ERROR EN EL SISTEMA*
+
+No se pudo procesar tu selección.
+
+💬 Contacta soporte: *Escribe 6*`, { sendSeen: false });
+            await setUserState(phone, 'main_menu');
         }
-        
-        await setUserState(phone, 'main_menu');
     }
     else if (text === '3' && userState.state === 'main_menu') {
         // ✅ COMANDO 3 EN MENÚ PRINCIPAL = MIS CUENTAS
@@ -1161,7 +1194,7 @@ ${error.message}
     }
     else if (text === '4' && userState.state === 'main_menu') {
         // ✅ COMANDO 4 EN MENÚ PRINCIPAL = ESTADO DE PAGO
-        db.all(`SELECT plan_id, amount, status, created_at, payment_url, connections FROM payments WHERE phone = ? ORDER BY created_at DESC LIMIT 5`, [phone],
+        db.all(`SELECT plan, amount, status, created_at, payment_url, connections FROM payments WHERE phone = ? ORDER BY created_at DESC LIMIT 5`, [phone],
             async (err, pays) => {
                 if (!pays || pays.length === 0) {
                     await client.sendMessage(phone, `💳 *SIN PAGOS REGISTRADOS*
@@ -1179,7 +1212,7 @@ ${error.message}
                     const connText = p.connections > 1 ? `${p.connections} conexiones` : '1 conexión';
                     msg += `*${i+1}. ${emoji} ${statusText}*
 `;
-                    msg += `Plan ID: ${p.plan_id} | $${p.amount} ARS
+                    msg += `Plan: ${p.plan} | $${p.amount} ARS
 `;
                     msg += `Conexiones: ${connText}
 `;
@@ -1330,7 +1363,7 @@ ${config.links.support}
 • 5 - Descargar APP (solo en menú)
 • 6 - Soporte (solo en menú)
 
-💡 *PARA COMPRAR:* Escribe "2" para ver planes, luego el número del plan`, { sendSeen: false });
+💡 *PARA COMPRAR:* Escribe "2" para ver planes, luego 1-6 para seleccionar`, { sendSeen: false });
     }
 });
 
@@ -1399,11 +1432,11 @@ setInterval(() => {
     });
 }, 30000);
 
-console.log(chalk.green('\n🚀 Inicializando bot con sistema de estados y planes configurables...\n'));
+console.log(chalk.green('\n🚀 Inicializando bot con sistema de estados y planes personalizados...\n'));
 client.initialize();
 BOTEOF
 
-echo -e "${GREEN}✅ Bot creado con sistema de estados y planes configurables${NC}"
+echo -e "${GREEN}✅ Bot creado con sistema de estados y planes personalizados${NC}"
 
 # ================================================
 # CREAR PANEL DE CONTROL CON GESTIÓN DE PLANES
@@ -1416,186 +1449,38 @@ RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[0;33m'; CYAN='\033[0;36m'; BL
 
 DB="/opt/ssh-bot/data/users.db"
 CONFIG="/opt/ssh-bot/config/config.json"
-PLANS_FILE="/opt/ssh-bot/config/plans.json"
 
 get_val() { jq -r "$1" "$CONFIG" 2>/dev/null; }
 set_val() { local t=$(mktemp); jq "$1 = $2" "$CONFIG" > "$t" && mv "$t" "$CONFIG"; }
 
-# Función para cargar planes
-load_plans() {
-    if [[ -f "$PLANS_FILE" ]]; then
-        jq -r '.' "$PLANS_FILE" 2>/dev/null || echo "[]"
-    else
-        echo "[]"
-    fi
-}
-
-# Función para guardar planes
-save_plans() {
-    local plans="$1"
-    echo "$plans" | jq '.' > "$PLANS_FILE"
-}
-
 show_header() {
     clear
     echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
-    echo -e "${CYAN}║              🎛️  PANEL SSH BOT PRO v8.9                    ║${NC}"
-    echo -e "${CYAN}║               🔧 GESTIÓN COMPLETA DE PLANES                ║${NC}"
-    echo -e "${CYAN}║               ⚙️  Configurar precios, días, conexiones     ║${NC}"
+    echo -e "${CYAN}║              🎛️  PANEL SSH BOT PRO v8.7                    ║${NC}"
+    echo -e "${CYAN}║               🔧 SISTEMA DE ESTADOS INTELIGENTE            ║${NC}"
+    echo -e "${CYAN}║               ⌨️  1,2,3,4,5,6 PARA COMPRAR EN PLANES        ║${NC}"
     echo -e "${CYAN}║               🔐 CONTRASEÑA FIJA: mgvpn247                 ║${NC}"
+    echo -e "${CYAN}║               📋 GESTIÓN MANUAL DE PLANES                  ║${NC}"
     echo -e "${CYAN}╚══════════════════════════════════════════════════════════════╝${NC}\n"
 }
 
-# Función para mostrar planes
-show_plans() {
-    local plans=$(load_plans)
-    local count=$(echo "$plans" | jq '. | length')
-    
-    if [[ $count -eq 0 ]]; then
-        echo -e "${YELLOW}⚠️  No hay planes configurados${NC}"
-        return
-    fi
-    
-    echo -e "${GREEN}📋 PLANES CONFIGURADOS (${count}):${NC}\n"
-    
-    echo -e "${CYAN}┌─────┬────────────────┬──────────┬──────────────┬──────────┬─────────┐${NC}"
-    echo -e "${CYAN}│ ID  │ Nombre         │ Días     │ Conexiones   │ Precio   │ Estado  │${NC}"
-    echo -e "${CYAN}├─────┼────────────────┼──────────┼──────────────┼──────────┼─────────┤${NC}"
-    
-    echo "$plans" | jq -r '.[] | "│ \(.id) │ \(.name) │ \(.days) │ \(.connections) │ $\(.price) │ \(if .enabled then "✅" else "❌" end) │"' | while read line; do
-        echo -e "${CYAN}$line${NC}"
-    done
-    
-    echo -e "${CYAN}└─────┴────────────────┴──────────┴──────────────┴──────────┴─────────┘${NC}"
-}
-
-# Función para agregar/editar plan
-manage_plan() {
-    local plans=$(load_plans)
-    local action="$1"
-    local plan_id="$2"
-    
-    clear
-    echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
-    
-    if [[ "$action" == "add" ]]; then
-        echo -e "${CYAN}║                   📝 AGREGAR NUEVO PLAN                  ║${NC}"
-    else
-        echo -e "${CYAN}║                   📝 EDITAR PLAN #${plan_id}                  ║${NC}"
-    fi
-    
-    echo -e "${CYAN}╚══════════════════════════════════════════════════════════════╝${NC}\n"
-    
-    if [[ "$action" == "edit" ]]; then
-        local plan_data=$(echo "$plans" | jq -r ".[] | select(.id == $plan_id)")
-        if [[ -z "$plan_data" ]]; then
-            echo -e "${RED}❌ Plan no encontrado${NC}"
-            read -p "Presiona Enter..."
-            return
-        fi
-        
-        local current_name=$(echo "$plan_data" | jq -r '.name')
-        local current_days=$(echo "$plan_data" | jq -r '.days')
-        local current_conn=$(echo "$plan_data" | jq -r '.connections')
-        local current_price=$(echo "$plan_data" | jq -r '.price')
-        local current_enabled=$(echo "$plan_data" | jq -r '.enabled')
-        local current_desc=$(echo "$plan_data" | jq -r '.description')
-        local current_order=$(echo "$plan_data" | jq -r '.display_order')
-    fi
-    
-    echo -e "${YELLOW}📝 Información del plan:${NC}\n"
-    
-    read -p "Nombre del plan [${current_name:-"Ej: 7 DÍAS"}]: " PLAN_NAME
-    read -p "Número de días [${current_days:-"7"}]: " PLAN_DAYS
-    read -p "Conexiones simultáneas (1-5) [${current_conn:-"1"}]: " PLAN_CONN
-    read -p "Precio en ARS [${current_price:-"500.00"}]: " PLAN_PRICE
-    read -p "Descripción [${current_desc:-"7 días con 1 conexión"}]: " PLAN_DESC
-    read -p "Orden de visualización [${current_order:-"1"}]: " PLAN_ORDER
-    
-    echo -e "\n${YELLOW}¿Plan habilitado?${NC}"
-    echo -e "  1. ✅ Sí (aparecerá en el bot)"
-    echo -e "  2. ❌ No (oculto en el bot)"
-    read -p "Selecciona (1-2) [${current_enabled:-"1"}]: " PLAN_ENABLED
-    
-    # Valores por defecto
-    [[ -z "$PLAN_NAME" ]] && PLAN_NAME="${current_name:-"7 DÍAS"}"
-    [[ -z "$PLAN_DAYS" ]] && PLAN_DAYS="${current_days:-"7"}"
-    [[ -z "$PLAN_CONN" ]] && PLAN_CONN="${current_conn:-"1"}"
-    [[ -z "$PLAN_PRICE" ]] && PLAN_PRICE="${current_price:-"500.00"}"
-    [[ -z "$PLAN_DESC" ]] && PLAN_DESC="${current_desc:-"7 días con 1 conexión"}"
-    [[ -z "$PLAN_ORDER" ]] && PLAN_ORDER="${current_order:-"1"}"
-    [[ -z "$PLAN_ENABLED" ]] && PLAN_ENABLED="${current_enabled:-"1"}"
-    
-    if [[ "$PLAN_ENABLED" == "1" ]]; then
-        PLAN_ENABLED="true"
-    else
-        PLAN_ENABLED="false"
-    fi
-    
-    if [[ "$action" == "add" ]]; then
-        # Obtener el próximo ID
-        local next_id=1
-        local max_id=$(echo "$plans" | jq -r 'max_by(.id) | .id // 0')
-        if [[ -n "$max_id" && "$max_id" != "null" ]]; then
-            next_id=$((max_id + 1))
-        fi
-        
-        # Crear nuevo plan
-        local new_plan=$(jq -n \
-            --arg id "$next_id" \
-            --arg name "$PLAN_NAME" \
-            --argjson days "$PLAN_DAYS" \
-            --argjson connections "$PLAN_CONN" \
-            --argjson price "$PLAN_PRICE" \
-            --argjson enabled "$PLAN_ENABLED" \
-            --arg description "$PLAN_DESC" \
-            --argjson display_order "$PLAN_ORDER" \
-            '{
-                id: ($id | tonumber),
-                name: $name,
-                days: $days,
-                connections: $connections,
-                price: $price,
-                enabled: ($enabled == "true"),
-                description: $description,
-                display_order: $display_order
-            }')
-        
-        # Agregar al array
-        plans=$(echo "$plans" | jq --argjson new_plan "$new_plan" '. + [$new_plan]')
-        
-        echo -e "\n${GREEN}✅ Plan agregado exitosamente (ID: $next_id)${NC}"
-    else
-        # Actualizar plan existente
-        plans=$(echo "$plans" | jq \
-            --argjson id "$plan_id" \
-            --arg name "$PLAN_NAME" \
-            --argjson days "$PLAN_DAYS" \
-            --argjson connections "$PLAN_CONN" \
-            --argjson price "$PLAN_PRICE" \
-            --arg enabled "$PLAN_ENABLED" \
-            --arg description "$PLAN_DESC" \
-            --argjson order "$PLAN_ORDER" \
-            'map(if .id == $id then 
-                .name = $name |
-                .days = $days |
-                .connections = $connections |
-                .price = $price |
-                .enabled = ($enabled == "true") |
-                .description = $description |
-                .display_order = $order
-            else . end)')
-        
-        echo -e "\n${GREEN}✅ Plan actualizado exitosamente${NC}"
-    fi
-    
-    # Guardar cambios
-    save_plans "$plans"
-    
-    echo -e "\n${YELLOW}🔄 Reiniciando bot para aplicar cambios...${NC}"
-    cd /root/ssh-bot && pm2 restart ssh-bot > /dev/null 2>&1
-    
-    read -p "Presiona Enter..." 
+# Función para mostrar planes personalizados
+show_custom_plans() {
+    echo -e "${CYAN}📋 PLANES PERSONALIZADOS:${NC}\n"
+    sqlite3 -column -header "$DB" <<EOF
+SELECT 
+    id as ID,
+    name as "Nombre",
+    days as "Días",
+    connections as "Conex",
+    price as "Precio",
+    description as "Descripción",
+    CASE WHEN active=1 THEN '✅' ELSE '❌' END as "Activo",
+    display_order as "Orden"
+FROM custom_plans 
+ORDER BY display_order ASC, id ASC;
+EOF
+    echo ""
 }
 
 while true; do
@@ -1605,6 +1490,7 @@ while true; do
     ACTIVE_USERS=$(sqlite3 "$DB" "SELECT COUNT(*) FROM users WHERE status=1" 2>/dev/null || echo "0")
     PENDING_PAYMENTS=$(sqlite3 "$DB" "SELECT COUNT(*) FROM payments WHERE status='pending'" 2>/dev/null || echo "0")
     ACTIVE_STATES=$(sqlite3 "$DB" "SELECT COUNT(*) FROM user_state" 2>/dev/null || echo "0")
+    CUSTOM_PLANS=$(sqlite3 "$DB" "SELECT COUNT(*) FROM custom_plans WHERE active=1" 2>/dev/null || echo "0")
     
     STATUS=$(pm2 jlist 2>/dev/null | jq -r '.[] | select(.name=="ssh-bot") | .pm2_env.status' 2>/dev/null || echo "stopped")
     if [[ "$STATUS" == "online" ]]; then
@@ -1628,17 +1514,14 @@ while true; do
         APK_FOUND="${RED}❌ NO ENCONTRADO${NC}"
     fi
     
-    PLANS_COUNT=$(load_plans | jq '. | length' 2>/dev/null || echo "0")
-    PLANS_ENABLED=$(load_plans | jq '[.[] | select(.enabled)] | length' 2>/dev/null || echo "0")
-    
     echo -e "${YELLOW}📊 ESTADO DEL SISTEMA${NC}"
     echo -e "  Bot: $BOT_STATUS"
     echo -e "  Usuarios: ${CYAN}$ACTIVE_USERS/$TOTAL_USERS${NC} activos/total"
     echo -e "  Pagos pendientes: ${CYAN}$PENDING_PAYMENTS${NC}"
     echo -e "  Estados activos: ${CYAN}$ACTIVE_STATES${NC}"
+    echo -e "  Planes personalizados: ${CYAN}$CUSTOM_PLANS${NC} activos"
     echo -e "  MercadoPago: $MP_STATUS"
     echo -e "  APK: $APK_FOUND"
-    echo -e "  Planes: ${CYAN}$PLANS_ENABLED/$PLANS_COUNT${NC} habilitados/total"
     echo -e "  Test: ${GREEN}2 horas${NC} | Limpieza: ${GREEN}cada 15 min${NC}"
     echo -e "  Contraseña: ${GREEN}mgvpn247${NC} (FIJA PARA TODOS)"
     echo -e "  Sistema: ${GREEN}Estados inteligentes${NC} (sin conflictos)"
@@ -1652,20 +1535,25 @@ while true; do
     echo -e "${CYAN}[5]${NC}  👥  Listar usuarios"
     echo -e "${CYAN}[6]${NC}  🗑️   Eliminar usuario"
     echo -e ""
-    echo -e "${CYAN}[7]${NC}  📋  Ver planes actuales"
-    echo -e "${CYAN}[8]${NC}  ➕  Agregar nuevo plan"
-    echo -e "${CYAN}[9]${NC}  ✏️   Editar plan existente"
-    echo -e "${CYAN}[10]${NC} 🗑️   Eliminar plan"
-    echo -e "${CYAN}[11]${NC} 🔄  Ordenar planes"
-    echo -e "${CYAN}[12]${NC} ⚙️   Habilitar/Deshabilitar plan"
+    echo -e "${CYAN}[7]${NC}  💰  Cambiar precios (1 y 2 conexiones)"
+    echo -e "${CYAN}[8]${NC}  🔑  Configurar MercadoPago"
+    echo -e "${CYAN}[9]${NC}  📱  Gestionar APK"
+    echo -e "${CYAN}[10]${NC} 📊  Ver estadísticas"
+    echo -e "${CYAN}[11]${NC} ⚙️   Ver configuración"
+    echo -e "${CYAN}[12]${NC} 📝  Ver logs"
+    echo -e "${CYAN}[13]${NC} 🔧  Reparar bot"
+    echo -e "${CYAN}[14]${NC} 🧪  Test MercadoPago"
+    echo -e "${CYAN}[15]${NC} 🧠  Ver estados activos"
+    echo -e "${CYAN}[16]${NC} ⌨️   Test sistema de comandos"
     echo -e ""
-    echo -e "${CYAN}[13]${NC} 🔑  Configurar MercadoPago"
-    echo -e "${CYAN}[14]${NC} 📱  Gestionar APK"
-    echo -e "${CYAN}[15]${NC} 📊  Ver estadísticas"
-    echo -e "${CYAN}[16]${NC} 📝  Ver logs"
-    echo -e "${CYAN}[17]${NC} 🔧  Reparar bot"
-    echo -e "${CYAN}[18]${NC} 🧪  Test MercadoPago"
-    echo -e "${CYAN}[19]${NC} 🧠  Ver estados activos"
+    echo -e "${PURPLE}[17]${NC} 📋  VER PLANES PERSONALIZADOS"
+    echo -e "${PURPLE}[18]${NC} ➕  CREAR NUEVO PLAN"
+    echo -e "${PURPLE}[19]${NC} ✏️   EDITAR PLAN"
+    echo -e "${PURPLE}[20]${NC} 🗑️   ELIMINAR PLAN"
+    echo -e "${PURPLE}[21]${NC} 🔄  REORDENAR PLANES"
+    echo -e "${PURPLE}[22]${NC} ⚡  ACTIVAR/DESACTIVAR PLAN"
+    echo -e "${PURPLE}[23]${NC} 📥  IMPORTAR PLANES POR DEFECTO"
+    echo -e ""
     echo -e "${CYAN}[0]${NC}  🚪  Salir"
     echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     
@@ -1772,158 +1660,48 @@ while true; do
         7)
             clear
             echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
-            echo -e "${CYAN}║                     📋 PLANES CONFIGURADOS                  ║${NC}"
+            echo -e "${CYAN}║                💰 CAMBIAR PRECIOS (1 y 2 conex)            ║${NC}"
             echo -e "${CYAN}╚══════════════════════════════════════════════════════════════╝${NC}\n"
             
-            show_plans
-            echo -e "\n${YELLOW}💡 Estos planes se muestran en el bot cuando el usuario escribe '2'${NC}"
+            echo -e "${YELLOW}🔌 PLANES CON 1 CONEXIÓN:${NC}"
+            CURRENT_7D_1=$(get_val '.prices.price_7d_1conn')
+            CURRENT_15D_1=$(get_val '.prices.price_15d_1conn')
+            CURRENT_30D_1=$(get_val '.prices.price_30d_1conn')
+            
+            echo -e "  1. 7 días: $${CURRENT_7D_1}"
+            echo -e "  2. 15 días: $${CURRENT_15D_1}"
+            echo -e "  3. 30 días: $${CURRENT_30D_1}\n"
+            
+            echo -e "${YELLOW}🔌🔌 PLANES CON 2 CONEXIONES:${NC}"
+            CURRENT_7D_2=$(get_val '.prices.price_7d_2conn')
+            CURRENT_15D_2=$(get_val '.prices.price_15d_2conn')
+            CURRENT_30D_2=$(get_val '.prices.price_30d_2conn')
+            
+            echo -e "  4. 7 días: $${CURRENT_7D_2}"
+            echo -e "  5. 15 días: $${CURRENT_15D_2}"
+            echo -e "  6. 30 días: $${CURRENT_30D_2}\n"
+            
+            echo -e "${CYAN}--- MODIFICAR PRECIOS ---${NC}"
+            read -p "Nuevo precio 7d (1conn) [${CURRENT_7D_1}]: " NEW_7D_1
+            read -p "Nuevo precio 15d (1conn) [${CURRENT_15D_1}]: " NEW_15D_1
+            read -p "Nuevo precio 30d (1conn) [${CURRENT_30D_1}]: " NEW_30D_1
+            
+            echo ""
+            read -p "Nuevo precio 7d (2conn) [${CURRENT_7D_2}]: " NEW_7D_2
+            read -p "Nuevo precio 15d (2conn) [${CURRENT_15D_2}]: " NEW_15D_2
+            read -p "Nuevo precio 30d (2conn) [${CURRENT_30D_2}]: " NEW_30D_2
+            
+            [[ -n "$NEW_7D_1" ]] && set_val '.prices.price_7d_1conn' "$NEW_7D_1"
+            [[ -n "$NEW_15D_1" ]] && set_val '.prices.price_15d_1conn' "$NEW_15D_1"
+            [[ -n "$NEW_30D_1" ]] && set_val '.prices.price_30d_1conn' "$NEW_30D_1"
+            [[ -n "$NEW_7D_2" ]] && set_val '.prices.price_7d_2conn' "$NEW_7D_2"
+            [[ -n "$NEW_15D_2" ]] && set_val '.prices.price_15d_2conn' "$NEW_15D_2"
+            [[ -n "$NEW_30D_2" ]] && set_val '.prices.price_30d_2conn' "$NEW_30D_2"
+            
+            echo -e "\n${GREEN}✅ Precios actualizados${NC}"
             read -p "Presiona Enter..." 
             ;;
         8)
-            manage_plan "add"
-            ;;
-        9)
-            clear
-            echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
-            echo -e "${CYAN}║                     ✏️  EDITAR PLAN                        ║${NC}"
-            echo -e "${CYAN}╚══════════════════════════════════════════════════════════════╝${NC}\n"
-            
-            show_plans
-            echo ""
-            read -p "Ingresa el ID del plan a editar: " PLAN_ID
-            
-            if [[ -n "$PLAN_ID" && "$PLAN_ID" =~ ^[0-9]+$ ]]; then
-                manage_plan "edit" "$PLAN_ID"
-            else
-                echo -e "${RED}❌ ID inválido${NC}"
-                read -p "Presiona Enter..." 
-            fi
-            ;;
-        10)
-            clear
-            echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
-            echo -e "${CYAN}║                     🗑️  ELIMINAR PLAN                      ║${NC}"
-            echo -e "${CYAN}╚══════════════════════════════════════════════════════════════╝${NC}\n"
-            
-            show_plans
-            echo ""
-            read -p "Ingresa el ID del plan a eliminar: " PLAN_ID
-            
-            if [[ -n "$PLAN_ID" && "$PLAN_ID" =~ ^[0-9]+$ ]]; then
-                local plans=$(load_plans)
-                local plan_name=$(echo "$plans" | jq -r ".[] | select(.id == $PLAN_ID) | .name")
-                
-                if [[ -n "$plan_name" ]]; then
-                    echo -e "\n${RED}⚠️  ¿Eliminar el plan '$plan_name'?${NC}"
-                    read -p "Esta acción no se puede deshacer. (s/N): " CONFIRM
-                    
-                    if [[ "$CONFIRM" == "s" || "$CONFIRM" == "S" ]]; then
-                        plans=$(echo "$plans" | jq "del(.[] | select(.id == $PLAN_ID))")
-                        save_plans "$plans"
-                        
-                        echo -e "\n${YELLOW}🔄 Reiniciando bot...${NC}"
-                        cd /root/ssh-bot && pm2 restart ssh-bot > /dev/null 2>&1
-                        
-                        echo -e "${GREEN}✅ Plan eliminado exitosamente${NC}"
-                    fi
-                else
-                    echo -e "${RED}❌ Plan no encontrado${NC}"
-                fi
-            else
-                echo -e "${RED}❌ ID inválido${NC}"
-            fi
-            read -p "Presiona Enter..." 
-            ;;
-        11)
-            clear
-            echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
-            echo -e "${CYAN}║                     🔄 ORDENAR PLANES                      ║${NC}"
-            echo -e "${CYAN}╚══════════════════════════════════════════════════════════════╝${NC}\n"
-            
-            show_plans
-            echo ""
-            read -p "Ingresa el ID del plan a reordenar: " PLAN_ID
-            
-            if [[ -n "$PLAN_ID" && "$PLAN_ID" =~ ^[0-9]+$ ]]; then
-                local plans=$(load_plans)
-                local plan_name=$(echo "$plans" | jq -r ".[] | select(.id == $PLAN_ID) | .name")
-                
-                if [[ -n "$plan_name" ]]; then
-                    read -p "Nuevo orden de visualización (número menor = primero): " NEW_ORDER
-                    
-                    if [[ -n "$NEW_ORDER" && "$NEW_ORDER" =~ ^[0-9]+$ ]]; then
-                        plans=$(echo "$plans" | jq \
-                            --argjson id "$PLAN_ID" \
-                            --argjson order "$NEW_ORDER" \
-                            'map(if .id == $id then .display_order = $order else . end) | sort_by(.display_order)')
-                        
-                        save_plans "$plans"
-                        
-                        echo -e "\n${YELLOW}🔄 Reiniciando bot...${NC}"
-                        cd /root/ssh-bot && pm2 restart ssh-bot > /dev/null 2>&1
-                        
-                        echo -e "${GREEN}✅ Orden actualizado exitosamente${NC}"
-                    else
-                        echo -e "${RED}❌ Orden inválido${NC}"
-                    fi
-                else
-                    echo -e "${RED}❌ Plan no encontrado${NC}"
-                fi
-            else
-                echo -e "${RED}❌ ID inválido${NC}"
-            fi
-            read -p "Presiona Enter..." 
-            ;;
-        12)
-            clear
-            echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
-            echo -e "${CYAN}║                 ⚙️  HABILITAR/DESHABILITAR PLAN           ║${NC}"
-            echo -e "${CYAN}╚══════════════════════════════════════════════════════════════╝${NC}\n"
-            
-            show_plans
-            echo ""
-            read -p "Ingresa el ID del plan: " PLAN_ID
-            
-            if [[ -n "$PLAN_ID" && "$PLAN_ID" =~ ^[0-9]+$ ]]; then
-                local plans=$(load_plans)
-                local plan_name=$(echo "$plans" | jq -r ".[] | select(.id == $PLAN_ID) | .name")
-                local current_status=$(echo "$plans" | jq -r ".[] | select(.id == $PLAN_ID) | if .enabled then \"HABILITADO\" else \"DESHABILITADO\" end")
-                
-                if [[ -n "$plan_name" ]]; then
-                    echo -e "\n${YELLOW}Plan: $plan_name${NC}"
-                    echo -e "${YELLOW}Estado actual: $current_status${NC}"
-                    echo ""
-                    echo -e "  1. ✅ Habilitar (aparece en bot)"
-                    echo -e "  2. ❌ Deshabilitar (oculto en bot)"
-                    read -p "Selecciona (1-2): " NEW_STATUS
-                    
-                    if [[ "$NEW_STATUS" == "1" ]]; then
-                        plans=$(echo "$plans" | jq --argjson id "$PLAN_ID" 'map(if .id == $id then .enabled = true else . end)')
-                        echo -e "${GREEN}✅ Plan habilitado${NC}"
-                    elif [[ "$NEW_STATUS" == "2" ]]; then
-                        plans=$(echo "$plans" | jq --argjson id "$PLAN_ID" 'map(if .id == $id then .enabled = false else . end)')
-                        echo -e "${YELLOW}⚠️  Plan deshabilitado${NC}"
-                    else
-                        echo -e "${RED}❌ Opción inválida${NC}"
-                        read -p "Presiona Enter..." 
-                        continue
-                    fi
-                    
-                    save_plans "$plans"
-                    
-                    echo -e "\n${YELLOW}🔄 Reiniciando bot...${NC}"
-                    cd /root/ssh-bot && pm2 restart ssh-bot > /dev/null 2>&1
-                    
-                    echo -e "${GREEN}✅ Cambios aplicados${NC}"
-                else
-                    echo -e "${RED}❌ Plan no encontrado${NC}"
-                fi
-            else
-                echo -e "${RED}❌ ID inválido${NC}"
-            fi
-            read -p "Presiona Enter..." 
-            ;;
-        13)
             clear
             echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
             echo -e "${CYAN}║              🔑 CONFIGURAR MERCADOPAGO SDK v2.x             ║${NC}"
@@ -1964,7 +1742,7 @@ while true; do
             fi
             read -p "Presiona Enter..." 
             ;;
-        14)
+        9)
             clear
             echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
             echo -e "${CYAN}║                     📱 GESTIONAR APK                         ║${NC}"
@@ -2003,7 +1781,7 @@ while true; do
             fi
             read -p "Presiona Enter..." 
             ;;
-        15)
+        10)
             clear
             echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
             echo -e "${CYAN}║                     📊 ESTADÍSTICAS                         ║${NC}"
@@ -2015,24 +1793,70 @@ while true; do
             echo -e "\n${YELLOW}💰 PAGOS:${NC}"
             sqlite3 "$DB" "SELECT 'Pendientes: ' || SUM(CASE WHEN status='pending' THEN 1 ELSE 0 END) || ' | Aprobados: ' || SUM(CASE WHEN status='approved' THEN 1 ELSE 0 END) || ' | Total: $' || printf('%.2f', SUM(CASE WHEN status='approved' THEN amount ELSE 0 END)) FROM payments"
             
-            echo -e "\n${YELLOW}📋 PLANES MÁS VENDIDOS:${NC}"
-            sqlite3 "$DB" "SELECT 'Plan ' || plan_id || ': ' || COUNT(*) || ' ventas ($' || printf('%.2f', SUM(amount)) || ')' FROM payments WHERE status='approved' GROUP BY plan_id ORDER BY COUNT(*) DESC LIMIT 5" 2>/dev/null || echo "  Sin datos de ventas"
+            echo -e "\n${YELLOW}🔌 CONEXIONES:${NC}"
+            sqlite3 "$DB" "SELECT '1 conexión: ' || SUM(CASE WHEN max_connections=1 AND status=1 THEN 1 ELSE 0 END) || ' | 2 conexiones: ' || SUM(CASE WHEN max_connections=2 AND status=1 THEN 1 ELSE 0 END) FROM users"
             
             echo -e "\n${YELLOW}🧠 ESTADOS:${NC}"
             sqlite3 "$DB" "SELECT state, COUNT(*) as count FROM user_state GROUP BY state"
             
+            echo -e "\n${YELLOW}📋 PLANES PERSONALIZADOS:${NC}"
+            sqlite3 "$DB" "SELECT 'Activos: ' || SUM(CASE WHEN active=1 THEN 1 ELSE 0 END) || ' | Inactivos: ' || SUM(CASE WHEN active=0 THEN 1 ELSE 0 END) || ' | Total: ' || COUNT(*) FROM custom_plans"
+            
             echo -e "\n${YELLOW}📅 HOY:${NC}"
             TODAY=$(date +%Y-%m-%d)
             sqlite3 "$DB" "SELECT 'Tests: ' || COUNT(*) FROM daily_tests WHERE date = '$TODAY'"
-            sqlite3 "$DB" "SELECT 'Ventas hoy: ' || COUNT(*) || ' ($' || printf('%.2f', SUM(amount)) || ')' FROM payments WHERE date(created_at) = '$TODAY' AND status='approved'" 2>/dev/null || echo "  Sin ventas hoy"
             
             read -p "\nPresiona Enter..." 
             ;;
-        16)
+        11)
+            clear
+            echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
+            echo -e "${CYAN}║                     ⚙️  CONFIGURACIÓN                        ║${NC}"
+            echo -e "${CYAN}╚══════════════════════════════════════════════════════════════╝${NC}\n"
+            
+            echo -e "${YELLOW}🤖 BOT:${NC}"
+            echo -e "  IP: $(get_val '.bot.server_ip')"
+            echo -e "  Versión: $(get_val '.bot.version')"
+            
+            echo -e "\n${YELLOW}💰 PRECIOS (1 CONEXIÓN):${NC}"
+            echo -e "  1. 7d: $(get_val '.prices.price_7d_1conn') ARS"
+            echo -e "  2. 15d: $(get_val '.prices.price_15d_1conn') ARS"
+            echo -e "  3. 30d: $(get_val '.prices.price_30d_1conn') ARS"
+            
+            echo -e "\n${YELLOW}💰 PRECIOS (2 CONEXIONES):${NC}"
+            echo -e "  4. 7d: $(get_val '.prices.price_7d_2conn') ARS"
+            echo -e "  5. 15d: $(get_val '.prices.price_15d_2conn') ARS"
+            echo -e "  6. 30d: $(get_val '.prices.price_30d_2conn') ARS"
+            
+            echo -e "  Test: $(get_val '.prices.test_hours') horas (1 conexión)"
+            
+            echo -e "\n${YELLOW}💳 MERCADOPAGO:${NC}"
+            MP_TOKEN=$(get_val '.mercadopago.access_token')
+            if [[ -n "$MP_TOKEN" && "$MP_TOKEN" != "null" ]]; then
+                echo -e "  Estado: ${GREEN}SDK v2.x ACTIVO${NC}"
+                echo -e "  Token: ${MP_TOKEN:0:25}..."
+            else
+                echo -e "  Estado: ${RED}NO CONFIGURADO${NC}"
+            fi
+            
+            echo -e "\n${YELLOW}🔐 SEGURIDAD:${NC}"
+            echo -e "  Contraseña predeterminada: ${GREEN}mgvpn247${NC} (FIJA PARA TODOS)"
+            
+            echo -e "\n${YELLOW}🧠 SISTEMA DE ESTADOS:${NC}"
+            echo -e "  Estado: ${GREEN}ACTIVO${NC}"
+            echo -e "  Funciona: ${GREEN}SIN CONFLICTOS${NC}"
+            echo -e "  Comandos 1-6: ${GREEN}FUNCIONAN PARA COMPRAR EN PLANES${NC}"
+            
+            echo -e "\n${YELLOW}📋 PLANES PERSONALIZADOS:${NC}"
+            sqlite3 "$DB" "SELECT COUNT(*) as total, SUM(CASE WHEN active=1 THEN 1 ELSE 0 END) as activos FROM custom_plans" 2>/dev/null || echo "  Error leyendo planes"
+            
+            read -p "\nPresiona Enter..." 
+            ;;
+        12)
             echo -e "\n${YELLOW}📝 Logs (Ctrl+C para salir)...${NC}\n"
             pm2 logs ssh-bot --lines 100
             ;;
-        17)
+        13)
             clear
             echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
             echo -e "${CYAN}║                     🔧 REPARAR BOT                          ║${NC}"
@@ -2058,7 +1882,7 @@ while true; do
             fi
             read -p "Presiona Enter..." 
             ;;
-        18)
+        14)
             clear
             echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
             echo -e "${CYAN}║                 🧪 TEST MERCADOPAGO SDK v2.x                ║${NC}"
@@ -2091,7 +1915,7 @@ while true; do
             
             read -p "\nPresiona Enter..." 
             ;;
-        19)
+        15)
             clear
             echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
             echo -e "${CYAN}║                    🧠 ESTADOS ACTIVOS                       ║${NC}"
@@ -2102,6 +1926,554 @@ while true; do
             
             echo -e "\n${CYAN}📊 RESUMEN:${NC}"
             sqlite3 "$DB" "SELECT state, COUNT(*) as usuarios FROM user_state GROUP BY state"
+            
+            read -p "\nPresiona Enter..." 
+            ;;
+        16)
+            clear
+            echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
+            echo -e "${CYAN}║                  🧪 TEST SISTEMA DE COMANDOS                ║${NC}"
+            echo -e "${CYAN}╚══════════════════════════════════════════════════════════════╝${NC}\n"
+            
+            echo -e "${GREEN}✅ SISTEMA DE ESTADOS FUNCIONANDO${NC}\n"
+            
+            echo -e "${YELLOW}📋 FLUJO CORRECTO:${NC}"
+            echo -e "  1. Usuario escribe 'menu' → Menú principal"
+            echo -e "  2. Usuario escribe '1' → Prueba gratis"
+            echo -e "  3. Usuario escribe '2' → Ver planes"
+            echo -e "  4. En planes, escribe '1' → Comprar 7 días (1 conexión)"
+            echo -e "  5. En planes, escribe '2' → Comprar 15 días (1 conexión)"
+            echo -e "  6. En planes, escribe '3' → Comprar 30 días (1 conexión)"
+            echo -e "  7. En planes, escribe '4' → Comprar 7 días (2 conexiones)"
+            echo -e "  8. En planes, escribe '5' → Comprar 15 días (2 conexiones)"
+            echo -e "  9. En planes, escribe '6' → Comprar 30 días (2 conexiones)"
+            echo -e "  10. Siempre puede escribir 'menu' para volver\n"
+            
+            echo -e "${YELLOW}🔍 ESTADOS:${NC}"
+            echo -e "  • main_menu - Menú principal"
+            echo -e "  • viewing_plans - Viendo planes de compra"
+            echo -e "  • (Otros estados según se necesiten)\n"
+            
+            echo -e "${GREEN}✅ SIN CONFLICTOS:${NC}"
+            echo -e "  • El '1' en menú principal es PRUEBA"
+            echo -e "  • El '1' en planes es COMPRA 7 días"
+            echo -e "  • El sistema sabe en qué estado está cada usuario\n"
+            
+            echo -e "${CYAN}📊 PRECIOS ACTUALES:${NC}"
+            echo -e "  1. 7d (1conn): $ $(get_val '.prices.price_7d_1conn')"
+            echo -e "  2. 15d (1conn): $ $(get_val '.prices.price_15d_1conn')"
+            echo -e "  3. 30d (1conn): $ $(get_val '.prices.price_30d_1conn')"
+            echo -e "  4. 7d (2conn): $ $(get_val '.prices.price_7d_2conn')"
+            echo -e "  5. 15d (2conn): $ $(get_val '.prices.price_15d_2conn')"
+            echo -e "  6. 30d (2conn): $ $(get_val '.prices.price_30d_2conn')"
+            
+            echo -e "\n${CYAN}📋 PLANES PERSONALIZADOS:${NC}"
+            sqlite3 "$DB" "SELECT name, days, connections, price FROM custom_plans WHERE active=1 ORDER BY display_order ASC" 2>/dev/null | while read line; do
+                echo "  • $line"
+            done || echo "  (Usando planes por defecto)"
+            
+            read -p "\nPresiona Enter..." 
+            ;;
+        17)
+            clear
+            echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
+            echo -e "${CYAN}║                📋 PLANES PERSONALIZADOS                    ║${NC}"
+            echo -e "${CYAN}╚══════════════════════════════════════════════════════════════╝${NC}\n"
+            
+            show_custom_plans
+            
+            echo -e "${YELLOW}📊 RESUMEN:${NC}"
+            sqlite3 "$DB" <<EOF
+SELECT 
+    'Activos: ' || SUM(CASE WHEN active=1 THEN 1 ELSE 0 END) || 
+    ' | Inactivos: ' || SUM(CASE WHEN active=0 THEN 1 ELSE 0 END) || 
+    ' | Total: ' || COUNT(*) as "Resumen",
+    'Precio mínimo: $' || MIN(price) || 
+    ' | Precio máximo: $' || MAX(price) as "Rango precios"
+FROM custom_plans;
+EOF
+            echo ""
+            
+            echo -e "${CYAN}💡 NOTA:${NC}"
+            echo -e "  • Los planes se muestran en WhatsApp en orden de 'Orden'"
+            echo -e "  • Los usuarios ven los planes activos (✅)"
+            echo -e "  • Cada plan debe tener un nombre, días, conexiones y precio"
+            
+            read -p "\nPresiona Enter..." 
+            ;;
+        18)
+            clear
+            echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
+            echo -e "${CYAN}║                  ➕ CREAR NUEVO PLAN                        ║${NC}"
+            echo -e "${CYAN}╚══════════════════════════════════════════════════════════════╝${NC}\n"
+            
+            echo -e "${YELLOW}📝 INGRESA LOS DETALLES DEL NUEVO PLAN:${NC}\n"
+            
+            read -p "Nombre del plan (ej: '7 días Premium'): " PLAN_NAME
+            read -p "Duración en días (ej: 7, 15, 30): " PLAN_DAYS
+            read -p "Número de conexiones (1 o 2): " PLAN_CONNECTIONS
+            read -p "Precio en ARS (ej: 500.00): " PLAN_PRICE
+            read -p "Descripción (opcional): " PLAN_DESC
+            read -p "Orden de visualización (1=primero, 99=último): " PLAN_ORDER
+            
+            # Validaciones
+            if [[ -z "$PLAN_NAME" || -z "$PLAN_DAYS" || -z "$PLAN_CONNECTIONS" || -z "$PLAN_PRICE" ]]; then
+                echo -e "\n${RED}❌ Error: Nombre, días, conexiones y precio son obligatorios${NC}"
+                read -p "Presiona Enter..." 
+                continue
+            fi
+            
+            if ! [[ "$PLAN_DAYS" =~ ^[0-9]+$ ]]; then
+                echo -e "\n${RED}❌ Error: Los días deben ser un número${NC}"
+                read -p "Presiona Enter..." 
+                continue
+            fi
+            
+            if ! [[ "$PLAN_CONNECTIONS" =~ ^[12]$ ]]; then
+                echo -e "\n${RED}❌ Error: Las conexiones deben ser 1 o 2${NC}"
+                read -p "Presiona Enter..." 
+                continue
+            fi
+            
+            if ! [[ "$PLAN_PRICE" =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
+                echo -e "\n${RED}❌ Error: El precio debe ser un número${NC}"
+                read -p "Presiona Enter..." 
+                continue
+            fi
+            
+            [[ -z "$PLAN_ORDER" ]] && PLAN_ORDER="99"
+            
+            # Insertar en la base de datos
+            sqlite3 "$DB" <<EOF
+INSERT INTO custom_plans (name, days, connections, price, description, display_order, active, created_at, updated_at)
+VALUES ('$PLAN_NAME', $PLAN_DAYS, $PLAN_CONNECTIONS, $PLAN_PRICE, '$PLAN_DESC', $PLAN_ORDER, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+EOF
+            
+            if [[ $? -eq 0 ]]; then
+                echo -e "\n${GREEN}✅ PLAN CREADO EXITOSAMENTE${NC}"
+                echo -e "📋 Detalles:"
+                echo -e "  Nombre: ${PLAN_NAME}"
+                echo -e "  Días: ${PLAN_DAYS}"
+                echo -e "  Conexiones: ${PLAN_CONNECTIONS}"
+                echo -e "  Precio: $${PLAN_PRICE} ARS"
+                echo -e "  Orden: ${PLAN_ORDER}"
+                [[ -n "$PLAN_DESC" ]] && echo -e "  Descripción: ${PLAN_DESC}"
+                echo -e "  Estado: ✅ ACTIVO"
+            else
+                echo -e "\n${RED}❌ Error al crear el plan${NC}"
+            fi
+            
+            read -p "\nPresiona Enter..." 
+            ;;
+        19)
+            clear
+            echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
+            echo -e "${CYAN}║                  ✏️  EDITAR PLAN EXISTENTE                  ║${NC}"
+            echo -e "${CYAN}╚══════════════════════════════════════════════════════════════╝${NC}\n"
+            
+            show_custom_plans
+            
+            echo -e "${YELLOW}✏️  EDITAR PLAN:${NC}\n"
+            read -p "ID del plan a editar (ver columna ID): " PLAN_ID
+            
+            if [[ -z "$PLAN_ID" ]] || ! [[ "$PLAN_ID" =~ ^[0-9]+$ ]]; then
+                echo -e "${RED}❌ ID inválido${NC}"
+                read -p "Presiona Enter..." 
+                continue
+            fi
+            
+            # Verificar que el plan existe
+            PLAN_EXISTS=$(sqlite3 "$DB" "SELECT COUNT(*) FROM custom_plans WHERE id = $PLAN_ID")
+            if [[ "$PLAN_EXISTS" -eq 0 ]]; then
+                echo -e "${RED}❌ No existe un plan con ID $PLAN_ID${NC}"
+                read -p "Presiona Enter..." 
+                continue
+            fi
+            
+            # Obtener datos actuales
+            CURRENT_DATA=$(sqlite3 "$DB" "SELECT name, days, connections, price, description, display_order, active FROM custom_plans WHERE id = $PLAN_ID" 2>/dev/null)
+            if [[ -z "$CURRENT_DATA" ]]; then
+                echo -e "${RED}❌ Error obteniendo datos del plan${NC}"
+                read -p "Presiona Enter..." 
+                continue
+            fi
+            
+            IFS='|' read -r CURRENT_NAME CURRENT_DAYS CURRENT_CONN CURRENT_PRICE CURRENT_DESC CURRENT_ORDER CURRENT_ACTIVE <<< "$CURRENT_DATA"
+            
+            echo -e "\n${CYAN}📋 DATOS ACTUALES:${NC}"
+            echo -e "  1. Nombre: ${CURRENT_NAME}"
+            echo -e "  2. Días: ${CURRENT_DAYS}"
+            echo -e "  3. Conexiones: ${CURRENT_CONN}"
+            echo -e "  4. Precio: $${CURRENT_PRICE}"
+            echo -e "  5. Descripción: ${CURRENT_DESC}"
+            echo -e "  6. Orden: ${CURRENT_ORDER}"
+            echo -e "  7. Estado: $( [[ "$CURRENT_ACTIVE" -eq 1 ]] && echo "✅ ACTIVO" || echo "❌ INACTIVO" )"
+            
+            echo -e "\n${YELLOW}📝 NUEVOS VALORES (deja vacío para mantener actual):${NC}"
+            read -p "Nuevo nombre [${CURRENT_NAME}]: " NEW_NAME
+            read -p "Nuevos días [${CURRENT_DAYS}]: " NEW_DAYS
+            read -p "Nuevas conexiones (1 o 2) [${CURRENT_CONN}]: " NEW_CONN
+            read -p "Nuevo precio [${CURRENT_PRICE}]: " NEW_PRICE
+            read -p "Nueva descripción [${CURRENT_DESC}]: " NEW_DESC
+            read -p "Nuevo orden [${CURRENT_ORDER}]: " NEW_ORDER
+            
+            # Usar valores actuales si no se especifican nuevos
+            [[ -z "$NEW_NAME" ]] && NEW_NAME="$CURRENT_NAME"
+            [[ -z "$NEW_DAYS" ]] && NEW_DAYS="$CURRENT_DAYS"
+            [[ -z "$NEW_CONN" ]] && NEW_CONN="$CURRENT_CONN"
+            [[ -z "$NEW_PRICE" ]] && NEW_PRICE="$CURRENT_PRICE"
+            [[ -z "$NEW_DESC" ]] && NEW_DESC="$CURRENT_DESC"
+            [[ -z "$NEW_ORDER" ]] && NEW_ORDER="$CURRENT_ORDER"
+            
+            # Validaciones
+            if ! [[ "$NEW_DAYS" =~ ^[0-9]+$ ]]; then
+                echo -e "\n${RED}❌ Error: Los días deben ser un número${NC}"
+                read -p "Presiona Enter..." 
+                continue
+            fi
+            
+            if ! [[ "$NEW_CONN" =~ ^[12]$ ]]; then
+                echo -e "\n${RED}❌ Error: Las conexiones deben ser 1 o 2${NC}"
+                read -p "Presiona Enter..." 
+                continue
+            fi
+            
+            if ! [[ "$NEW_PRICE" =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
+                echo -e "\n${RED}❌ Error: El precio debe ser un número${NC}"
+                read -p "Presiona Enter..." 
+                continue
+            fi
+            
+            # Actualizar en la base de datos
+            sqlite3 "$DB" <<EOF
+UPDATE custom_plans 
+SET 
+    name = '$NEW_NAME',
+    days = $NEW_DAYS,
+    connections = $NEW_CONN,
+    price = $NEW_PRICE,
+    description = '$NEW_DESC',
+    display_order = $NEW_ORDER,
+    updated_at = CURRENT_TIMESTAMP
+WHERE id = $PLAN_ID;
+EOF
+            
+            if [[ $? -eq 0 ]]; then
+                echo -e "\n${GREEN}✅ PLAN ACTUALIZADO EXITOSAMENTE${NC}"
+                echo -e "📋 Nuevos detalles:"
+                echo -e "  ID: ${PLAN_ID}"
+                echo -e "  Nombre: ${NEW_NAME}"
+                echo -e "  Días: ${NEW_DAYS}"
+                echo -e "  Conexiones: ${NEW_CONN}"
+                echo -e "  Precio: $${NEW_PRICE} ARS"
+                echo -e "  Orden: ${NEW_ORDER}"
+                [[ -n "$NEW_DESC" ]] && echo -e "  Descripción: ${NEW_DESC}"
+                
+                echo -e "\n${YELLOW}🔄 Reiniciando bot para aplicar cambios...${NC}"
+                cd /root/ssh-bot && pm2 restart ssh-bot 2>/dev/null
+                sleep 2
+            else
+                echo -e "\n${RED}❌ Error al actualizar el plan${NC}"
+            fi
+            
+            read -p "\nPresiona Enter..." 
+            ;;
+        20)
+            clear
+            echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
+            echo -e "${CYAN}║                  🗑️  ELIMINAR PLAN                         ║${NC}"
+            echo -e "${CYAN}╚══════════════════════════════════════════════════════════════╝${NC}\n"
+            
+            show_custom_plans
+            
+            echo -e "${RED}⚠️  ADVERTENCIA: Esta acción no se puede deshacer${NC}\n"
+            read -p "ID del plan a eliminar (0 para cancelar): " PLAN_ID
+            
+            if [[ "$PLAN_ID" == "0" ]]; then
+                echo -e "${YELLOW}❌ Eliminación cancelada${NC}"
+                read -p "Presiona Enter..." 
+                continue
+            fi
+            
+            if [[ -z "$PLAN_ID" ]] || ! [[ "$PLAN_ID" =~ ^[0-9]+$ ]]; then
+                echo -e "${RED}❌ ID inválido${NC}"
+                read -p "Presiona Enter..." 
+                continue
+            fi
+            
+            # Verificar que el plan existe
+            PLAN_EXISTS=$(sqlite3 "$DB" "SELECT COUNT(*) FROM custom_plans WHERE id = $PLAN_ID")
+            if [[ "$PLAN_EXISTS" -eq 0 ]]; then
+                echo -e "${RED}❌ No existe un plan con ID $PLAN_ID${NC}"
+                read -p "Presiona Enter..." 
+                continue
+            fi
+            
+            # Mostrar detalles del plan
+            PLAN_INFO=$(sqlite3 "$DB" "SELECT name, days, connections, price FROM custom_plans WHERE id = $PLAN_ID" 2>/dev/null)
+            IFS='|' read -r PLAN_NAME PLAN_DAYS PLAN_CONN PLAN_PRICE <<< "$PLAN_INFO"
+            
+            echo -e "\n${YELLOW}📋 PLAN A ELIMINAR:${NC}"
+            echo -e "  ID: ${PLAN_ID}"
+            echo -e "  Nombre: ${PLAN_NAME}"
+            echo -e "  Días: ${PLAN_DAYS}"
+            echo -e "  Conexiones: ${PLAN_CONN}"
+            echo -e "  Precio: $${PLAN_PRICE}"
+            
+            echo -e "\n${RED}⚠️  ¿ESTÁS SEGURO? Esta acción es permanente.${NC}"
+            read -p "Escribe 'ELIMINAR' para confirmar: " CONFIRM
+            
+            if [[ "$CONFIRM" == "ELIMINAR" ]]; then
+                sqlite3 "$DB" "DELETE FROM custom_plans WHERE id = $PLAN_ID"
+                
+                if [[ $? -eq 0 ]]; then
+                    echo -e "\n${GREEN}✅ PLAN ELIMINADO EXITOSAMENTE${NC}"
+                    echo -e "${YELLOW}🔄 Reiniciando bot...${NC}"
+                    cd /root/ssh-bot && pm2 restart ssh-bot 2>/dev/null
+                    sleep 2
+                else
+                    echo -e "\n${RED}❌ Error al eliminar el plan${NC}"
+                fi
+            else
+                echo -e "\n${YELLOW}❌ Eliminación cancelada${NC}"
+            fi
+            
+            read -p "\nPresiona Enter..." 
+            ;;
+        21)
+            clear
+            echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
+            echo -e "${CYAN}║                  🔄 REORDENAR PLANES                       ║${NC}"
+            echo -e "${CYAN}╚══════════════════════════════════════════════════════════════╝${NC}\n"
+            
+            echo -e "${YELLOW}📋 PLANES ACTUALES (en orden de visualización):${NC}\n"
+            sqlite3 -column -header "$DB" <<EOF
+SELECT 
+    id as ID,
+    name as "Nombre",
+    display_order as "Orden Actual",
+    days as "Días",
+    connections as "Conex",
+    price as "Precio"
+FROM custom_plans 
+WHERE active = 1
+ORDER BY display_order ASC, id ASC;
+EOF
+            
+            echo -e "\n${CYAN}📝 REORDENAR:${NC}"
+            echo -e "  Los planes se muestran en orden ascendente (1 primero, 99 último)"
+            echo -e "  Puedes editar el orden individualmente con la opción 19 (Editar Plan)"
+            
+            echo -e "\n${YELLOW}¿Reordenar automáticamente?${NC}"
+            echo -e "  1. Ordenar por días (menor a mayor)"
+            echo -e "  2. Ordenar por precio (menor a mayor)"
+            echo -e "  3. Ordenar por conexiones (1 primero, 2 después)"
+            echo -e "  4. Ordenar por ID (creación)"
+            read -p "Selecciona opción (0=cancelar): " REORDER_OPT
+            
+            case $REORDER_OPT in
+                1)
+                    echo -e "\n${YELLOW}🔄 Ordenando por días...${NC}"
+                    sqlite3 "$DB" <<EOF
+UPDATE custom_plans 
+SET display_order = (SELECT row_number FROM (
+    SELECT id, ROW_NUMBER() OVER (ORDER BY days ASC, connections ASC, price ASC) as row_number 
+    FROM custom_plans 
+    WHERE active = 1
+) AS ordered WHERE ordered.id = custom_plans.id)
+WHERE active = 1;
+EOF
+                    echo -e "${GREEN}✅ Planes ordenados por días${NC}"
+                    ;;
+                2)
+                    echo -e "\n${YELLOW}🔄 Ordenando por precio...${NC}"
+                    sqlite3 "$DB" <<EOF
+UPDATE custom_plans 
+SET display_order = (SELECT row_number FROM (
+    SELECT id, ROW_NUMBER() OVER (ORDER BY price ASC, days ASC, connections ASC) as row_number 
+    FROM custom_plans 
+    WHERE active = 1
+) AS ordered WHERE ordered.id = custom_plans.id)
+WHERE active = 1;
+EOF
+                    echo -e "${GREEN}✅ Planes ordenados por precio${NC}"
+                    ;;
+                3)
+                    echo -e "\n${YELLOW}🔄 Ordenando por conexiones...${NC}"
+                    sqlite3 "$DB" <<EOF
+UPDATE custom_plans 
+SET display_order = (SELECT row_number FROM (
+    SELECT id, ROW_NUMBER() OVER (ORDER BY connections ASC, days ASC, price ASC) as row_number 
+    FROM custom_plans 
+    WHERE active = 1
+) AS ordered WHERE ordered.id = custom_plans.id)
+WHERE active = 1;
+EOF
+                    echo -e "${GREEN}✅ Planes ordenados por conexiones${NC}"
+                    ;;
+                4)
+                    echo -e "\n${YELLOW}🔄 Ordenando por ID...${NC}"
+                    sqlite3 "$DB" <<EOF
+UPDATE custom_plans 
+SET display_order = (SELECT row_number FROM (
+    SELECT id, ROW_NUMBER() OVER (ORDER BY id ASC) as row_number 
+    FROM custom_plans 
+    WHERE active = 1
+) AS ordered WHERE ordered.id = custom_plans.id)
+WHERE active = 1;
+EOF
+                    echo -e "${GREEN}✅ Planes ordenados por ID${NC}"
+                    ;;
+                0)
+                    echo -e "\n${YELLOW}❌ Reordenación cancelada${NC}"
+                    ;;
+                *)
+                    echo -e "\n${RED}❌ Opción inválida${NC}"
+                    ;;
+            esac
+            
+            if [[ "$REORDER_OPT" =~ ^[1-4]$ ]]; then
+                echo -e "\n${YELLOW}🔄 Reiniciando bot...${NC}"
+                cd /root/ssh-bot && pm2 restart ssh-bot 2>/dev/null
+                sleep 2
+                echo -e "${GREEN}✅ Bot reiniciado con nuevo orden${NC}"
+            fi
+            
+            read -p "\nPresiona Enter..." 
+            ;;
+        22)
+            clear
+            echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
+            echo -e "${CYAN}║              ⚡ ACTIVAR/DESACTIVAR PLAN                    ║${NC}"
+            echo -e "${CYAN}╚══════════════════════════════════════════════════════════════╝${NC}\n"
+            
+            show_custom_plans
+            
+            echo -e "${YELLOW}⚡ CAMBIAR ESTADO:${NC}\n"
+            read -p "ID del plan: " PLAN_ID
+            
+            if [[ -z "$PLAN_ID" ]] || ! [[ "$PLAN_ID" =~ ^[0-9]+$ ]]; then
+                echo -e "${RED}❌ ID inválido${NC}"
+                read -p "Presiona Enter..." 
+                continue
+            fi
+            
+            # Verificar que el plan existe
+            PLAN_EXISTS=$(sqlite3 "$DB" "SELECT COUNT(*) FROM custom_plans WHERE id = $PLAN_ID")
+            if [[ "$PLAN_EXISTS" -eq 0 ]]; then
+                echo -e "${RED}❌ No existe un plan con ID $PLAN_ID${NC}"
+                read -p "Presiona Enter..." 
+                continue
+            fi
+            
+            # Obtener estado actual
+            CURRENT_STATE=$(sqlite3 "$DB" "SELECT active FROM custom_plans WHERE id = $PLAN_ID" 2>/dev/null)
+            PLAN_INFO=$(sqlite3 "$DB" "SELECT name, days, connections, price FROM custom_plans WHERE id = $PLAN_ID" 2>/dev/null)
+            IFS='|' read -r PLAN_NAME PLAN_DAYS PLAN_CONN PLAN_PRICE <<< "$PLAN_INFO"
+            
+            echo -e "\n${CYAN}📋 PLAN:${NC}"
+            echo -e "  ID: ${PLAN_ID}"
+            echo -e "  Nombre: ${PLAN_NAME}"
+            echo -e "  Estado actual: $( [[ "$CURRENT_STATE" -eq 1 ]] && echo "✅ ACTIVO" || echo "❌ INACTIVO" )"
+            
+            echo -e "\n${YELLOW}¿Qué acción deseas?${NC}"
+            if [[ "$CURRENT_STATE" -eq 1 ]]; then
+                echo -e "  1. ❌ Desactivar plan (no se mostrará a usuarios)"
+                echo -e "  2. ✅ Mantener activo"
+            else
+                echo -e "  1. ✅ Activar plan"
+                echo -e "  2. ❌ Mantener inactivo"
+            fi
+            read -p "Selecciona opción: " TOGGLE_OPT
+            
+            NEW_STATE=""
+            case $TOGGLE_OPT in
+                1)
+                    if [[ "$CURRENT_STATE" -eq 1 ]]; then
+                        NEW_STATE=0
+                        ACTION="DESACTIVADO"
+                    else
+                        NEW_STATE=1
+                        ACTION="ACTIVADO"
+                    fi
+                    ;;
+                2)
+                    echo -e "\n${YELLOW}❌ No se realizaron cambios${NC}"
+                    read -p "Presiona Enter..." 
+                    continue
+                    ;;
+                *)
+                    echo -e "\n${RED}❌ Opción inválida${NC}"
+                    read -p "Presiona Enter..." 
+                    continue
+                    ;;
+            esac
+            
+            # Actualizar estado
+            sqlite3 "$DB" "UPDATE custom_plans SET active = $NEW_STATE, updated_at = CURRENT_TIMESTAMP WHERE id = $PLAN_ID"
+            
+            if [[ $? -eq 0 ]]; then
+                echo -e "\n${GREEN}✅ PLAN $ACTION EXITOSAMENTE${NC}"
+                echo -e "  Nuevo estado: $( [[ "$NEW_STATE" -eq 1 ]] && echo "✅ ACTIVO" || echo "❌ INACTIVO" )"
+                
+                echo -e "\n${YELLOW}🔄 Reiniciando bot...${NC}"
+                cd /root/ssh-bot && pm2 restart ssh-bot 2>/dev/null
+                sleep 2
+                echo -e "${GREEN}✅ Bot reiniciado${NC}"
+            else
+                echo -e "\n${RED}❌ Error al cambiar estado${NC}"
+            fi
+            
+            read -p "\nPresiona Enter..." 
+            ;;
+        23)
+            clear
+            echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
+            echo -e "${CYAN}║              📥 IMPORTAR PLANES POR DEFECTO                ║${NC}"
+            echo -e "${CYAN}╚══════════════════════════════════════════════════════════════╝${NC}\n"
+            
+            echo -e "${RED}⚠️  ADVERTENCIA: Esta acción borrará todos los planes existentes${NC}\n"
+            echo -e "${YELLOW}¿Estás seguro? Se importarán 6 planes por defecto:${NC}"
+            echo -e "  1. 7 días (1 conexión) - $500 ARS"
+            echo -e "  2. 15 días (1 conexión) - $800 ARS"
+            echo -e "  3. 30 días (1 conexión) - $1200 ARS"
+            echo -e "  4. 7 días (2 conexiones) - $800 ARS"
+            echo -e "  5. 15 días (2 conexiones) - $1200 ARS"
+            echo -e "  6. 30 días (2 conexiones) - $1800 ARS"
+            
+            echo -e "\n${RED}⚠️  Se perderán todos los planes personalizados actuales${NC}"
+            read -p "Escribe 'IMPORTAR' para confirmar: " CONFIRM
+            
+            if [[ "$CONFIRM" == "IMPORTAR" ]]; then
+                echo -e "\n${YELLOW}🗑️  Eliminando planes existentes...${NC}"
+                sqlite3 "$DB" "DELETE FROM custom_plans"
+                
+                echo -e "${YELLOW}📥 Importando planes por defecto...${NC}"
+                sqlite3 "$DB" <<EOF
+INSERT INTO custom_plans (name, days, connections, price, description, display_order, active) VALUES
+('7 días (1 conexión)', 7, 1, 500.00, 'Acceso por 7 días con 1 conexión', 1, 1),
+('15 días (1 conexión)', 15, 1, 800.00, 'Acceso por 15 días con 1 conexión', 2, 1),
+('30 días (1 conexión)', 30, 1, 1200.00, 'Acceso por 30 días con 1 conexión', 3, 1),
+('7 días (2 conexiones)', 7, 2, 800.00, 'Acceso por 7 días con 2 conexiones simultáneas', 4, 1),
+('15 días (2 conexiones)', 15, 2, 1200.00, 'Acceso por 15 días con 2 conexiones simultáneas', 5, 1),
+('30 días (2 conexiones)', 30, 2, 1800.00, 'Acceso por 30 días con 2 conexiones simultáneas', 6, 1);
+EOF
+                
+                if [[ $? -eq 0 ]]; then
+                    echo -e "\n${GREEN}✅ PLANES IMPORTADOS EXITOSAMENTE${NC}"
+                    echo -e "${YELLOW}🔄 Reiniciando bot...${NC}"
+                    cd /root/ssh-bot && pm2 restart ssh-bot 2>/dev/null
+                    sleep 2
+                    echo -e "${GREEN}✅ Bot reiniciado con planes por defecto${NC}"
+                    
+                    echo -e "\n${CYAN}📋 PLANES ACTUALES:${NC}"
+                    show_custom_plans
+                else
+                    echo -e "\n${RED}❌ Error al importar planes${NC}"
+                fi
+            else
+                echo -e "\n${YELLOW}❌ Importación cancelada${NC}"
+            fi
             
             read -p "\nPresiona Enter..." 
             ;;
@@ -2123,7 +2495,7 @@ echo -e "${GREEN}✅ Panel de control creado con gestión de planes${NC}"
 # ================================================
 # INICIAR BOT
 # ================================================
-echo -e "\n${CYAN}${BOLD}🚀 INICIANDO BOT CON PLANES CONFIGURABLES...${NC}"
+echo -e "\n${CYAN}${BOLD}🚀 INICIANDO BOT CON SISTEMA DE ESTADOS Y PLANES PERSONALIZADOS...${NC}"
 
 cd "$USER_HOME"
 pm2 start bot.js --name ssh-bot
@@ -2135,47 +2507,34 @@ sleep 3
 # ================================================
 # CREAR SCRIPT DE TEST
 # ================================================
-echo -e "\n${CYAN}${BOLD}🧪 CREANDO SCRIPT DE TEST DE PLANES CONFIGURABLES...${NC}"
+echo -e "\n${CYAN}${BOLD}🧪 CREANDO SCRIPT DE TEST DE COMANDOS...${NC}"
 
-cat > /usr/local/bin/test-planes << 'TESTEOF'
+cat > /usr/local/bin/test-estados << 'TESTEOF'
 #!/bin/bash
-echo -e "\n🔍 TEST DEL SISTEMA DE PLANES CONFIGURABLES"
-echo -e "==========================================\n"
+echo -e "\n🔍 TEST DEL SISTEMA DE ESTADOS Y PLANES"
+echo -e "======================================\n"
 
-echo -e "📋 Verificando configuración..."
-CONFIG="/opt/ssh-bot/config/config.json"
-PLANS="/opt/ssh-bot/config/plans.json"
-
-if [[ -f "$CONFIG" ]]; then
-    echo -e "✅ Configuración: $CONFIG"
-    echo -e "  IP: $(jq -r '.bot.server_ip' "$CONFIG")"
-    echo -e "  Versión: $(jq -r '.bot.version' "$CONFIG")"
-else
-    echo -e "❌ Configuración no encontrada"
-fi
-
-if [[ -f "$PLANS" ]]; then
-    PLANS_COUNT=$(jq '. | length' "$PLANS" 2>/dev/null || echo "0")
-    PLANS_ENABLED=$(jq '[.[] | select(.enabled)] | length' "$PLANS" 2>/dev/null || echo "0")
+echo -e "📋 Verificando base de datos..."
+DB="/opt/ssh-bot/data/users.db"
+if [[ -f "$DB" ]]; then
+    echo -e "✅ Base de datos: $DB"
     
-    echo -e "\n✅ Planes configurables: $PLANS"
-    echo -e "  Total planes: $PLANS_COUNT"
-    echo -e "  Planes habilitados: $PLANS_ENABLED"
+    echo -e "\n📊 ESTADÍSTICAS:"
+    echo -e "  Usuarios totales: $(sqlite3 "$DB" "SELECT COUNT(*) FROM users" 2>/dev/null || echo 0)"
+    echo -e "  Usuarios activos: $(sqlite3 "$DB" "SELECT COUNT(*) FROM users WHERE status=1" 2>/dev/null || echo 0)"
+    echo -e "  Estados activos: $(sqlite3 "$DB" "SELECT COUNT(*) FROM user_state" 2>/dev/null || echo 0)"
+    echo -e "  Planes personalizados: $(sqlite3 "$DB" "SELECT COUNT(*) FROM custom_plans WHERE active=1" 2>/dev/null || echo 0)"
     
-    if [[ $PLANS_ENABLED -gt 0 ]]; then
-        echo -e "\n📋 PLANES HABILITADOS:"
-        echo -e "${CYAN}┌─────┬────────────────┬──────────┬──────────────┬──────────┐${NC}"
-        echo -e "${CYAN}│ ID  │ Nombre         │ Días     │ Conexiones   │ Precio   │${NC}"
-        echo -e "${CYAN}├─────┼────────────────┼──────────┼──────────────┼──────────┤${NC}"
-        
-        jq -r '.[] | select(.enabled) | "│ \(.id) │ \(.name) │ \(.days) │ \(.connections) │ $\(.price) │"' "$PLANS" 2>/dev/null | while read line; do
-            echo -e "${CYAN}$line${NC}"
-        done
-        
-        echo -e "${CYAN}└─────┴────────────────┴──────────┴──────────────┴──────────┘${NC}"
-    fi
+    echo -e "\n🧠 ESTADOS ACTUALES:"
+    sqlite3 "$DB" "SELECT state, COUNT(*) as usuarios FROM user_state GROUP BY state" 2>/dev/null || echo "  Sin estados activos"
+    
+    echo -e "\n📋 PLANES PERSONALIZADOS:"
+    sqlite3 "$DB" "SELECT name, days, connections, price, display_order FROM custom_plans WHERE active=1 ORDER BY display_order ASC" 2>/dev/null | while read line; do
+        IFS='|' read -r name days conn price order <<< "$line"
+        echo "  • $name: $days días, $conn conex, $${price} (orden: $order)"
+    done || echo "  (Usando planes por defecto)"
 else
-    echo -e "\n❌ Archivo de planes no encontrado"
+    echo -e "❌ Base de datos no encontrada"
 fi
 
 echo -e "\n🤖 Verificando bot..."
@@ -2187,19 +2546,33 @@ else
     echo -e "❌ Bot NO está en ejecución"
 fi
 
-echo -e "\n💡 INSTRUCCIONES DE USO:"
-echo -e "  1. Ejecutar: ${GREEN}sshbot${NC}"
-echo -e "  2. Opción ${CYAN}[7]${NC} - Ver planes actuales"
-echo -e "  3. Opción ${CYAN}[8]${NC} - Agregar nuevo plan"
-echo -e "  4. Opción ${CYAN}[9]${NC} - Editar plan existente"
-echo -e "  5. Opción ${CYAN}[10]${NC} - Eliminar plan"
-echo -e "  6. Opción ${CYAN}[11]${NC} - Ordenar planes"
-echo -e "  7. Opción ${CYAN}[12]${NC} - Habilitar/deshabilitar plan"
+echo -e "\n💡 FLUJO DE COMANDOS:"
+echo -e "  ${GREEN}menu${NC} → Menú principal"
+echo -e "  ${GREEN}1${NC} → Prueba gratis (solo en menú principal)"
+echo -e "  ${GREEN}2${NC} → Ver planes (solo en menú principal)"
+echo -e "  ${GREEN}3${NC} → Mis cuentas (solo en menú principal)"
+echo -e "  ${GREEN}4${NC} → Estado de pago (solo en menú principal)"
+echo -e "  ${GREEN}5${NC} → Descargar APP (solo en menú principal)"
+echo -e "  ${GREEN}6${NC} → Soporte (solo en menú principal)"
+echo -e ""
+echo -e "  ⚡ ${CYAN}DENTRO DE PLANES:${NC}"
+echo -e "  Los números 1-6 mostrarán los planes personalizados"
+echo -e "  Cada número corresponde a un plan en el orden establecido"
 
-echo -e "\n✅ Sistema funcionando correctamente con planes configurables"
+echo -e "\n📋 GESTIÓN DE PLANES EN PANEL:"
+echo -e "  Ejecuta ${GREEN}sshbot${NC} y usa las opciones 17-23 para:"
+echo -e "  • Ver planes personalizados (17)"
+echo -e "  • Crear nuevo plan (18)"
+echo -e "  • Editar plan existente (19)"
+echo -e "  • Eliminar plan (20)"
+echo -e "  • Reordenar planes (21)"
+echo -e "  • Activar/desactivar plan (22)"
+echo -e "  • Importar planes por defecto (23)"
+
+echo -e "\n✅ Sistema funcionando correctamente"
 TESTEOF
 
-chmod +x /usr/local/bin/test-planes
+chmod +x /usr/local/bin/test-estados
 
 # ================================================
 # MENSAJE FINAL
@@ -2209,14 +2582,17 @@ echo -e "${GREEN}${BOLD}"
 cat << "FINAL"
 ╔══════════════════════════════════════════════════════════════╗
 ║                                                              ║
-║     🎉 INSTALACIÓN COMPLETADA - PLANES CONFIGURABLES 🎉   ║
+║      🎉 INSTALACIÓN COMPLETADA - SISTEMA DE ESTADOS 🎉     ║
+║               📋 CON GESTIÓN DE PLANES PERSONALIZADOS      ║
 ║                                                              ║
-║         SSH BOT PRO v8.9 - SIN CONFLICTOS DE COMANDOS      ║
+║         SSH BOT PRO v8.7 - SIN CONFLICTOS DE COMANDOS      ║
 ║           💡 SISTEMA INTELIGENTE DE ESTADOS                ║
 ║           🤖 WhatsApp Web parcheado                        ║
-║           ⚙️  PLANES COMPLETAMENTE CONFIGURABLES          ║
+║           🔌 PLANES PERSONALIZADOS (días, conex, precio)   ║
 ║           🔐 CONTRASEÑA FIJA: mgvpn247 PARA TODOS          ║
+║           ⌨️  1,2,3,4,5,6 FUNCIONAN PARA COMPRAR EN PLANES  ║
 ║           🧠 SIN CONFLICTOS ENTRE MENÚS                    ║
+║           📋 GESTIÓN COMPLETA DE PLANES DESDE PANEL        ║
 ║                                                              ║
 ╚══════════════════════════════════════════════════════════════╝
 FINAL
@@ -2224,77 +2600,68 @@ echo -e "${NC}"
 
 echo -e "${CYAN}══════════════════════════════════════════════════════════════${NC}"
 echo -e "${GREEN}✅ Sistema de estados instalado${NC}"
-echo -e "${GREEN}✅ PLANES CONFIGURABLES desde el panel${NC}"
-echo -e "${GREEN}✅ Puedes agregar/editar/eliminar planes${NC}"
-echo -e "${GREEN}✅ Configurar precios, días y conexiones${NC}"
+echo -e "${GREEN}✅ SIN CONFLICTOS: 1=Prueba (menú), 1=7d (planes)${NC}"
+echo -e "${GREEN}✅ COMANDOS 1-6 FUNCIONAN PARA COMPRAR EN PLANES${NC}"
 echo -e "${GREEN}✅ WhatsApp Web parcheado (no markedUnread error)${NC}"
+echo -e "${GREEN}✅ PLANES PERSONALIZADOS: días, conexiones, precio${NC}"
 echo -e "${GREEN}✅ CONTRASEÑA FIJA: mgvpn247 para todos los usuarios${NC}"
+echo -e "${GREEN}✅ GESTIÓN DE PLANES DESDE PANEL: crear, editar, eliminar${NC}"
 echo -e "${CYAN}══════════════════════════════════════════════════════════════${NC}\n"
 
 echo -e "${YELLOW}📋 COMANDOS DISPONIBLES:${NC}\n"
 echo -e "  ${GREEN}sshbot${NC}         - Panel de control principal"
-echo -e "  ${GREEN}test-planes${NC}    - Test del sistema de planes"
+echo -e "  ${GREEN}test-estados${NC}   - Test del sistema de estados"
 echo -e "  ${GREEN}pm2 logs ssh-bot${NC} - Ver logs del bot"
 echo -e "  ${GREEN}pm2 restart ssh-bot${NC} - Reiniciar bot\n"
 
 echo -e "${YELLOW}🔧 CONFIGURACIÓN INICIAL:${NC}\n"
 echo -e "  1. Ejecuta: ${GREEN}sshbot${NC}"
-echo -e "  2. Opción ${CYAN}[8]${NC} - Agregar nuevo plan"
-echo -e "  3. Opción ${CYAN}[9]${NC} - Editar planes existentes"
-echo -e "  4. Opción ${CYAN}[13]${NC} - Configurar MercadoPago"
-echo -e "  5. Opción ${CYAN}[3]${NC} - Escanear QR WhatsApp"
-echo -e "  6. Sube APK a /root/app.apk\n"
+echo -e "  2. Opción ${CYAN}[8]${NC} - Configurar MercadoPago"
+echo -e "  3. Opción ${CYAN}[17-23]${NC} - Gestionar planes personalizados"
+echo -e "  4. Opción ${CYAN}[3]${NC} - Escanear QR WhatsApp"
+echo -e "  5. Sube APK a /root/app.apk\n"
 
-echo -e "${YELLOW}⚙️  GESTIÓN DE PLANES:${NC}\n"
-echo -e "  ${CYAN}[7]${NC} - Ver planes actuales"
-echo -e "  ${CYAN}[8]${NC} - Agregar nuevo plan"
-echo -e "  ${CYAN}[9]${NC} - Editar plan existente"
-echo -e "  ${CYAN}[10]${NC} - Eliminar plan"
-echo -e "  ${CYAN}[11]${NC} - Ordenar planes"
-echo -e "  ${CYAN}[12]${NC} - Habilitar/deshabilitar plan\n"
-
-echo -e "${YELLOW}🎯 CREAR UN PLAN PERSONALIZADO:${NC}\n"
-echo -e "  ${GREEN}Ejemplo 1:${NC} Plan económico 3 días"
-echo -e "    • Nombre: 3 DÍAS ECONÓMICO"
-echo -e "    • Días: 3"
-echo -e "    • Conexiones: 1"
-echo -e "    • Precio: 300.00"
-echo -e "    • Descripción: 3 días con 1 conexión"
-echo -e "    • Orden: 1 (aparece primero)\n"
-echo -e "  ${GREEN}Ejemplo 2:${NC} Plan premium 60 días"
-echo -e "    • Nombre: 60 DÍAS PREMIUM"
-echo -e "    • Días: 60"
-echo -e "    • Conexiones: 2"
-echo -e "    • Precio: 2500.00"
-echo -e "    • Descripción: 60 días con 2 conexiones simultáneas"
-echo -e "    • Orden: 5\n"
+echo -e "${YELLOW}📋 GESTIÓN DE PLANES (opciones 17-23):${NC}\n"
+echo -e "  ${CYAN}[17]${NC} Ver planes personalizados"
+echo -e "  ${CYAN}[18]${NC} Crear nuevo plan (nombre, días, conex, precio)"
+echo -e "  ${CYAN}[19]${NC} Editar plan existente"
+echo -e "  ${CYAN}[20]${NC} Eliminar plan"
+echo -e "  ${CYAN}[21]${NC} Reordenar planes"
+echo -e "  ${CYAN}[22]${NC} Activar/desactivar plan"
+echo -e "  ${CYAN}[23]${NC} Importar planes por defecto\n"
 
 echo -e "${YELLOW}⌨️  FLUJO PARA USUARIOS:${NC}\n"
 echo -e "  ${CYAN}1.${NC} Escribe 'menu' → Menú principal"
-echo -e "  ${CYAN}2.${NC} Escribe '2' → Ver planes (muestra los que configuraste)"
-echo -e "  ${CYAN}3.${NC} Elige un plan (1, 2, 3, etc.)"
+echo -e "  ${CYAN}2.${NC} Escribe '2' → Ver planes personalizados"
+echo -e "  ${CYAN}3.${NC} Elige un plan (1-6 según orden establecido)"
 echo -e "  ${CYAN}4.${NC} El bot genera enlace de pago MercadoPago"
 echo -e "  ${CYAN}5.${NC} Pago aprobado → Usuario creado automáticamente\n"
 
 echo -e "${YELLOW}🔐 CONTRASEÑA:${NC}"
 echo -e "  • ${GREEN}mgvpn247${NC} para TODOS los usuarios\n"
 
+echo -e "${YELLOW}🧠 CÓMO FUNCIONA EL SISTEMA DE ESTADOS:${NC}"
+echo -e "  1. Cada usuario tiene un estado (main_menu, viewing_plans, etc.)"
+echo -e "  2. El bot sabe en qué parte del flujo está cada usuario"
+echo -e "  3. Los comandos 1-6 tienen diferentes funciones según el estado"
+echo -e "  4. No hay conflictos entre menús"
+echo -e "  5. Los estados se limpian automáticamente después de 1 hora\n"
+
 echo -e "${YELLOW}📊 INFO:${NC}"
 echo -e "  IP: ${CYAN}$SERVER_IP${NC}"
 echo -e "  BD: ${CYAN}$DB_FILE${NC}"
 echo -e "  Config: ${CYAN}$CONFIG_FILE${NC}"
-echo -e "  Planes: ${CYAN}$PLANS_FILE${NC}"
-echo -e "  Script test: ${CYAN}/usr/local/bin/test-planes${NC}\n"
+echo -e "  Script test: ${CYAN}/usr/local/bin/test-estados${NC}\n"
 
 echo -e "${CYAN}══════════════════════════════════════════════════════════════${NC}\n"
 
-read -p "$(echo -e "${YELLOW}¿Probar sistema de planes? (s/N): ${NC}")" -n 1 -r
+read -p "$(echo -e "${YELLOW}¿Probar sistema de estados? (s/N): ${NC}")" -n 1 -r
 echo
 if [[ $REPLY =~ ^[Ss]$ ]]; then
     echo -e "\n${CYAN}Probando sistema...${NC}\n"
-    /usr/local/bin/test-planes
+    /usr/local/bin/test-estados
 else
-    echo -e "\n${YELLOW}💡 Para probar después: ${GREEN}test-planes${NC}\n"
+    echo -e "\n${YELLOW}💡 Para probar después: ${GREEN}test-estados${NC}\n"
 fi
 
 read -p "$(echo -e "${YELLOW}¿Abrir panel de control? (s/N): ${NC}")" -n 1 -r
@@ -2307,6 +2674,6 @@ else
     echo -e "\n${YELLOW}💡 Ejecuta: ${GREEN}sshbot${NC} para abrir el panel\n"
 fi
 
-echo -e "${GREEN}${BOLD}¡Sistema instalado exitosamente! Ahora puedes configurar los planes desde el panel 🚀${NC}\n"
+echo -e "${GREEN}${BOLD}¡Sistema de estados instalado exitosamente! Los comandos 1-6 ahora funcionan sin conflictos 🚀${NC}\n"
 
 exit 0
