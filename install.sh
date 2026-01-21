@@ -810,7 +810,7 @@ async function checkPendingPayments() {
 🔑 Contraseña: *mgvpn247*
 
 ⏰ *VÁLIDO HASTA:* ${expireDate}
-🔌 *CONEXIÓN:* ${payment.connections} ${payment.connections > 1 ? 'conexiones simultáneas' : 'conexión'}
+🟢 *CONEXIÓN:* ${payment.connections} ${payment.connections > 1 ? 'conexiones simultáneas' : 'conexión'}
 
 📱 *INSTALACIÓN:*
 1. Descarga la app (Escribe *5*)
@@ -856,7 +856,7 @@ client.on('message', async (msg) => {
 
 ⌛️ *1* - Prueba GRATIS (2h) 
 💰 *2* - Planes Internet
-👤 *3* - Mis cuentas
+👤 *3* - Mi usuario 
 💳 *4* - Estado de pago
 📱 *5* - Descargar APP
 🔧 *6* - Soporte
@@ -888,7 +888,7 @@ client.on('message', async (msg) => {
 
 📱 *PARA CONECTAR:*
 1. Descarga la app (Escribe *5*)
-2. Selecionar servidor
+2. Selecionar servidor 1
 3. Ingresa usuario y contraseña
 4. ¡Listo!
 
@@ -923,7 +923,7 @@ Actualmente no hay planes disponibles.
                 const connText = plan.connections > 1 ? `${plan.connections} conexiones` : '1 conexión';
                 plansMessage += `*${index + 1}*. ${plan.name}\n`;
                 plansMessage += `   📅 ${plan.days} días\n`;
-                plansMessage += `   🔌 ${connText}\n`;
+                plansMessage += `   🟢 ${connText}\n`;
                 plansMessage += `   💰 $${plan.price} ${config.prices.currency}\n`;
                 if (plan.description) {
                     plansMessage += `   📝 ${plan.description}\n`;
@@ -944,12 +944,12 @@ Actualmente no hay planes disponibles.
             // Fallback a planes por defecto
             await client.sendMessage(phone, `💎 *PLANES INTERNET - ELIGE UN PLAN*
 
-🔌 *1 CONEXIÓN*
+🟢 *1 CONEXIÓN*
 🗓 *1* - 7 días - $${config.prices.price_7d_1conn} ARS
 🗓 *2* - 15 días - $${config.prices.price_15d_1conn} ARS
 🗓 *3* - 30 días - $${config.prices.price_30d_1conn} ARS
 
-🔌🔌 *2 CONEXIONES SIMULTÁNEAS*
+🟢 *2 CONEXIONES SIMULTÁNEAS*
 🗓 *4* - 7 días - $${config.prices.price_7d_2conn} ARS
 🗓 *5* - 15 días - $${config.prices.price_15d_2conn} ARS
 🗓 *6* - 30 días - $${config.prices.price_30d_2conn} ARS
