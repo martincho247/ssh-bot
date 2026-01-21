@@ -829,7 +829,7 @@ async function checkPendingPayments() {
 🔑 Contraseña: *mgvpn247*
 
 ⏰ *VÁLIDO HASTA:* ${expireDate}
-🔌 *CONEXIÓN:* ${payment.connections} ${payment.connections > 1 ? 'conexiones simultáneas' : 'conexión'}
+🟢 *CONEXIÓN:* ${payment.connections} ${payment.connections > 1 ? 'conexiones simultáneas' : 'conexión'}
 
 📱 *INSTALACIÓN:*
 1. Descarga la app (Escribe *5*)
@@ -867,15 +867,15 @@ client.on('message', async (msg) => {
         // Resetear estado a menú principal
         await setUserState(phone, 'main_menu');
         
-        await client.sendMessage(phone, `╔══════════════════════════════════════╗
-║   🚀 *HOLA BOT MGVPN*              ║
-╚══════════════════════════════════════╝
+        await client.sendMessage(phone, `
+
+    🚀 *HOLA BOT MGVPN*             
 
 📋 *MENU PRINCIPAL:*
 
 ⌛️ *1* - Prueba GRATIS (2h) 
 💰 *2* - Planes Internet
-👤 *3* - Mis cuentas
+👤 *3* - Mis usuarios
 💳 *4* - Estado de pago
 📱 *5* - Descargar APP
 🔧 *6* - Soporte
@@ -903,7 +903,7 @@ client.on('message', async (msg) => {
 👤 Usuario: *${username}*
 🔑 Contraseña: *mgvpn247*
 ⏰ Duración: 2 horas  
-🔌 Conexión: 1
+🟢 Conexión: 1
 
 📱 *PARA CONECTAR:*
 1. Descarga la app (Escribe *5*)
@@ -943,7 +943,7 @@ El administrador no ha configurado planes aún.
             const connText = plan.connections > 1 ? `${plan.connections} conexiones simultáneas` : '1 conexión';
             plansMessage += `🗓 *${index + 1}* - ${plan.name} - $${plan.price} ARS
 `;
-            plansMessage += `   ⏰ ${plan.days} días | 🔌 ${connText}
+            plansMessage += `   🕜 ${plan.days} días | 🟢 ${connText}
 `;
         });
         
