@@ -822,7 +822,7 @@ client.on('message', async (msg) => {
 
 ⌛️ *1* - Prueba GRATIS (2h) 
 💰 *2* - Planes Internet
-👤 *3* - Mis cuentas
+👤 *3* - Mis usuarios
 💳 *4* - Estado de pago
 📱 *5* - Descargar APP
 🔧 *6* - Soporte
@@ -973,7 +973,7 @@ ${existingPayment.payment_url}
                 try {
                     const media = MessageMedia.fromFilePath(existingPayment.qr_code);
                     await client.sendMessage(phone, media, { 
-                        caption: `📱 *ESCAPEA CON MERCADOPAGO*
+                        caption: `📱 *ESCANEA CON MERCADOPAGO*
                         
 ⚡ ${p.name}
 💰 $${existingPayment.amount} ARS
