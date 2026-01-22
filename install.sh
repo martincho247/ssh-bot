@@ -959,7 +959,7 @@ ${payment.paymentUrl}
                     try {
                         const media = MessageMedia.fromFilePath(payment.qrPath);
                         await client.sendMessage(phone, media, { 
-                            caption: `📱 *ESCAPEA CON MERCADOPAGO*
+                            caption: `📱 *ESCANEA CON MERCADOPAGO*
                             
 ⚡ ${p.name}
 💰 $${p.amount} ARS
@@ -1112,7 +1112,7 @@ ${error.message}
 3. Abre la app
 4. Ingresa tus datos de acceso
    👤 Usuario: (tu usuario)
-   🔑 Contraseña: mgvpn247
+   🔑 Contraseña: (contraseña)
 
 💡 Si no ves el archivo, revisa la sección "Archivos" de WhatsApp
 
