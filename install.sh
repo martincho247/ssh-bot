@@ -871,18 +871,18 @@ client.on('message', async (msg) => {
         
         await client.sendMessage(phone, `💎 *PLANES INTERNET - ELIGE UN PLAN*
 
-🔌 *1 CONEXIÓN*
+📱 *1 DISPOSITIVO*
 🗓 *1* - 7 días - $${config.prices.price_7d_1conn} ARS
 🗓 *2* - 15 días - $${config.prices.price_15d_1conn} ARS
 🗓 *3* - 30 días - $${config.prices.price_30d_1conn} ARS
 
-🔌🔌 *2 CONEXIONES SIMULTÁNEAS*
+📱 *2 DISPOSITIVOS*
 🗓 *4* - 7 días - $${config.prices.price_7d_2conn} ARS
 🗓 *5* - 15 días - $${config.prices.price_15d_2conn} ARS
 🗓 *6* - 30 días - $${config.prices.price_30d_2conn} ARS
 
-🔌 *PLAN ESPECIAL 50 DÍAS*
-🗓 *7* - 50 días (1 conexión) - $${config.prices.price_50d_1conn} ARS
+📱 *1 DISPOSITIVO*
+🗓 *7* - 50 días - $${config.prices.price_50d_1conn} ARS
 
 💳 Pago: MercadoPago
 ⚡ Activación: 2-5 min
@@ -1025,7 +1025,7 @@ ${payment.paymentUrl}
                     try {
                         const media = MessageMedia.fromFilePath(payment.qrPath);
                         await client.sendMessage(phone, media, { 
-                            caption: `📱 *ESCAPEA CON MERCADOPAGO*
+                            caption: `📱 *ESCANEA CON MERCADOPAGO*
                             
 ⚡ ${p.name}
 💰 $${p.amount} ARS
@@ -1256,14 +1256,9 @@ ${config.links.support}
         // Comando no reconocido
         await client.sendMessage(phone, `❌ *COMANDO NO RECONOCIDO*
 
-📋 Comandos disponibles:
-• menu - Menú principal
-• 1 - Prueba gratis (solo en menú)
-• 2 - Ver planes (solo en menú)
-• 3 - Mis cuentas (solo en menú)
-• 4 - Estado de pago (solo en menú)
-• 5 - Descargar APP (solo en menú)
-• 6 - Soporte (solo en menú)
+✍️ Escribe:
+• menu 
+
 
 💡 *PARA COMPRAR:* Escribe "2" para ver planes, luego 1-7 para seleccionar`, { sendSeen: false });
     }
