@@ -871,18 +871,18 @@ client.on('message', async (msg) => {
         
         await client.sendMessage(phone, `💎 *PLANES INTERNET - ELIGE UN PLAN*
 
-🔌 *1 CONEXIÓN*
-🗓 *1* - 7 días - $${config.prices.price_7d_1conn} ARS
-🗓 *2* - 15 días - $${config.prices.price_15d_1conn} ARS
-🗓 *3* - 30 días - $${config.prices.price_30d_1conn} ARS
+📱 *1 DISPOSITIVO*
+  *1* - 7 días - $${config.prices.price_7d_1conn} ARS
+  *2* - 15 días - $${config.prices.price_15d_1conn} ARS
+  *3* - 30 días - $${config.prices.price_30d_1conn} ARS
 
-🔌🔌 *2 CONEXIONES SIMULTÁNEAS*
-🗓 *4* - 7 días - $${config.prices.price_7d_2conn} ARS
-🗓 *5* - 15 días - $${config.prices.price_15d_2conn} ARS
-🗓 *6* - 30 días - $${config.prices.price_30d_2conn} ARS
+📱 *2 DISPOSITIVO*
+  *4* - 7 días - $${config.prices.price_7d_2conn} ARS
+  *5* - 15 días - $${config.prices.price_15d_2conn} ARS
+  *6* - 30 días - $${config.prices.price_30d_2conn} ARS
 
-🔌 *PLAN ESPECIAL 50 DÍAS*
-🗓 *7* - 50 días (1 conexión) - $${config.prices.price_50d_1conn} ARS
+📱 *1 DISPOSITIVO*
+  *7* - 50 días  - $${config.prices.price_50d_1conn} ARS
 
 💳 Pago: MercadoPago
 ⚡ Activación: 2-5 min
