@@ -3,9 +3,10 @@
 # SSH BOT PRO v8.7 - FIX COMANDOS PLANES
 # Correcciones aplicadas:
 # 1. ✅ MENÚ PRINCIPAL: 1=Prueba, 2=Ver Planes, 3=Cuentas, 4=Estado, 5=APP, 6=Soporte
-# 2. ✅ MENÚ PLANES: 1=7d 1con, 2=15d 1con, 3=30d 1con, 4=7d 2con, 5=15d 2con, 6=30d 2con
-# 3. ✅ SISTEMA DE ESTADOS: Cuando usuario está en "modo compra", los números 1-6 son para comprar
+# 2. ✅ MENÚ PLANES: 1=7d 1con, 2=15d 1con, 3=30d 1con, 4=7d 2con, 5=15d 2con, 6=30d 2con, 7=50d 1con
+# 3. ✅ SISTEMA DE ESTADOS: Cuando usuario está en "modo compra", los números 1-7 son para comprar
 # 4. ✅ FIX TOTAL: Sin conflictos entre menús
+# 5. ✅ NUEVO PLAN: 50 días (1 conexión)
 # ================================================
 
 set -e
@@ -36,8 +37,9 @@ cat << "BANNER"
 ║                                                              ║
 ║           🚀 SSH BOT PRO v8.7 - FIX COMANDOS PLANES         ║
 ║               💡 SISTEMA DE ESTADOS INTELIGENTE             ║
-║               🔌 1,2,3,4,5,6 PARA COMPRAR EN PLANES         ║
+║               🔌 1,2,3,4,5,6,7 PARA COMPRAR EN PLANES       ║
 ║               🔐 CONTRASEÑA FIJA: mgvpn247                  ║
+║               🆕 NUEVO PLAN: 50 días (1 conexión)           ║
 ║                                                              ║
 ╚══════════════════════════════════════════════════════════════╝
 BANNER
@@ -58,6 +60,7 @@ echo -e "     ${GREEN}3${NC} = 30 días (1 conexión) - COMPRAR"
 echo -e "     ${GREEN}4${NC} = 7 días (2 conexiones) - COMPRAR"
 echo -e "     ${GREEN}5${NC} = 15 días (2 conexiones) - COMPRAR"
 echo -e "     ${GREEN}6${NC} = 30 días (2 conexiones) - COMPRAR"
+echo -e "     ${GREEN}7${NC} = 50 días (1 conexión) - COMPRAR"
 echo -e "  🟢 ${GREEN}FIX:${NC} Sistema de estados evita conflictos"
 echo -e "${CYAN}══════════════════════════════════════════════════════════════${NC}\n"
 
@@ -82,13 +85,14 @@ echo -e "${GREEN}✅ IP detectada: ${CYAN}$SERVER_IP${NC}\n"
 echo -e "${YELLOW}⚠️  ESTE INSTALADOR HARÁ:${NC}"
 echo -e "   • Instalar Node.js 20.x + Chrome"
 echo -e "   • Crear SSH Bot Pro v8.7 CON SISTEMA DE ESTADOS"
-echo -e "   • Sistema: 1,2,3,4,5,6 funcionan para comprar EN PLANES"
+echo -e "   • Sistema: 1,2,3,4,5,6,7 funcionan para comprar EN PLANES"
 echo -e "   • Sin conflictos entre menús"
 echo -e "   • Panel de control 100% funcional"
 echo -e "   • APK automático + Test 2h"
 echo -e "   • Cron limpieza cada 15 minutos"
 echo -e "   • 🔐 CONTRASEÑA FIJA: mgvpn247 para todos"
 echo -e "   • 🔌 PLANES CON 2 CONEXIONES"
+echo -e "   • 🆕 NUEVO PLAN: 50 días (1 conexión)"
 echo -e "\n${RED}⚠️  Se eliminarán instalaciones anteriores${NC}"
 
 read -p "$(echo -e "${YELLOW}¿Continuar con la instalación? (s/N): ${NC}")" -n 1 -r
@@ -103,7 +107,62 @@ fi
 # ================================================
 echo -e "\n${CYAN}${BOLD}📦 INSTALANDO DEPENDENCIAS...${NC}"
 
-# ... [MANTENER TODO EL CÓDIGO DE INSTALACIÓN DE DEPENDENCIAS ANTERIOR] ...
+# Actualizar sistema
+apt-get update -y
+apt-get upgrade -y
+
+# Instalar Node.js 20.x
+echo -e "${YELLOW}📦 Instalando Node.js 20.x...${NC}"
+curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+apt-get install -y nodejs
+apt-get install -y gcc g++ make
+
+# Instalar Chromium
+echo -e "${YELLOW}🌐 Instalando Chrome/Chromium...${NC}"
+apt-get install -y wget gnupg
+wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | apt-key add -
+echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list
+apt-get update -y
+apt-get install -y google-chrome-stable
+
+# Instalar dependencias del sistema
+echo -e "${YELLOW}⚙️ Instalando utilidades...${NC}"
+apt-get install -y \
+    git \
+    curl \
+    wget \
+    sqlite3 \
+    jq \
+    build-essential \
+    libcairo2-dev \
+    libpango1.0-dev \
+    libjpeg-dev \
+    libgif-dev \
+    librsvg2-dev \
+    pkg-config \
+    python3 \
+    python3-pip \
+    ffmpeg \
+    unzip \
+    cron \
+    ufw
+
+# Instalar PM2 globalmente
+echo -e "${YELLOW}🔄 Instalando PM2...${NC}"
+npm install -g pm2
+pm2 update
+
+# Configurar firewall
+echo -e "${YELLOW}🛡️ Configurando firewall...${NC}"
+ufw allow 22/tcp
+ufw allow 80/tcp
+ufw allow 443/tcp
+ufw allow 8001/tcp
+ufw allow 3000/tcp
+ufw --force enable
+
+echo -e "${GREEN}✅ Dependencias instaladas${NC}"
+
 # ================================================
 # PREPARAR ESTRUCTURA
 # ================================================
@@ -128,7 +187,7 @@ mkdir -p /root/.wwebjs_auth
 chmod -R 755 "$INSTALL_DIR"
 chmod -R 700 /root/.wwebjs_auth
 
-# Crear configuración CON NUEVOS PLANES
+# Crear configuración CON NUEVOS PLANES INCLUYENDO 50 DÍAS
 cat > "$CONFIG_FILE" << EOF
 {
     "bot": {
@@ -142,6 +201,7 @@ cat > "$CONFIG_FILE" << EOF
         "price_7d_1conn": 500.00,
         "price_15d_1conn": 800.00,
         "price_30d_1conn": 1200.00,
+        "price_50d_1conn": 1800.00,
         "price_7d_2conn": 800.00,
         "price_15d_2conn": 1200.00,
         "price_30d_2conn": 1800.00,
@@ -256,8 +316,8 @@ find node_modules/whatsapp-web.js -name "Client.js" -type f -exec sed -i 's/cons
 
 echo -e "${GREEN}✅ Parche markedUnread aplicado${NC}"
 
-# Crear bot.js CON SISTEMA DE ESTADOS
-echo -e "${YELLOW}📝 Creando bot.js con sistema de estados...${NC}"
+# Crear bot.js COMPLETO CON SISTEMA DE ESTADOS Y PLAN 50 DÍAS
+echo -e "${YELLOW}📝 Creando bot.js con sistema de estados y plan 50 días...${NC}"
 
 cat > "bot.js" << 'BOTEOF'
 const { Client, LocalAuth, MessageMedia } = require('whatsapp-web.js');
@@ -353,14 +413,16 @@ moment.locale('es');
 
 console.log(chalk.cyan.bold('\n╔══════════════════════════════════════════════════════════════╗'));
 console.log(chalk.cyan.bold('║      🤖 SSH BOT PRO v8.7 - SISTEMA DE ESTADOS               ║'));
-console.log(chalk.cyan.bold('║               💡 1,2,3,4,5,6 PARA COMPRAR EN PLANES         ║'));
+console.log(chalk.cyan.bold('║               💡 1,2,3,4,5,6,7 PARA COMPRAR EN PLANES       ║'));
 console.log(chalk.cyan.bold('║               🔐 CONTRASEÑA FIJA: mgvpn247                  ║'));
+console.log(chalk.cyan.bold('║               🆕 NUEVO PLAN: 50 días (1 conexión)           ║'));
 console.log(chalk.cyan.bold('╚══════════════════════════════════════════════════════════════╝\n'));
 console.log(chalk.yellow(`📍 IP: ${config.bot.server_ip}`));
 console.log(chalk.yellow(`💳 MercadoPago: ${mpEnabled ? '✅ SDK v2.x ACTIVO' : '❌ NO CONFIGURADO'}`));
 console.log(chalk.green('✅ WhatsApp Web parcheado (no markedUnread error)'));
 console.log(chalk.green('✅ SISTEMA DE ESTADOS: Sin conflictos entre menús'));
-console.log(chalk.green('✅ MENÚ PLANES: 1,2,3,4,5,6 para comprar'));
+console.log(chalk.green('✅ MENÚ PLANES: 1,2,3,4,5,6,7 para comprar'));
+console.log(chalk.green('✅ NUEVO PLAN: 50 días (1 conexión) disponible'));
 console.log(chalk.green('✅ APK automático desde /root'));
 console.log(chalk.green('✅ Test 2 horas exactas'));
 console.log(chalk.green('✅ CONTRASEÑA FIJA: mgvpn247 para todos los usuarios'));
@@ -809,24 +871,27 @@ client.on('message', async (msg) => {
         
         await client.sendMessage(phone, `💎 *PLANES INTERNET - ELIGE UN PLAN*
 
-📱 *1 DISPOSITIVO*
+🔌 *1 CONEXIÓN*
 🗓 *1* - 7 días - $${config.prices.price_7d_1conn} ARS
 🗓 *2* - 15 días - $${config.prices.price_15d_1conn} ARS
 🗓 *3* - 30 días - $${config.prices.price_30d_1conn} ARS
 
-📱 *2 DISPOSITIVO*
+🔌🔌 *2 CONEXIONES SIMULTÁNEAS*
 🗓 *4* - 7 días - $${config.prices.price_7d_2conn} ARS
 🗓 *5* - 15 días - $${config.prices.price_15d_2conn} ARS
 🗓 *6* - 30 días - $${config.prices.price_30d_2conn} ARS
 
+🔌 *PLAN ESPECIAL 50 DÍAS*
+🗓 *7* - 50 días (1 conexión) - $${config.prices.price_50d_1conn} ARS
+
 💳 Pago: MercadoPago
 ⚡ Activación: 2-5 min
 
-💰 *PARA COMPRAR:* Escribe el número del plan (1-6)
+💰 *PARA COMPRAR:* Escribe el número del plan (1-7)
 💬 *Para volver:* Escribe "menu"`, { sendSeen: false });
     }
-    else if ((text === '1' || text === '2' || text === '3' || text === '4' || text === '5' || text === '6') && userState.state === 'viewing_plans') {
-        // ✅ COMANDOS 1-6 CUANDO EL USUARIO ESTÁ VIENDO PLANES = COMPRAR
+    else if ((text === '1' || text === '2' || text === '3' || text === '4' || text === '5' || text === '6' || text === '7') && userState.state === 'viewing_plans') {
+        // ✅ COMANDOS 1-7 CUANDO EL USUARIO ESTÁ VIENDO PLANES = COMPRAR
         config = loadConfig();
         
         console.log(chalk.yellow(`🔑 Verificando token MP para compra...`));
@@ -856,14 +921,15 @@ El sistema de pagos no está disponible.
             return;
         }
         
-        // MAPEO DE PLANES
+        // MAPEO DE PLANES - CON LA SECUENCIA CORRECTA
         const planMap = {
             '1': { days: 7, amount: config.prices.price_7d_1conn, plan: '7d', conn: 1, name: '7 DÍAS (1 conexión)' },
             '2': { days: 15, amount: config.prices.price_15d_1conn, plan: '15d', conn: 1, name: '15 DÍAS (1 conexión)' },
             '3': { days: 30, amount: config.prices.price_30d_1conn, plan: '30d', conn: 1, name: '30 DÍAS (1 conexión)' },
             '4': { days: 7, amount: config.prices.price_7d_2conn, plan: '7d', conn: 2, name: '7 DÍAS (2 conexiones)' },
             '5': { days: 15, amount: config.prices.price_15d_2conn, plan: '15d', conn: 2, name: '15 DÍAS (2 conexiones)' },
-            '6': { days: 30, amount: config.prices.price_30d_2conn, plan: '30d', conn: 2, name: '30 DÍAS (2 conexiones)' }
+            '6': { days: 30, amount: config.prices.price_30d_2conn, plan: '30d', conn: 2, name: '30 DÍAS (2 conexiones)' },
+            '7': { days: 50, amount: config.prices.price_50d_1conn, plan: '50d', conn: 1, name: '50 DÍAS (1 conexión)' }
         };
         
         const p = planMap[text];
@@ -871,7 +937,7 @@ El sistema de pagos no está disponible.
         if (!p) {
             await client.sendMessage(phone, `❌ *PLAN NO VÁLIDO*
 
-Escribe solo números del 1 al 6
+Escribe solo números del 1 al 7
 
 💬 Escribe "menu" para volver`, { sendSeen: false });
             return;
@@ -1199,7 +1265,7 @@ ${config.links.support}
 • 5 - Descargar APP (solo en menú)
 • 6 - Soporte (solo en menú)
 
-💡 *PARA COMPRAR:* Escribe "2" para ver planes, luego 1-6 para seleccionar`, { sendSeen: false });
+💡 *PARA COMPRAR:* Escribe "2" para ver planes, luego 1-7 para seleccionar`, { sendSeen: false });
     }
 });
 
@@ -1294,8 +1360,9 @@ show_header() {
     echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
     echo -e "${CYAN}║              🎛️  PANEL SSH BOT PRO v8.7                    ║${NC}"
     echo -e "${CYAN}║               🔧 SISTEMA DE ESTADOS INTELIGENTE            ║${NC}"
-    echo -e "${CYAN}║               ⌨️  1,2,3,4,5,6 PARA COMPRAR EN PLANES        ║${NC}"
+    echo -e "${CYAN}║               ⌨️  1,2,3,4,5,6,7 PARA COMPRAR EN PLANES      ║${NC}"
     echo -e "${CYAN}║               🔐 CONTRASEÑA FIJA: mgvpn247                 ║${NC}"
+    echo -e "${CYAN}║               🆕 NUEVO PLAN: 50 días (1 conexión)          ║${NC}"
     echo -e "${CYAN}╚══════════════════════════════════════════════════════════════╝${NC}\n"
 }
 
@@ -1339,6 +1406,7 @@ while true; do
     echo -e "  Test: ${GREEN}2 horas${NC} | Limpieza: ${GREEN}cada 15 min${NC}"
     echo -e "  Contraseña: ${GREEN}mgvpn247${NC} (FIJA PARA TODOS)"
     echo -e "  Sistema: ${GREEN}Estados inteligentes${NC} (sin conflictos)"
+    echo -e "  Plan 50 días: ${GREEN}DISPONIBLE${NC} (comando 7)"
     echo -e ""
     
     echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
@@ -1349,7 +1417,7 @@ while true; do
     echo -e "${CYAN}[5]${NC}  👥  Listar usuarios"
     echo -e "${CYAN}[6]${NC}  🗑️   Eliminar usuario"
     echo -e ""
-    echo -e "${CYAN}[7]${NC}  💰  Cambiar precios (1 y 2 conexiones)"
+    echo -e "${CYAN}[7]${NC}  💰  Cambiar precios (1 y 2 conexiones + 50 días)"
     echo -e "${CYAN}[8]${NC}  🔑  Configurar MercadoPago"
     echo -e "${CYAN}[9]${NC}  📱  Gestionar APK"
     echo -e "${CYAN}[10]${NC} 📊  Ver estadísticas"
@@ -1405,7 +1473,7 @@ while true; do
             read -p "Teléfono (ej: 5491122334455): " PHONE
             read -p "Usuario (auto=generar): " USERNAME
             read -p "Tipo (test/premium): " TIPO
-            read -p "Días (0=test 2h, 30=premium): " DAYS
+            read -p "Días (0=test 2h, 30=premium, 50=plan especial): " DAYS
             echo -e "\n${CYAN}🔌 CONEXIONES:${NC}"
             echo -e "  1. 1 conexión"
             echo -e "  2. 2 conexiones simultáneas"
@@ -1465,17 +1533,19 @@ while true; do
         7)
             clear
             echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
-            echo -e "${CYAN}║                💰 CAMBIAR PRECIOS (1 y 2 conex)            ║${NC}"
+            echo -e "${CYAN}║         💰 CAMBIAR PRECIOS (1,2 conex + 50 días)           ║${NC}"
             echo -e "${CYAN}╚══════════════════════════════════════════════════════════════╝${NC}\n"
             
             echo -e "${YELLOW}🔌 PLANES CON 1 CONEXIÓN:${NC}"
             CURRENT_7D_1=$(get_val '.prices.price_7d_1conn')
             CURRENT_15D_1=$(get_val '.prices.price_15d_1conn')
             CURRENT_30D_1=$(get_val '.prices.price_30d_1conn')
+            CURRENT_50D_1=$(get_val '.prices.price_50d_1conn')
             
             echo -e "  1. 7 días: $${CURRENT_7D_1}"
             echo -e "  2. 15 días: $${CURRENT_15D_1}"
-            echo -e "  3. 30 días: $${CURRENT_30D_1}\n"
+            echo -e "  3. 30 días: $${CURRENT_30D_1}"
+            echo -e "  7. 50 días: $${CURRENT_50D_1}\n"
             
             echo -e "${YELLOW}🔌🔌 PLANES CON 2 CONEXIONES:${NC}"
             CURRENT_7D_2=$(get_val '.prices.price_7d_2conn')
@@ -1490,6 +1560,7 @@ while true; do
             read -p "Nuevo precio 7d (1conn) [${CURRENT_7D_1}]: " NEW_7D_1
             read -p "Nuevo precio 15d (1conn) [${CURRENT_15D_1}]: " NEW_15D_1
             read -p "Nuevo precio 30d (1conn) [${CURRENT_30D_1}]: " NEW_30D_1
+            read -p "Nuevo precio 50d (1conn) [${CURRENT_50D_1}]: " NEW_50D_1
             
             echo ""
             read -p "Nuevo precio 7d (2conn) [${CURRENT_7D_2}]: " NEW_7D_2
@@ -1499,6 +1570,7 @@ while true; do
             [[ -n "$NEW_7D_1" ]] && set_val '.prices.price_7d_1conn' "$NEW_7D_1"
             [[ -n "$NEW_15D_1" ]] && set_val '.prices.price_15d_1conn' "$NEW_15D_1"
             [[ -n "$NEW_30D_1" ]] && set_val '.prices.price_30d_1conn' "$NEW_30D_1"
+            [[ -n "$NEW_50D_1" ]] && set_val '.prices.price_50d_1conn' "$NEW_50D_1"
             [[ -n "$NEW_7D_2" ]] && set_val '.prices.price_7d_2conn' "$NEW_7D_2"
             [[ -n "$NEW_15D_2" ]] && set_val '.prices.price_15d_2conn' "$NEW_15D_2"
             [[ -n "$NEW_30D_2" ]] && set_val '.prices.price_30d_2conn' "$NEW_30D_2"
@@ -1624,6 +1696,7 @@ while true; do
             echo -e "  1. 7d: $(get_val '.prices.price_7d_1conn') ARS"
             echo -e "  2. 15d: $(get_val '.prices.price_15d_1conn') ARS"
             echo -e "  3. 30d: $(get_val '.prices.price_30d_1conn') ARS"
+            echo -e "  7. 50d: $(get_val '.prices.price_50d_1conn') ARS"
             
             echo -e "\n${YELLOW}💰 PRECIOS (2 CONEXIONES):${NC}"
             echo -e "  4. 7d: $(get_val '.prices.price_7d_2conn') ARS"
@@ -1647,7 +1720,7 @@ while true; do
             echo -e "\n${YELLOW}🧠 SISTEMA DE ESTADOS:${NC}"
             echo -e "  Estado: ${GREEN}ACTIVO${NC}"
             echo -e "  Funciona: ${GREEN}SIN CONFLICTOS${NC}"
-            echo -e "  Comandos 1-6: ${GREEN}FUNCIONAN PARA COMPRAR EN PLANES${NC}"
+            echo -e "  Comandos 1-7: ${GREEN}FUNCIONAN PARA COMPRAR EN PLANES${NC}"
             
             read -p "\nPresiona Enter..." 
             ;;
@@ -1746,7 +1819,8 @@ while true; do
             echo -e "  7. En planes, escribe '4' → Comprar 7 días (2 conexiones)"
             echo -e "  8. En planes, escribe '5' → Comprar 15 días (2 conexiones)"
             echo -e "  9. En planes, escribe '6' → Comprar 30 días (2 conexiones)"
-            echo -e "  10. Siempre puede escribir 'menu' para volver\n"
+            echo -e "  10. En planes, escribe '7' → Comprar 50 días (1 conexión)"
+            echo -e "  11. Siempre puede escribir 'menu' para volver\n"
             
             echo -e "${YELLOW}🔍 ESTADOS:${NC}"
             echo -e "  • main_menu - Menú principal"
@@ -1756,6 +1830,7 @@ while true; do
             echo -e "${GREEN}✅ SIN CONFLICTOS:${NC}"
             echo -e "  • El '1' en menú principal es PRUEBA"
             echo -e "  • El '1' en planes es COMPRA 7 días"
+            echo -e "  • El '7' en planes es COMPRA 50 días"
             echo -e "  • El sistema sabe en qué estado está cada usuario\n"
             
             echo -e "${CYAN}📊 PRECIOS ACTUALES:${NC}"
@@ -1765,6 +1840,7 @@ while true; do
             echo -e "  4. 7d (2conn): $ $(get_val '.prices.price_7d_2conn')"
             echo -e "  5. 15d (2conn): $ $(get_val '.prices.price_15d_2conn')"
             echo -e "  6. 30d (2conn): $ $(get_val '.prices.price_30d_2conn')"
+            echo -e "  7. 50d (1conn): $ $(get_val '.prices.price_50d_1conn')"
             
             read -p "\nPresiona Enter..." 
             ;;
@@ -1802,6 +1878,8 @@ echo -e "\n${CYAN}${BOLD}🧪 CREANDO SCRIPT DE TEST DE COMANDOS...${NC}"
 
 cat > /usr/local/bin/test-estados << 'TESTEOF'
 #!/bin/bash
+RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'; CYAN='\033[0;36m'; NC='\033[0m'
+
 echo -e "\n🔍 TEST DEL SISTEMA DE ESTADOS"
 echo -e "==============================\n"
 
@@ -1846,6 +1924,7 @@ echo -e "  ${GREEN}3${NC} → Comprar 30 días (1 conexión)"
 echo -e "  ${GREEN}4${NC} → Comprar 7 días (2 conexiones)"
 echo -e "  ${GREEN}5${NC} → Comprar 15 días (2 conexiones)"
 echo -e "  ${GREEN}6${NC} → Comprar 30 días (2 conexiones)"
+echo -e "  ${GREEN}7${NC} → Comprar 50 días (1 conexión)"
 
 echo -e "\n✅ Sistema funcionando correctamente"
 TESTEOF
@@ -1867,7 +1946,8 @@ cat << "FINAL"
 ║           🤖 WhatsApp Web parcheado                        ║
 ║           🔌 PLANES CON 2 CONEXIONES                       ║
 ║           🔐 CONTRASEÑA FIJA: mgvpn247 PARA TODOS          ║
-║           ⌨️  1,2,3,4,5,6 FUNCIONAN PARA COMPRAR EN PLANES  ║
+║           ⌨️  1,2,3,4,5,6,7 FUNCIONAN PARA COMPRAR EN PLANES║
+║           🆕 NUEVO PLAN: 50 días (1 conexión)              ║
 ║           🧠 SIN CONFLICTOS ENTRE MENÚS                    ║
 ║                                                              ║
 ╚══════════════════════════════════════════════════════════════╝
@@ -1876,10 +1956,11 @@ echo -e "${NC}"
 
 echo -e "${CYAN}══════════════════════════════════════════════════════════════${NC}"
 echo -e "${GREEN}✅ Sistema de estados instalado${NC}"
-echo -e "${GREEN}✅ SIN CONFLICTOS: 1=Prueba (menú), 1=7d (planes)${NC}"
-echo -e "${GREEN}✅ COMANDOS 1-6 FUNCIONAN PARA COMPRAR EN PLANES${NC}"
+echo -e "${GREEN}✅ SIN CONFLICTOS: 1=Prueba (menú), 1=7d (planes), 7=50d${NC}"
+echo -e "${GREEN}✅ COMANDOS 1-7 FUNCIONAN PARA COMPRAR EN PLANES${NC}"
 echo -e "${GREEN}✅ WhatsApp Web parcheado (no markedUnread error)${NC}"
 echo -e "${GREEN}✅ Planes con 1 y 2 conexiones${NC}"
+echo -e "${GREEN}✅ NUEVO PLAN: 50 días (1 conexión)${NC}"
 echo -e "${GREEN}✅ CONTRASEÑA FIJA: mgvpn247 para todos los usuarios${NC}"
 echo -e "${CYAN}══════════════════════════════════════════════════════════════${NC}\n"
 
@@ -1900,13 +1981,14 @@ echo -e "  6. Sube APK a /root/app.apk\n"
 echo -e "${YELLOW}⌨️  FLUJO PARA USUARIOS:${NC}\n"
 echo -e "  ${CYAN}1.${NC} Escribe 'menu' → Menú principal"
 echo -e "  ${CYAN}2.${NC} Escribe '2' → Ver planes"
-echo -e "  ${CYAN}3.${NC} Elige un plan (1-6):"
-echo -e "     • ${GREEN}1${NC} - 7 días (1 conexión) - $${config.prices.price_7d_1conn}"
-echo -e "     • ${GREEN}2${NC} - 15 días (1 conexión) - $${config.prices.price_15d_1conn}"
-echo -e "     • ${GREEN}3${NC} - 30 días (1 conexión) - $${config.prices.price_30d_1conn}"
-echo -e "     • ${GREEN}4${NC} - 7 días (2 conexiones) - $${config.prices.price_7d_2conn}"
-echo -e "     • ${GREEN}5${NC} - 15 días (2 conexiones) - $${config.prices.price_15d_2conn}"
-echo -e "     • ${GREEN}6${NC} - 30 días (2 conexiones) - $${config.prices.price_30d_2conn}"
+echo -e "  ${CYAN}3.${NC} Elige un plan (1-7):"
+echo -e "     • ${GREEN}1${NC} - 7 días (1 conexión) - $500 ARS"
+echo -e "     • ${GREEN}2${NC} - 15 días (1 conexión) - $800 ARS"
+echo -e "     • ${GREEN}3${NC} - 30 días (1 conexión) - $1200 ARS"
+echo -e "     • ${GREEN}4${NC} - 7 días (2 conexiones) - $800 ARS"
+echo -e "     • ${GREEN}5${NC} - 15 días (2 conexiones) - $1200 ARS"
+echo -e "     • ${GREEN}6${NC} - 30 días (2 conexiones) - $1800 ARS"
+echo -e "     • ${GREEN}7${NC} - 50 días (1 conexión) - $1800 ARS"
 echo -e "  ${CYAN}4.${NC} El bot genera enlace de pago MercadoPago"
 echo -e "  ${CYAN}5.${NC} Pago aprobado → Usuario creado automáticamente\n"
 
@@ -1916,7 +1998,7 @@ echo -e "  • ${GREEN}mgvpn247${NC} para TODOS los usuarios\n"
 echo -e "${YELLOW}🧠 CÓMO FUNCIONA EL SISTEMA DE ESTADOS:${NC}"
 echo -e "  1. Cada usuario tiene un estado (main_menu, viewing_plans, etc.)"
 echo -e "  2. El bot sabe en qué parte del flujo está cada usuario"
-echo -e "  3. Los comandos 1-6 tienen diferentes funciones según el estado"
+echo -e "  3. Los comandos 1-7 tienen diferentes funciones según el estado"
 echo -e "  4. No hay conflictos entre menús"
 echo -e "  5. Los estados se limpian automáticamente después de 1 hora\n"
 
@@ -1947,6 +2029,6 @@ else
     echo -e "\n${YELLOW}💡 Ejecuta: ${GREEN}sshbot${NC} para abrir el panel\n"
 fi
 
-echo -e "${GREEN}${BOLD}¡Sistema de estados instalado exitosamente! Los comandos 1-6 ahora funcionan sin conflictos 🚀${NC}\n"
+echo -e "${GREEN}${BOLD}¡Sistema de estados instalado exitosamente! Los comandos 1-7 ahora funcionan sin conflictos 🚀${NC}\n"
 
 exit 0
