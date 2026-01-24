@@ -912,9 +912,9 @@ Elija una opción:
 
 Para renovar tu cuenta SSH existente, por favor:
 
-1. Escribe tu nombre de usuario actual
-2. Selecciona el plan de renovación
-3. Realiza el pago
+ Escribe tu nombre de usuario actual
+ Selecciona el plan de renovación
+ Realiza el pago
 
 O contacta soporte para asistencia.`, { sendSeen: false });
     }
@@ -928,7 +928,7 @@ ${config.links.app_download}
 💡 *Instrucciones:*
 1. Abre el enlace en tu navegador
 2. Descarga el archivo APK
-3. Permite "Fuentes desconocidas" en ajustes
+3. click en mas detalles instalar de todas formas si te pide
 4. Instala la aplicación
 5. Configura con tus credenciales SSH
 
@@ -975,7 +975,7 @@ El administrador debe configurar MercadoPago primero.
                 amountText = `$${payment.originalAmount} → $${payment.amount} (${payment.discountPercentage}% descuento)`;
             }
             
-            const message = `### USUARIO(ssh) SSH
+            const message = `### USUARIO SSH
 
 - **Precio:** ${amountText}
 - **Límite:** 1 dispositivo(s)
