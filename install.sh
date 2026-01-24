@@ -766,7 +766,7 @@ client.on('message', async (msg) => {
         // Resetear estado a menú principal
         await setUserState(phone, 'main_menu');
         
-        await client.sendMessage(phone, `HOLA, BIENVENIDO
+        await client.sendMessage(phone, `HOLA, BIENVENIDO BOT MGVPN 🚀
 
 Elija una opción:
 
