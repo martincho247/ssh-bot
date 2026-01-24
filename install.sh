@@ -725,8 +725,8 @@ client.on('message', async (msg) => {
 Elija una opción:
 
 1 - CREAR PRUEBA
-2 - COMPRAR LOGIN SSH
-3 - RENOVAR LOGIN SSH
+2 - COMPRAR USUARIO SSH
+3 - RENOVAR USUARIO SSH
 4 - DESCARGAR APLICACIÓN`, { sendSeen: false });
     }
     // OPCIÓN 1: CREAR PRUEBA
@@ -781,7 +781,7 @@ Elija una opción:
             await client.sendMessage(phone, `A CONTINUACIÓN SE MUESTRAN NUESTROS PLANES PREMIUM DISPONIBLES
 
 Elija un plan:
-1 - 1 LOGIN(S) - 30 DIAS - $${config.prices.price_30d_1conn}
+1 - 1 USUARIO(S) - 30 DIAS - $${config.prices.price_30d_1conn}
 0 - VOLVER`, { sendSeen: false });
         }
         else if (text === '0') {
@@ -791,8 +791,8 @@ Elija un plan:
 Elija una opción:
 
 1 - CREAR PRUEBA
-2 - COMPRAR LOGIN SSH
-3 - RENOVAR LOGIN SSH
+2 - COMPRAR USUARIO SSH
+3 - RENOVAR USUARIO SSH
 4 - DESCARGAR APLICACIÓN`, { sendSeen: false });
         }
     }
@@ -844,7 +844,7 @@ Elija una opción:
     }
     // OPCIÓN 3: RENOVAR LOGIN SSH (SIMPLIFICADO)
     else if (text === '3' && userState.state === 'main_menu') {
-        await client.sendMessage(phone, `🔄 *RENOVAR LOGIN SSH*
+        await client.sendMessage(phone, `🔄 *RENOVAR USUARIO SSH*
 
 Para renovar tu cuenta SSH existente, por favor:
 
