@@ -31,18 +31,18 @@ cat << "BANNER"
 ╠══════════════════════════════════════════════════════════════╣
 ║                                                              ║
 ║                HTTP CUSTOM BOT - .HC DIRECTO               ║
-║               📥 DESCARGA DIRECTA SIN ARCHIVOS .TXT        ║
-║               ⚡ CONFIGURACIÓN AUTOMÁTICA PARA CLIENTE      ║
+║               📥 DESCARGA DIRECTA CON TU LINK PERSONAL      ║
+║               ⚡ USANDO EL ARCHIVO .HC DEL PANEL            ║
 ║               💰 MERCADOPAGO INTEGRADO                      ║
 ║                                                              ║
 ╚══════════════════════════════════════════════════════════════╝
 BANNER
 echo -e "${NC}"
 
-echo -e "${GREEN}✅ SISTEMA CON ARCHIVO .HC DIRECTO:${NC}"
+echo -e "${GREEN}✅ SISTEMA CON TU ARCHIVO .HC PERSONAL:${NC}"
 echo -e "  🎯 ${CYAN}CLIENTE NO NECESITA EDITAR NADA${NC}"
-echo -e "  📥 ${GREEN}Descarga directa de archivo .hc${NC}"
-echo -e "  ⚡ ${YELLOW}Configuración automática incluida${NC}"
+echo -e "  📥 ${GREEN}Descarga directa de TU archivo .hc${NC}"
+echo -e "  ⚡ ${YELLOW}Todos usan el mismo archivo configurado en el panel${NC}"
 echo -e "  🎛️  ${PURPLE}Panel admin: hcbot${NC}"
 echo -e "${CYAN}══════════════════════════════════════════════════════════════${NC}\n"
 
@@ -68,9 +68,9 @@ echo -e "${YELLOW}⚠️  ESTE INSTALADOR HARÁ:${NC}"
 echo -e "   • Instalar Node.js 20.x + Chrome + Dependencias"
 echo -e "   • Crear HTTP Custom Bot completo"
 echo -e "   • Panel de control: ${GREEN}hcbot${NC}"
-echo -e "   • Archivo .HC DIRECTO (sin .txt, sin editar)"
+echo -e "   • Usa TU archivo .hc personal (configurado en panel)"
 echo -e "   • Cliente solo descarga e importa"
-echo -e "   • Configuración automática incluida en .hc"
+echo -e "   • Configuración automática incluida"
 echo -e "   • Menú: 1=Prueba, 2=Comprar, 3=Renovar, 4=Cambiar HWID, 5=App"
 echo -e "   • Planes: 7, 15, 30, 50 días"
 echo -e "\n${RED}⚠️  Se eliminarán instalaciones anteriores${NC}"
@@ -174,7 +174,7 @@ cat > "$CONFIG_FILE" << EOF
 {
     "bot": {
         "name": "HTTP Custom Bot",
-        "version": "4.0-HC-DIRECTO",
+        "version": "4.0-HC-PERSONAL",
         "server_ip": "$SERVER_IP",
         "server_port": "8080",
         "encryption": "chacha20",
@@ -302,239 +302,13 @@ nginx -t && systemctl restart nginx
 echo -e "${GREEN}✅ Estructura creada${NC}"
 
 # ================================================
-# CREAR GENERADOR DE ARCHIVOS .HC DIRECTO
+# CREAR ARCHIVO .HC DE EJEMPLO (opcional)
 # ================================================
-echo -e "\n${CYAN}${BOLD}🔧 CREANDO GENERADOR DE ARCHIVOS .HC DIRECTO...${NC}"
-
-cat > "$INSTALL_DIR/create_direct_hc.py" << 'PYEOF'
-#!/usr/bin/env python3
-import json
-import sys
-import os
-from datetime import datetime, timedelta
-import urllib.parse
-
-def create_direct_hc_file(username, hwid, server_ip, port, method, password, days):
-    """Crea archivo .hc CONFIGURADO Y LISTO para usar"""
-    
-    # Configuración COMPLETA para HTTP Custom
-    hc_content = f"""# HTTP Custom Configuration
-# Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
-# User: {username}
-# HWID: {hwid}
-# Valid until: {(datetime.now() + timedelta(days=days)).strftime('%Y-%m-%d')}
-# Server: {server_ip}:{port}
-# Password: {password}
-# Method: {method}
-
-[general]
-mode=http
-listen_port=8080
-dns_listen_port=8053
-socks5_port=1080
-http_port=8081
-enable_http=0
-enable_socks5=0
-enable_dns=0
-enable_ipv6=1
-enable_udp=1
-enable_mux=1
-log_level=info
-route_mode=all
-user_agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36
-obfs_param=www.bing.com
-
-[server]
-server={server_ip}
-server_port={port}
-method={method}
-password={password}
-fast_open=1
-reuse_port=1
-no_delay=1
-connect_timeout=30
-idle_timeout=60
-
-[obfs]
-obfs=http
-obfs_host=www.bing.com
-obfs_uri=/search
-obfs_param=www.bing.com
-
-[tls]
-tls_enable=0
-tls_server_name=www.bing.com
-skip_cert_verify=1
-session_ticket=1
-session_ticket_lifetime=7200
-
-[advanced]
-mux_concurrency=8
-connection_timeout=30
-keep_alive=30
-buffer_size=4096
-max_connection=100
-read_buffer_size=1048576
-write_buffer_size=1048576
-congestion_control=bbr
-
-[proxy]
-proxy_type=direct
-proxy_server=
-proxy_port=0
-proxy_user=
-proxy_password=
-
-[rule]
-bypass_list=localhost, 127.0.0.1, 192.168.0.0/16, 10.0.0.0/8
-block_list=
-proxy_list=*
-dns_server=8.8.8.8, 8.8.4.4, 1.1.1.1
-
-[user_info]
-username={username}
-hwid={hwid}
-expire_date={(datetime.now() + timedelta(days=days)).strftime('%Y-%m-%d')}
-max_connections=1
-plan_days={days}
-status=active
-created_at={datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
-
-# Configuración optimizada para máxima velocidad y estabilidad
-# No es necesario editar nada - Solo importar en HTTP Custom
-
-[connection]
-retry_count=3
-retry_delay=2
-heartbeat_interval=30
-heartbeat_timeout=10
-tcp_keep_alive=1
-tcp_no_delay=1
-udp_timeout=60
-
-[performance]
-thread_pool_size=4
-cache_size=100
-compress_threshold=512
-enable_gzip=1
-enable_br=1
-
-[security]
-verify_certificate=0
-allow_insecure=1
-fingerprint=chrome
-session_reuse=1
-
-[log]
-log_level=warning
-log_max_size=10
-log_backup_count=3
-log_compress=1
-
-[subscription]
-auto_update=0
-update_interval=86400
-next_update={(datetime.now() + timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')}
-
-# Instrucciones automáticas:
-# 1. Guardar este archivo como: HTTP_CUSTOM_{username}.hc
-# 2. En HTTP Custom: Profiles → Import
-# 3. Seleccionar este archivo
-# 4. Activar la conexión
-# 5. ¡Disfrutar del servicio!
-
-# Soporte: https://wa.me/543435071016
-# Tutorial: https://youtube.com
-
-# ⚠️ Este archivo expira el: {(datetime.now() + timedelta(days=days)).strftime('%d/%m/%Y')}
-# 🔄 Renovar en: Menu → Opción 3
-
-[auto_config]
-config_version=4.0
-config_type=premium
-server_location=Argentina
-server_speed=100Mbps
-server_uptime=99.9%
-support_contact=+543435071016
-last_updated={datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"""
-    
-    return hc_content
-
-def save_hc_file(content, username, hwid, output_dir):
-    """Guarda el archivo .hc directamente"""
-    
-    # Nombre del archivo
-    filename = f"HTTP_CUSTOM_{username}_{hwid}.hc"
-    filepath = os.path.join(output_dir, filename)
-    
-    # Guardar contenido
-    with open(filepath, 'w', encoding='utf-8') as f:
-        f.write(content)
-    
-    # URL de descarga
-    web_path = f"/hc/{filename}"
-    
-    return filepath, web_path
-
-if __name__ == "__main__":
-    if len(sys.argv) < 7:
-        print("Uso: create_direct_hc.py <username> <hwid> <server_ip> <port> <method> <password> <days>")
-        sys.exit(1)
-    
-    username = sys.argv[1]
-    hwid = sys.argv[2]
-    server_ip = sys.argv[3]
-    port = sys.argv[4]
-    method = sys.argv[5]
-    password = sys.argv[6]
-    days = int(sys.argv[7])
-    
-    # Generar contenido
-    hc_content = create_direct_hc_file(username, hwid, server_ip, port, method, password, days)
-    
-    # Guardar en directorio web
-    output_dir = "/var/www/html/hc"
-    os.makedirs(output_dir, exist_ok=True)
-    
-    filepath, web_path = save_hc_file(hc_content, username, hwid, output_dir)
-    
-    # Dar permisos
-    os.chmod(filepath, 0o644)
-    
-    print(f"OK:{web_path}")
-PYEOF
-
-chmod +x "$INSTALL_DIR/create_direct_hc.py"
-
-# Crear script para generar .hc directo
-cat > /usr/local/bin/create-hc-direct << 'HCDEOF'
-#!/bin/bash
-# Generador de archivos .hc directo
-
-if [ $# -lt 3 ]; then
-    echo "Uso: create-hc-direct <username> <hwid> <dias>"
-    echo "Ejemplo: create-hc-direct JuanPerez ABC123XYZ 30"
-    exit 1
-fi
-
-USERNAME="$1"
-HWID="$2"
-DAYS="$3"
-
-CONFIG="/opt/http-custom-bot/config/config.json"
-SERVER_IP=$(jq -r '.bot.server_ip' "$CONFIG")
-PORT=$(jq -r '.bot.server_port' "$CONFIG")
-METHOD=$(jq -r '.bot.encryption' "$CONFIG")
-PASSWORD=$(jq -r '.bot.password' "$CONFIG")
-
-python3 /opt/http-custom-bot/create_direct_hc.py "$USERNAME" "$HWID" "$SERVER_IP" "$PORT" "$METHOD" "$PASSWORD" "$DAYS"
-HCDEOF
-
-chmod +x /usr/local/bin/create-hc-direct
+echo -e "\n${CYAN}${BOLD}🔧 CREANDO ARCHIVO .HC DE EJEMPLO...${NC}"
 
 # Crear archivo .hc de ejemplo para descarga directa
-cat > "$WEB_DIR/HTTP_CUSTOM_EJEMPLO.hc" << 'HCEOF'
-# HTTP Custom Configuration - EJEMPLO
+cat > "$WEB_DIR/HTTP_CUSTOM_PERSONAL.hc" << 'HCEOF'
+# HTTP Custom Configuration - ARCHIVO PERSONAL
 # Configuración lista para usar - Solo importar
 
 [general]
@@ -574,19 +348,23 @@ max_connection=100
 
 # Instrucciones:
 # 1. Descargar este archivo
-# 2. Arriba en notificación tocalo
-# 3. Selecciona http custom abrilo
+# 2. En HTTP Custom: Profiles → Import
+# 3. Seleccionar este archivo .hc
 # 4. ¡Conectar!
+
+# Este es un archivo .hc personal configurado en el panel
+# Cambia "TU_SERVIDOR_AQUI" por la IP real de tu servidor
+# en el panel de control hcbot
 HCEOF
 
-chmod 644 "$WEB_DIR/HTTP_CUSTOM_EJEMPLO.hc"
+chmod 644 "$WEB_DIR/HTTP_CUSTOM_PERSONAL.hc"
 
-echo -e "${GREEN}✅ Generador de archivos .hc directo creado${NC}"
+echo -e "${GREEN}✅ Archivo .hc de ejemplo creado${NC}"
 
 # ================================================
-# CREAR BOT CON .HC DIRECTO
+# CREAR BOT QUE USA TU ARCHIVO .HC PERSONAL
 # ================================================
-echo -e "\n${CYAN}${BOLD}🤖 CREANDO BOT CON .HC DIRECTO...${NC}"
+echo -e "\n${CYAN}${BOLD}🤖 CREANDO BOT CON TU ARCHIVO .HC PERSONAL...${NC}"
 
 cd "$USER_HOME"
 
@@ -620,7 +398,7 @@ find node_modules/whatsapp-web.js -name "Client.js" -type f -exec sed -i 's/cons
 
 echo -e "${GREEN}✅ Parche markedUnread aplicado${NC}"
 
-# Crear bot.js CON .HC DIRECTO
+# Crear bot.js CON TU ARCHIVO .HC PERSONAL
 cat > "bot.js" << 'BOTEOF'
 const { Client, LocalAuth, MessageMedia } = require('whatsapp-web.js');
 const qrcodeTerminal = require('qrcode-terminal');
@@ -645,48 +423,28 @@ function loadConfig() {
 let config = loadConfig();
 const db = new sqlite3.Database(config.paths.database);
 
-// ✅ FUNCIÓN PARA CREAR ARCHIVO .HC DIRECTO
-async function createDirectHcFile(username, hwid, days) {
-    return new Promise((resolve, reject) => {
-        const pythonScript = '/opt/http-custom-bot/create_direct_hc.py';
-        const args = [
-            username, 
-            hwid, 
-            config.bot.server_ip, 
-            config.bot.server_port, 
-            config.bot.encryption, 
-            config.bot.password, 
-            days.toString()
-        ];
+// ✅ FUNCIÓN MEJORADA PARA OBTENER LINK .HC DEL PANEL
+function getHcDownloadLink() {
+    config = loadConfig();
+    
+    // 1. Prioridad: Link configurado en el panel (Opción 10)
+    if (config.links && config.links.hc_file && config.links.hc_file !== "" && config.links.hc_file !== "null") {
+        let link = config.links.hc_file;
+        // Decodificar si está doblemente codificado
+        link = link.replace(/%25/g, '%');
+        link = decodeURIComponent(link);
         
-        exec(`python3 ${pythonScript} ${args.join(' ')}`, (error, stdout, stderr) => {
-            if (error) {
-                console.error(chalk.red('❌ Error generando .hc:'), error.message);
-                reject(error);
-                return;
-            }
-            
-            if (stderr) {
-                console.error(chalk.red('❌ Error Python:'), stderr);
-            }
-            
-            const match = stdout.match(/OK:(.+)/);
-            if (match) {
-                const downloadPath = match[1].trim();
-                const downloadUrl = `http://${config.bot.server_ip}${downloadPath}`;
-                const filePath = downloadPath.replace('/hc/', '/var/www/html/hc/');
-                
-                resolve({
-                    success: true,
-                    downloadUrl: downloadUrl,
-                    filePath: filePath,
-                    filename: path.basename(downloadPath)
-                });
-            } else {
-                reject(new Error('No se pudo generar el archivo .hc'));
-            }
-        });
-    });
+        console.log(chalk.cyan(`📎 Usando link .hc del panel: ${link.substring(0, 60)}...`));
+        return link;
+    }
+    
+    // 2. Si no hay link configurado, usar ejemplo local
+    const serverIp = config.bot.server_ip || "TU_SERVIDOR";
+    const exampleFile = "HTTP_CUSTOM_PERSONAL.hc";
+    const fallbackUrl = `http://${serverIp}/hc/${exampleFile}`;
+    
+    console.log(chalk.yellow(`⚠️  Usando link .hc de respaldo: ${fallbackUrl}`));
+    return fallbackUrl;
 }
 
 // ✅ FUNCIONES DE ESTADO
@@ -719,7 +477,7 @@ function setUserState(phone, state, data = null) {
     });
 }
 
-// ✅ CREAR USUARIO CON .HC DIRECTO
+// ✅ CREAR USUARIO CON TU ARCHIVO .HC PERSONAL
 async function createHttpCustomUser(phone, hwid, days) {
     const username = 'HC' + Math.floor(1000 + Math.random() * 9000);
     const expireDate = moment().add(days, 'days').format('YYYY-MM-DD 23:59:59');
@@ -727,18 +485,14 @@ async function createHttpCustomUser(phone, hwid, days) {
     console.log(chalk.yellow(`🔧 Creando usuario HC: ${username} | HWID: ${hwid} | Días: ${days}`));
     
     try {
-        // Generar archivo .hc DIRECTO
-        const hcResult = await createDirectHcFile(username, hwid, days);
-        
-        if (!hcResult.success) {
-            throw new Error('Error generando archivo .hc');
-        }
+        // USAR SIEMPRE EL LINK .HC CONFIGURADO EN EL PANEL
+        const downloadUrl = getHcDownloadLink();
         
         // Guardar en base de datos
         return new Promise((resolve, reject) => {
             db.run(
                 `INSERT INTO users (phone, username, hwid, tipo, expires_at, status, download_url, config_file) VALUES (?, ?, ?, ?, ?, 1, ?, ?)`,
-                [phone, username, hwid, days === 0 ? 'test' : 'premium', expireDate, hcResult.downloadUrl, hcResult.filePath],
+                [phone, username, hwid, days === 0 ? 'test' : 'premium', expireDate, downloadUrl, null],
                 (err) => {
                     if (err) {
                         reject(err);
@@ -746,8 +500,8 @@ async function createHttpCustomUser(phone, hwid, days) {
                         resolve({
                             username: username,
                             hwid: hwid,
-                            downloadUrl: hcResult.downloadUrl,
-                            filename: hcResult.filename,
+                            downloadUrl: downloadUrl,  // ← Usa TU link personalizado
+                            filename: "HTTP_CUSTOM_PERSONAL.hc",
                             expires: expireDate,
                             tipo: days === 0 ? 'test' : 'premium',
                             duration: days === 0 ? `${config.prices.test_hours} horas` : `${days} días`
@@ -761,19 +515,6 @@ async function createHttpCustomUser(phone, hwid, days) {
         console.error(chalk.red('❌ Error creando usuario HC:'), error.message);
         throw error;
     }
-}
-
-// ✅ OBTENER LINK .HC DESDE CONFIGURACIÓN
-function getHcDownloadLink() {
-    config = loadConfig();
-    if (config.links && config.links.hc_file && config.links.hc_file !== "") {
-        let link = config.links.hc_file;
-        // Decodificar si está doblemente codificado
-        link = link.replace(/%25/g, '%');
-        return link;
-    }
-    // Link por defecto
-    return "https://www.mediafire.com/file/anh8ykihien46fg/%F0%9F%8C%B2_PERSONAL_FRONT_1_%F0%9F%8C%B2.hc/file";
 }
 
 // ✅ MERCADOPAGO SDK
@@ -810,19 +551,19 @@ let mpEnabled = initMercadoPago();
 moment.locale('es');
 
 console.log(chalk.cyan.bold('\n╔══════════════════════════════════════════════════════════════╗'));
-console.log(chalk.cyan.bold('║                🤖 HTTP CUSTOM BOT - .HC DIRECTO            ║'));
-console.log(chalk.cyan.bold('║               📥 ARCHIVO .HC DIRECTO SIN EDITAR           ║'));
-console.log(chalk.cyan.bold('║               ⚡ CLIENTE SOLO DESCARGA E IMPORTA           ║'));
+console.log(chalk.cyan.bold('║                🤖 HTTP CUSTOM BOT - TU .HC PERSONAL        ║'));
+console.log(chalk.cyan.bold('║               📥 USANDO TU ARCHIVO .HC DEL PANEL          ║'));
+console.log(chalk.cyan.bold('║               ⚡ TODOS USAN EL MISMO ARCHIVO              ║'));
 console.log(chalk.cyan.bold('╚══════════════════════════════════════════════════════════════╝\n'));
 console.log(chalk.yellow(`📍 IP: ${config.bot.server_ip}`));
 console.log(chalk.yellow(`🔗 Link .HC: ${getHcDownloadLink().substring(0, 50)}...`));
 console.log(chalk.yellow(`💳 MercadoPago: ${mpEnabled ? '✅ ACTIVO' : '❌ NO CONFIGURADO'}`));
-console.log(chalk.green('✅ Sistema de archivos .hc directo activo'));
+console.log(chalk.green('✅ Sistema usando TU archivo .hc personal'));
 console.log(chalk.green('✅ Cliente no necesita editar archivos'));
 console.log(chalk.green('✅ Configuración automática incluida en .hc'));
 
 const client = new Client({
-    authStrategy: new LocalAuth({dataPath: '/root/.wwebjs_auth', clientId: 'http-custom-direct-hc'}),
+    authStrategy: new LocalAuth({dataPath: '/root/.wwebjs_auth', clientId: 'http-custom-personal-hc'}),
     puppeteer: {
         headless: true,
         executablePath: config.paths.chromium,
@@ -942,7 +683,7 @@ async function createMercadoPagoPayment(phone, plan, days, amount, discountCode 
         const preferenceData = {
             items: [{
                 title: `HTTP CUSTOM ${days} DÍAS`,
-                description: `Acceso HTTP Custom Premium por ${days} días - Archivo .hc directo`,
+                description: `Acceso HTTP Custom Premium por ${days} días - Con tu archivo .hc personal`,
                 quantity: 1,
                 currency_id: config.prices.currency || 'ARS',
                 unit_price: finalAmount
@@ -1002,7 +743,7 @@ async function createMercadoPagoPayment(phone, plan, days, amount, discountCode 
     }
 }
 
-// ✅ FLUJO PRINCIPAL CON .HC DIRECTO
+// ✅ FLUJO PRINCIPAL CON TU ARCHIVO .HC PERSONAL
 client.on('message', async (msg) => {
     const text = msg.body.trim();
     const phone = msg.from;
@@ -1021,11 +762,11 @@ client.on('message', async (msg) => {
 
 Elija una opción:
 
-1 - CREAR PRUEBA 🧾
-2 - COMPRAR HTTP CUSTOM 💰
-3 - RENOVAR HTTP CUSTOM 🔄
-4 - CAMBIAR HWID CUSTOM 🫆
-5 - DESCARGAR HTTP CUSTOM 📱`, { sendSeen: false });
+1 - CREAR PRUEBA
+2 - COMPRAR HTTP CUSTOM
+3 - RENOVAR HTTP CUSTOM
+4 - CAMBIAR HWID CUSTOM
+5 - DESCARGAR HTTP CUSTOM`, { sendSeen: false });
     }
     // OPCIÓN 1: CREAR PRUEBA
     else if (text === '1' && userState.state === 'main_menu') {
@@ -1046,7 +787,7 @@ Para crear tu prueba, necesitamos tu HWID (identificador único).
 4. Envíalo aquí
 
 🔢 *Formato:* Letras y números, 6-32 caracteres
-📝 *Ejemplo:* 822ab8c5d5de5341bb925`, { sendSeen: false });
+📝 *Ejemplo:* ABC123XYZ456`, { sendSeen: false });
         
         await setUserState(phone, 'asking_hwid_test');
     }
@@ -1072,18 +813,23 @@ El HWID debe tener entre 6 y 32 caracteres.
             
             await client.sendMessage(phone, `✅ *PRUEBA CREADA CON ÉXITO*
 
+👤 Usuario: *${result.username}*
+🔐 HWID: *${result.hwid}*
+⏰ Expira en: *1 hora*
 
-📥 *DESCARGA TU ARCHIVO .HC:*
+📥 *DESCARGA TU ARCHIVO .HC PERSONALIZADO:*
 ${result.downloadUrl}
 
 💡 *INSTRUCCIONES FÁCILES:*
 1. Descarga el archivo .hc (toca el link)
-2. En notificación toca el archivo 
-3. Abrilo con HTTP Custom 
-4. ¡Conectate!
+2. Abre HTTP Custom en tu dispositivo
+3. Ve a *Profiles* (Perfiles)
+4. Toca *Import* (Importar)
+5. Selecciona el archivo descargado
+6. ¡Activa la conexión!
 
 ⚡ *ARCHIVO LISTO PARA USAR*
-✅ Configuración incluida
+✅ Configuración incluida automáticamente
 ✅ Sin necesidad de editar
 ✅ Todo automático
 
@@ -1129,11 +875,11 @@ Elija un plan:
 
 Elija una opción:
 
-1 - CREAR PRUEBA 🧾
-2 - COMPRAR HTTP CUSTOM 💰
-3 - RENOVAR HTTP CUSTOM 🔄
-4 - CAMBIAR HWID CUSTOM 🫆
-5 - DESCARGAR HTTP CUSTOM 📱`, { sendSeen: false });
+1 - CREAR PRUEBA
+2 - COMPRAR HTTP CUSTOM
+3 - RENOVAR HTTP CUSTOM
+4 - CAMBIAR HWID CUSTOM
+5 - DESCARGAR HTTP CUSTOM`, { sendSeen: false });
         }
     }
     // SELECCIÓN DE PLAN ESPECÍFICO
@@ -1264,7 +1010,7 @@ Escribe *menu* para ver las opciones disponibles.`, { sendSeen: false });
     }
 });
 
-// ✅ FUNCIÓN PARA PROCESAR PAGO CON .HC DIRECTO
+// ✅ FUNCIÓN PARA PROCESAR PAGO CON TU ARCHIVO .HC PERSONAL
 async function processPayment(phone, planData, discountCode) {
     config = loadConfig();
     
@@ -1313,7 +1059,7 @@ ${payment.paymentUrl}
 
 📋 *DESPUÉS DEL PAGO:*
 1. Envía tu HWID aquí
-2. Recibirás tu archivo .hc personalizado
+2. Recibirás tu archivo .hc personal
 3. Descarga e importa en HTTP Custom
 4. ¡Listo!`;
 
@@ -1379,12 +1125,12 @@ El HWID debe tener entre 6 y 32 caracteres.
             return;
         }
         
-        await client.sendMessage(phone, '⏳ Generando tu archivo .hc personalizado...', { sendSeen: false });
+        await client.sendMessage(phone, '⏳ Creando tu cuenta HTTP Custom...', { sendSeen: false });
         
         try {
             const result = await createHttpCustomUser(phone, hwid, stateData.days);
             
-            await client.sendMessage(phone, `✅ *ARCHIVO .HC GENERADO*
+            await client.sendMessage(phone, `✅ *CUENTA CREADA CON ÉXITO*
 
 🎉 Tu cuenta HTTP Custom está lista
 
@@ -1392,7 +1138,7 @@ El HWID debe tener entre 6 y 32 caracteres.
 🔐 HWID: *${result.hwid}*
 ⏰ Duración: *${stateData.days} días*
 
-📥 *DESCARGA TU ARCHIVO .HC:*
+📥 *DESCARGA TU ARCHIVO .HC PERSONAL:*
 ${result.downloadUrl}
 
 💡 *INSTRUCCIONES FÁCILES:*
@@ -1416,7 +1162,7 @@ ${config.links.app_download}
 ${config.links.support}`, { sendSeen: false });
             
         } catch (error) {
-            await client.sendMessage(phone, `❌ Error generando archivo .hc: ${error.message}`, { sendSeen: false });
+            await client.sendMessage(phone, `❌ Error creando cuenta: ${error.message}`, { sendSeen: false });
         }
         
         await setUserState(phone, 'main_menu');
@@ -1437,7 +1183,7 @@ cron.schedule('*/15 * * * *', async () => {
         
         for (const r of rows) {
             try {
-                // Eliminar archivo .hc
+                // Eliminar archivo .hc si existe
                 if (r.config_file && fs.existsSync(r.config_file)) {
                     fs.unlinkSync(r.config_file);
                 }
@@ -1452,16 +1198,16 @@ cron.schedule('*/15 * * * *', async () => {
     });
 });
 
-console.log(chalk.green('\n🚀 Inicializando HTTP Custom Bot con archivos .hc directos...\n'));
+console.log(chalk.green('\n🚀 Inicializando HTTP Custom Bot con TU archivo .hc personal...\n'));
 client.initialize();
 BOTEOF
 
-echo -e "${GREEN}✅ Bot creado con archivos .hc directos${NC}"
+echo -e "${GREEN}✅ Bot creado con TU archivo .hc personal${NC}"
 
 # ================================================
-# CREAR PANEL DE CONTROL
+# CREAR PANEL DE CONTROL MEJORADO
 # ================================================
-echo -e "\n${CYAN}${BOLD}🎛️  CREANDO PANEL DE CONTROL...${NC}"
+echo -e "\n${CYAN}${BOLD}🎛️  CREANDO PANEL DE CONTROL MEJORADO...${NC}"
 
 cat > /usr/local/bin/hcbot << 'PANELEOF'
 #!/bin/bash
@@ -1498,7 +1244,7 @@ set_val() {
 show_header() {
     clear
     echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
-    echo -e "${CYAN}║                🎛️  PANEL HTTP CUSTOM - .HC DIRECTO        ║${NC}"
+    echo -e "${CYAN}║                🎛️  PANEL HTTP CUSTOM - TU .HC PERSONAL    ║${NC}"
     echo -e "${CYAN}╚══════════════════════════════════════════════════════════════╝${NC}\n"
 }
 
@@ -1531,19 +1277,27 @@ while true; do
     HC_LINK=$(get_val '.links.hc_file')
     if [[ -n "$HC_LINK" && "$HC_LINK" != "" && "$HC_LINK" != "null" ]]; then
         HC_STATUS="${GREEN}✅ CONFIGURADO${NC}"
+        HC_PREVIEW="${HC_LINK:0:50}..."
     else
         HC_STATUS="${RED}❌ NO CONFIGURADO${NC}"
+        HC_PREVIEW="(No configurado)"
     fi
     
     echo -e "${YELLOW}📊 ESTADO DEL SISTEMA${NC}"
     echo -e "  Bot: $BOT_STATUS"
     echo -e "  Usuarios: ${CYAN}$ACTIVE_USERS/$TOTAL_USERS${NC} activos/total"
     echo -e "  Pagos pendientes: ${CYAN}$PENDING_PAYMENTS${NC}"
-    echo -e "  Archivos .hc generados: ${CYAN}$HC_FILES${NC}"
+    echo -e "  Archivos .hc: ${CYAN}$HC_FILES${NC}"
     echo -e "  MercadoPago: $MP_STATUS"
     echo -e "  Link .HC: $HC_STATUS"
-    echo -e "  Sistema: ${GREEN}ARCHIVOS .HC DIRECTOS${NC}"
+    echo -e "  Sistema: ${GREEN}TU ARCHIVO .HC PERSONAL${NC}"
     echo -e ""
+    
+    if [[ -n "$HC_LINK" && "$HC_LINK" != "" && "$HC_LINK" != "null" ]]; then
+        echo -e "${YELLOW}🔗 TU LINK .HC ACTUAL:${NC}"
+        echo -e "  ${CYAN}$HC_PREVIEW${NC}"
+        echo -e ""
+    fi
     
     echo -e "${YELLOW}💰 PRECIOS ACTUALES:${NC}"
     echo -e "  7 días: $ $(get_val '.prices.price_7d') ARS"
@@ -1562,8 +1316,9 @@ while true; do
     echo -e "${CYAN}[7]${NC}  🔑  Configurar MercadoPago"
     echo -e "${CYAN}[8]${NC}  📊  Ver estadísticas"
     echo -e "${CYAN}[9]${NC}  📝  Ver logs"
-    echo -e "${PURPLE}[10]${NC} 🔗  Configurar link .HC"
+    echo -e "${PURPLE}[10]${NC} 🔗  Configurar TU link .HC (IMPORTANTE)"
     echo -e "${CYAN}[11]${NC} 🗑️   Limpiar archivos .hc"
+    echo -e "${CYAN}[12]${NC} 🌐  Probar descarga .hc"
     echo -e "${CYAN}[0]${NC}  🚪  Salir"
     echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     
@@ -1624,29 +1379,22 @@ while true; do
             CONFIG="/opt/http-custom-bot/config/config.json"
             SERVER_IP=$(jq -r '.bot.server_ip' "$CONFIG")
             
-            echo -e "\n${YELLOW}⏳ Generando archivo .hc...${NC}"
-            
-            if python3 /opt/http-custom-bot/create_direct_hc.py "MANUAL_$HWID" "$HWID" "$SERVER_IP" "8080" "chacha20" "123456" "$DAYS" 2>/dev/null; then
-                OUTPUT=$(python3 /opt/http-custom-bot/create_direct_hc.py "MANUAL_$HWID" "$HWID" "$SERVER_IP" "8080" "chacha20" "123456" "$DAYS" 2>/dev/null)
-                if [[ "$OUTPUT" == OK:* ]]; then
-                    DOWNLOAD_URL="http://$SERVER_IP${OUTPUT:3}"
-                    CONFIG_FILE="/var/www/html/hc/$(basename "${OUTPUT:3}")"
-                    
-                    sqlite3 "$DB" "INSERT INTO users (phone, username, hwid, tipo, expires_at, status, download_url, config_file) VALUES ('$PHONE', 'MANUAL_$HWID', '$HWID', '$TIPO', '$EXPIRE_DATE', 1, '$DOWNLOAD_URL', '$CONFIG_FILE')"
-                    
-                    echo -e "\n${GREEN}✅ USUARIO CREADO MANUALMENTE${NC}"
-                    echo -e "👤 Usuario: MANUAL_$HWID"
-                    echo -e "🔐 HWID: $HWID"
-                    echo -e "⏰ Expira: $EXPIRE_DATE"
-                    echo -e "🔌 Días: $DAYS"
-                    echo -e "📥 Archivo .hc: $(basename "${OUTPUT:3}")"
-                    echo -e "🔗 Descarga: $DOWNLOAD_URL"
-                else
-                    echo -e "${RED}❌ Error generando archivo .hc${NC}"
-                fi
-            else
-                echo -e "${RED}❌ Error ejecutando generador${NC}"
+            # Usar el link .hc configurado en el panel
+            HC_LINK=$(jq -r '.links.hc_file' "$CONFIG")
+            if [[ "$HC_LINK" == "null" || "$HC_LINK" == "" ]]; then
+                HC_LINK="http://$SERVER_IP/hc/HTTP_CUSTOM_PERSONAL.hc"
             fi
+            
+            sqlite3 "$DB" "INSERT INTO users (phone, username, hwid, tipo, expires_at, status, download_url, config_file) VALUES ('$PHONE', 'MANUAL_$HWID', '$HWID', '$TIPO', '$EXPIRE_DATE', 1, '$HC_LINK', null)"
+            
+            echo -e "\n${GREEN}✅ USUARIO CREADO MANUALMENTE${NC}"
+            echo -e "👤 Usuario: MANUAL_$HWID"
+            echo -e "🔐 HWID: $HWID"
+            echo -e "⏰ Expira: $EXPIRE_DATE"
+            echo -e "🔌 Días: $DAYS"
+            echo -e "📥 Archivo .hc: TU ARCHIVO PERSONAL"
+            echo -e "🔗 Descarga: $HC_LINK"
+            
             read -p "Presiona Enter..." 
             ;;
         5)
@@ -1756,28 +1504,38 @@ while true; do
         10)
             clear
             echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
-            echo -e "${CYAN}║              🔗 CONFIGURAR LINK .HC                         ║${NC}"
+            echo -e "${CYAN}║         🔗 CONFIGURAR TU LINK .HC (IMPORTANTE)            ║${NC}"
             echo -e "${CYAN}╚══════════════════════════════════════════════════════════════╝${NC}\n"
             
             CURRENT_LINK=$(get_val '.links.hc_file')
             
             if [[ -n "$CURRENT_LINK" && "$CURRENT_LINK" != "null" && "$CURRENT_LINK" != "" ]]; then
                 echo -e "${GREEN}✅ Link actual configurado${NC}"
-                echo -e "${YELLOW}Link: $CURRENT_LINK${NC}\n"
+                echo -e "${YELLOW}Link actual:${NC}"
+                echo -e "  ${CYAN}$CURRENT_LINK${NC}"
+                echo -e ""
             else
-                echo -e "${YELLOW}⚠️  Sin link configurado${NC}\n"
+                echo -e "${YELLOW}⚠️  SIN LINK CONFIGURADO${NC}"
+                echo -e "${RED}⚠️  IMPORTANTE: El bot necesita un link .hc para funcionar${NC}\n"
             fi
             
-            echo -e "${CYAN}📋 PEGA TU LINK .HC:${NC}"
-            echo -e "Acepta cualquier formato (codificado, doble codificado, etc.)"
+            echo -e "${CYAN}📋 INSTRUCCIONES:${NC}"
+            echo -e "1. Sube tu archivo .hc a MediaFire, Google Drive, etc."
+            echo -e "2. Obtén el link de descarga directa"
+            echo -e "3. Pega el link completo aquí\n"
+            echo -e "${YELLOW}📝 EJEMPLOS:${NC}"
+            echo -e "• MediaFire: https://www.mediafire.com/file/.../tu_archivo.hc/file"
+            echo -e "• Google Drive: https://drive.google.com/uc?export=download&id=..."
+            echo -e "• Tu servidor: http://${SERVER_IP}/hc/tu_archivo.hc"
             echo -e ""
+            echo -e "${GREEN}💡 RECOMENDACIÓN:${NC}"
+            echo -e "Usa MediaFire, es gratuito y funciona bien con WhatsApp\n"
             
             read -p "¿Configurar nuevo link .hc? (s/N): " CONF
             if [[ "$CONF" == "s" ]]; then
                 echo ""
                 echo -e "${CYAN}📝 PEGA EL LINK COMPLETO:${NC}"
-                echo -e "Ejemplo: https://www.mediafire.com/file/anh8ykihien46fg/..."
-                echo ""
+                echo -e ""
                 read -p "Nuevo link .hc: " NEW_LINK
                 
                 if [[ -n "$NEW_LINK" ]]; then
@@ -1787,6 +1545,7 @@ while true; do
                     cd /root/http-custom-bot && pm2 restart http-custom-bot
                     sleep 2
                     echo -e "${GREEN}✅ Bot actualizado con nuevo link${NC}"
+                    echo -e "${YELLOW}📋 Ahora todos los usuarios recibirán este link${NC}"
                 else
                     echo -e "${RED}❌ No se ingresó ningún link${NC}"
                 fi
@@ -1816,6 +1575,31 @@ while true; do
                 # También eliminar de la base de datos
                 sqlite3 "$DB" "UPDATE users SET config_file = NULL WHERE config_file IS NOT NULL AND status = 0"
                 echo -e "${GREEN}✅ Base de datos limpiada${NC}"
+            fi
+            
+            read -p "Presiona Enter..." 
+            ;;
+        12)
+            clear
+            echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
+            echo -e "${CYAN}║                  🌐 PROBAR DESCARGA .HC                    ║${NC}"
+            echo -e "${CYAN}╚══════════════════════════════════════════════════════════════╝${NC}\n"
+            
+            HC_LINK=$(get_val '.links.hc_file')
+            
+            if [[ -n "$HC_LINK" && "$HC_LINK" != "null" && "$HC_LINK" != "" ]]; then
+                echo -e "${GREEN}✅ Link .hc configurado${NC}"
+                echo -e "${YELLOW}Link actual:${NC}"
+                echo -e "  ${CYAN}$HC_LINK${NC}"
+                echo -e ""
+                echo -e "${YELLOW}🔗 Copia este link y ábrelo en tu navegador:${NC}"
+                echo -e ""
+                echo -e "${GREEN}$HC_LINK${NC}"
+                echo -e ""
+                echo -e "${CYAN}💡 Debería descargarse el archivo .hc${NC}"
+            else
+                echo -e "${RED}❌ No hay link .hc configurado${NC}"
+                echo -e "${YELLOW}Configúralo primero en la opción 10${NC}"
             fi
             
             read -p "Presiona Enter..." 
@@ -1855,11 +1639,11 @@ echo -e "${GREEN}${BOLD}"
 cat << "FINAL"
 ╔══════════════════════════════════════════════════════════════╗
 ║                                                              ║
-║       🎉 INSTALACIÓN COMPLETADA - .HC DIRECTO 🎉          ║
+║     🎉 INSTALACIÓN COMPLETADA - TU ARCHIVO .HC PERSONAL   ║
 ║                                                              ║
 ║               HTTP CUSTOM BOT - CONFIGURADO                 ║
-║               📥 ARCHIVOS .HC DIRECTO SIN EDITAR          ║
-║               ⚡ CLIENTE SOLO DESCARGA E IMPORTA           ║
+║               📥 TODOS USAN TU ARCHIVO .HC PERSONAL        ║
+║               ⚡ CONFIGURADO EN EL PANEL hcbot              ║
 ║               💰 MERCADOPAGO INTEGRADO                      ║
 ║                                                              ║
 ╚══════════════════════════════════════════════════════════════╝
@@ -1867,31 +1651,30 @@ FINAL
 echo -e "${NC}"
 
 echo -e "${CYAN}══════════════════════════════════════════════════════════════${NC}"
-echo -e "${GREEN}✅ Sistema instalado con archivos .hc directos${NC}"
+echo -e "${GREEN}✅ Sistema instalado con TU archivo .hc personal${NC}"
 echo -e "${GREEN}✅ Cliente NO necesita editar archivos${NC}"
 echo -e "${GREEN}✅ Configuración automática incluida en .hc${NC}"
 echo -e "${GREEN}✅ Panel de control: ${CYAN}hcbot${NC}"
-echo -e "${GREEN}✅ Generación automática de archivos .hc${NC}"
+echo -e "${GREEN}✅ Usa el link que configures en el panel${NC}"
 echo -e "${CYAN}══════════════════════════════════════════════════════════════${NC}\n"
 
 echo -e "${YELLOW}📋 COMANDOS PRINCIPALES:${NC}\n"
 echo -e "  ${GREEN}hcbot${NC}         - Panel de control completo"
-echo -e "  ${GREEN}create-hc-direct${NC} - Generar archivo .hc manual"
 echo -e "  ${GREEN}pm2 logs http-custom-bot${NC} - Ver logs\n"
 
-echo -e "${YELLOW}🔧 CONFIGURACIÓN RÁPIDA:${NC}\n"
+echo -e "${YELLOW}🔧 PASOS IMPORTANTES:${NC}\n"
 echo -e "  1. Ejecuta: ${GREEN}hcbot${NC}"
-echo -e "  2. Opción ${PURPLE}[10]${NC} - Configurar link .hc"
+echo -e "  2. Opción ${PURPLE}[10]${NC} - Configurar TU link .hc (IMPORTANTE)"
 echo -e "  3. Opción ${CYAN}[7]${NC} - Configurar MercadoPago"
 echo -e "  4. Opción ${CYAN}[3]${NC} - Escanear QR WhatsApp"
-echo -e "  5. ¡Listo! Los usuarios recibirán archivos .hc listos\n"
+echo -e "  5. ¡Listo! Los usuarios recibirán TU archivo .hc\n"
 
 echo -e "${YELLOW}🎯 VENTAJAS DEL SISTEMA:${NC}\n"
-echo -e "  ✅ ${GREEN}Archivos .hc directos${NC} - Sin archivos .txt"
-echo -e "  ✅ ${GREEN}Configuración incluida${NC} - Cliente no edita"
+echo -e "  ✅ ${GREEN}Un solo archivo .hc para todos${NC} - Tu archivo personal"
+echo -e "  ✅ ${GREEN}Configuración centralizada${NC} - Cambias el link una vez"
 echo -e "  ✅ ${GREEN}Descarga simple${NC} - Toca link y listo"
 echo -e "  ✅ ${GREEN}Importación fácil${NC} - HTTP Custom → Import"
-echo -e "  ✅ ${GREEN}Personalizado${NC} - Cada usuario recibe su archivo\n"
+echo -e "  ✅ ${GREEN}Menos carga en servidor${NC} - No genera archivos individuales\n"
 
 echo -e "${YELLOW}💰 PRECIOS POR DEFECTO:${NC}\n"
 echo -e "  7 días: ${GREEN}$1500 ARS${NC}"
@@ -1903,8 +1686,9 @@ echo -e "${YELLOW}📊 INFO DEL SISTEMA:${NC}"
 echo -e "  IP: ${CYAN}$SERVER_IP${NC}"
 echo -e "  Puerto: ${CYAN}8080${NC}"
 echo -e "  Encriptación: ${CYAN}chacha20${NC}"
-echo -e "  Archivos .hc: ${CYAN}/var/www/html/hc/${NC}"
-echo -e "  Panel: ${CYAN}hcbot${NC}\n"
+echo -e "  Archivos .hc: ${CYAN}TU LINK PERSONAL${NC}"
+echo -e "  Panel: ${CYAN}hcbot${NC}"
+echo -e "  Ejemplo: ${CYAN}http://$SERVER_IP/hc/HTTP_CUSTOM_PERSONAL.hc${NC}\n"
 
 echo -e "${CYAN}══════════════════════════════════════════════════════════════${NC}\n"
 
@@ -1916,11 +1700,13 @@ if [[ $REPLY =~ ^[Ss]$ ]]; then
     /usr/local/bin/hcbot
 else
     echo -e "\n${YELLOW}💡 Ejecuta: ${GREEN}hcbot${NC} para abrir el panel\n"
-    echo -e "${YELLOW}Para probar el sistema:${NC}"
-    echo -e "1. Envía 'menu' al bot"
-    echo -e "2. Selecciona '1' para prueba"
-    echo -e "3. Envía tu HWID"
-    echo -e "4. Recibirás un archivo .hc listo para usar\n"
+    echo -e "${YELLOW}PASOS IMPORTANTES:${NC}"
+    echo -e "1. Abre el panel: hcbot"
+    echo -e "2. Opción 10: Configura TU link .hc"
+    echo -e "3. Opción 7: Configura MercadoPago"
+    echo -e "4. Opción 3: Escanea QR de WhatsApp"
+    echo -e "5. Envía 'menu' al bot"
+    echo -e "6. ¡Listo! Los usuarios recibirán TU link .hc\n"
 fi
 
 echo -e "${GREEN}${BOLD}¡Sistema instalado y listo para usar! 🚀${NC}\n"
