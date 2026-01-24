@@ -1,7 +1,7 @@
 #!/bin/bash
 # ================================================
-# HTTP CUSTOM BOT - INSTALADOR CON PANEL DE CONFIGURACIÓN
-# Panel para configurar link .hc fácilmente
+# HTTP CUSTOM BOT - INSTALADOR COMPLETO
+# Panel mejorado que acepta todos los formatos de link
 # ================================================
 
 set -e
@@ -30,25 +30,19 @@ cat << "BANNER"
 ║     ╚═╝  ╚═╝   ╚═╝      ╚═╝   ╚═╝          ╚═════╝ ╚═════╝   ║
 ╠══════════════════════════════════════════════════════════════╣
 ║                                                              ║
-║                HTTP CUSTOM BOT - PANEL CONFIG                ║
-║               ⚙️  CONFIGURA LINK .HC FÁCILMENTE            ║
-║               📱 PANEL INTUITIVO DE CONTROL                ║
+║                HTTP CUSTOM BOT - PANEL MEJORADO            ║
+║               🔗 ACEPTA TODOS LOS FORMATOS DE LINK         ║
+║               ⚙️  CONFIGURACIÓN FÁCIL DESDE PANEL         ║
 ║               💰 MERCADOPAGO INTEGRADO                      ║
 ║                                                              ║
 ╚══════════════════════════════════════════════════════════════╝
 BANNER
 echo -e "${NC}"
 
-echo -e "${GREEN}✅ SISTEMA CON PANEL DE CONFIGURACIÓN:${NC}"
-echo -e "  🔴 ${RED}MENÚ PRINCIPAL:${NC}"
-echo -e "     ${GREEN}1${NC} = Crear Prueba (TEST)"
-echo -e "     ${GREEN}2${NC} = Comprar HTTP Custom"
-echo -e "     ${GREEN}3${NC} = Renovar HTTP Custom"
-echo -e "     ${GREEN}4${NC} = Cambiar HWID Custom"
-echo -e "     ${GREEN}5${NC} = Descargar HTTP Custom App"
-echo -e "  🟢 ${GREEN}PANEL ADMIN:${NC}"
-echo -e "     ${CYAN}hcbot${NC} = Panel de control completo"
-echo -e "     ${CYAN}Configura link .hc fácilmente${NC}"
+echo -e "${GREEN}✅ SISTEMA COMPLETO CON PANEL MEJORADO:${NC}"
+echo -e "  🎛️  ${CYAN}PANEL ADMIN: hcbot${NC}"
+echo -e "  🔗 ${GREEN}Acepta links MediaFire, Dropbox, Google Drive${NC}"
+echo -e "  ⚡ ${YELLOW}Configuración fácil desde el panel${NC}"
 echo -e "${CYAN}══════════════════════════════════════════════════════════════${NC}\n"
 
 # Verificar root
@@ -72,8 +66,8 @@ echo -e "${GREEN}✅ IP detectada: ${CYAN}$SERVER_IP${NC}\n"
 echo -e "${YELLOW}⚠️  ESTE INSTALADOR HARÁ:${NC}"
 echo -e "   • Instalar Node.js 20.x + Chrome + Dependencias"
 echo -e "   • Crear HTTP Custom Bot completo"
-echo -e "   • Panel de control: ${GREEN}hcbot${NC}"
-echo -e "   • Configurar link .hc desde el panel"
+echo -e "   • Panel mejorado: ${GREEN}hcbot${NC}"
+echo -e "   • Acepta cualquier formato de link .hc"
 echo -e "   • Menú: 1=Prueba, 2=Comprar, 3=Renovar, 4=Cambiar HWID, 5=App"
 echo -e "   • Planes: 7, 15, 30, 50 días"
 echo -e "   • Pregunta por cupón de descuento"
@@ -175,12 +169,12 @@ chmod -R 755 "$INSTALL_DIR"
 chmod -R 755 "$WEB_DIR"
 chmod -R 700 /root/.wwebjs_auth
 
-# Crear configuración CON LINK .HC CONFIGURABLE
+# Crear configuración con link por defecto
 cat > "$CONFIG_FILE" << EOF
 {
     "bot": {
         "name": "HTTP Custom Bot",
-        "version": "2.0-PANEL",
+        "version": "3.0",
         "server_ip": "$SERVER_IP",
         "server_port": "8080",
         "encryption": "chacha20",
@@ -270,13 +264,6 @@ CREATE TABLE user_state (
     data TEXT,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
-CREATE TABLE hwid_changes (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    phone TEXT,
-    old_hwid TEXT,
-    new_hwid TEXT,
-    changed_at DATETIME DEFAULT CURRENT_TIMESTAMP
-);
 CREATE INDEX idx_users_phone ON users(phone);
 CREATE INDEX idx_users_hwid ON users(hwid);
 SQL
@@ -310,9 +297,9 @@ nginx -t && systemctl restart nginx
 echo -e "${GREEN}✅ Estructura creada${NC}"
 
 # ================================================
-# CREAR BOT CON LINK .HC CONFIGURABLE
+# CREAR BOT COMPLETO
 # ================================================
-echo -e "\n${CYAN}${BOLD}🤖 CREANDO BOT CON LINK .HC CONFIGURABLE...${NC}"
+echo -e "\n${CYAN}${BOLD}🤖 CREANDO BOT COMPLETO...${NC}"
 
 cd "$USER_HOME"
 
@@ -320,7 +307,7 @@ cd "$USER_HOME"
 cat > package.json << 'PKGEOF'
 {
     "name": "http-custom-bot",
-    "version": "2.0.0",
+    "version": "3.0.0",
     "main": "bot.js",
     "dependencies": {
         "whatsapp-web.js": "^1.24.0",
@@ -346,7 +333,7 @@ find node_modules/whatsapp-web.js -name "Client.js" -type f -exec sed -i 's/cons
 
 echo -e "${GREEN}✅ Parche markedUnread aplicado${NC}"
 
-# Crear bot.js CON LINK .HC CONFIGURABLE
+# Crear bot.js COMPLETO
 cat > "bot.js" << 'BOTEOF'
 const { Client, LocalAuth, MessageMedia } = require('whatsapp-web.js');
 const qrcodeTerminal = require('qrcode-terminal');
@@ -371,11 +358,14 @@ function loadConfig() {
 let config = loadConfig();
 const db = new sqlite3.Database(config.paths.database);
 
-// ✅ FUNCIÓN PARA OBTENER LINK .HC
+// ✅ FUNCIÓN PARA OBTENER LINK .HC (con decodificación)
 function getHcDownloadLink() {
     config = loadConfig();
     if (config.links && config.links.hc_file && config.links.hc_file !== "") {
-        return config.links.hc_file;
+        let link = config.links.hc_file;
+        // Decodificar si está doblemente codificado
+        link = link.replace(/%25/g, '%');
+        return link;
     }
     // Link por defecto
     return "https://www.mediafire.com/file/anh8ykihien46fg/%F0%9F%8C%B2_PERSONAL_FRONT_1_%F0%9F%8C%B2.hc/file";
@@ -445,17 +435,17 @@ let mpEnabled = initMercadoPago();
 moment.locale('es');
 
 console.log(chalk.cyan.bold('\n╔══════════════════════════════════════════════════════════════╗'));
-console.log(chalk.cyan.bold('║                🤖 HTTP CUSTOM BOT - PANEL CONFIG            ║'));
-console.log(chalk.cyan.bold('║               ⚙️  LINK .HC CONFIGURABLE DESDE PANEL       ║'));
+console.log(chalk.cyan.bold('║                🤖 HTTP CUSTOM BOT - v3.0                    ║'));
+console.log(chalk.cyan.bold('║               🔗 ACEPTA TODOS LOS FORMATOS DE LINK         ║'));
 console.log(chalk.cyan.bold('╚══════════════════════════════════════════════════════════════╝\n'));
 console.log(chalk.yellow(`📍 IP: ${config.bot.server_ip}`));
-console.log(chalk.yellow(`🔗 Link .HC configurado: ${getHcDownloadLink().substring(0, 50)}...`));
+console.log(chalk.yellow(`🔗 Link .HC: ${getHcDownloadLink().substring(0, 60)}...`));
 console.log(chalk.yellow(`💳 MercadoPago: ${mpEnabled ? '✅ ACTIVO' : '❌ NO CONFIGURADO'}`));
-console.log(chalk.green('✅ Sistema listo'));
+console.log(chalk.green('✅ Sistema listo y operativo'));
 console.log(chalk.green('✅ Use: hcbot → Opción 10 para configurar link .hc'));
 
 const client = new Client({
-    authStrategy: new LocalAuth({dataPath: '/root/.wwebjs_auth', clientId: 'http-custom-panel'}),
+    authStrategy: new LocalAuth({dataPath: '/root/.wwebjs_auth', clientId: 'http-custom-v3'}),
     puppeteer: {
         headless: true,
         executablePath: config.paths.chromium,
@@ -990,16 +980,16 @@ cron.schedule('*/15 * * * *', async () => {
     });
 });
 
-console.log(chalk.green('\n🚀 Inicializando HTTP Custom Bot con panel de configuración...\n'));
+console.log(chalk.green('\n🚀 Inicializando HTTP Custom Bot...\n'));
 client.initialize();
 BOTEOF
 
-echo -e "${GREEN}✅ Bot creado con link .hc configurable${NC}"
+echo -e "${GREEN}✅ Bot creado${NC}"
 
 # ================================================
-# CREAR PANEL DE CONTROL COMPLETO
+# CREAR PANEL DE CONTROL MEJORADO
 # ================================================
-echo -e "\n${CYAN}${BOLD}🎛️  CREANDO PANEL DE CONTROL COMPLETO...${NC}"
+echo -e "\n${CYAN}${BOLD}🎛️  CREANDO PANEL DE CONTROL MEJORADO...${NC}"
 
 cat > /usr/local/bin/hcbot << 'PANELEOF'
 #!/bin/bash
@@ -1014,14 +1004,14 @@ set_val() {
     local value="$2"
     local temp_file=$(mktemp)
     
+    # Si es número
     if [[ "$value" =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
-        # Es un número
         jq "$key = $value" "$CONFIG" > "$temp_file"
+    # Si es booleano o null
     elif [[ "$value" == "true" || "$value" == "false" || "$value" == "null" ]]; then
-        # Es booleano o null
         jq "$key = $value" "$CONFIG" > "$temp_file"
     else
-        # Es string, asegurar comillas
+        # Es string - siempre agregar comillas
         jq "$key = \"$value\"" "$CONFIG" > "$temp_file"
     fi
     
@@ -1039,7 +1029,7 @@ set_val() {
 show_header() {
     clear
     echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
-    echo -e "${CYAN}║                🎛️  PANEL HTTP CUSTOM - v2.0                ║${NC}"
+    echo -e "${CYAN}║                🎛️  PANEL HTTP CUSTOM - v3.0                ║${NC}"
     echo -e "${CYAN}╚══════════════════════════════════════════════════════════════╝${NC}\n"
 }
 
@@ -1070,9 +1060,11 @@ while true; do
     # Link .HC actual
     HC_LINK=$(get_val '.links.hc_file')
     if [[ -n "$HC_LINK" && "$HC_LINK" != "" && "$HC_LINK" != "null" ]]; then
-        HC_DISPLAY="${HC_LINK:0:50}..."
+        HC_DISPLAY="${HC_LINK:0:60}..."
+        HC_STATUS="${GREEN}✅ CONFIGURADO${NC}"
     else
         HC_DISPLAY="${RED}❌ NO CONFIGURADO${NC}"
+        HC_STATUS="${RED}❌ NO CONFIGURADO${NC}"
     fi
     
     echo -e "${YELLOW}📊 ESTADO DEL SISTEMA${NC}"
@@ -1080,7 +1072,10 @@ while true; do
     echo -e "  Usuarios: ${CYAN}$ACTIVE_USERS/$TOTAL_USERS${NC} activos/total"
     echo -e "  Pagos pendientes: ${CYAN}$PENDING_PAYMENTS${NC}"
     echo -e "  MercadoPago: $MP_STATUS"
-    echo -e "  Link .HC: $HC_DISPLAY"
+    echo -e "  Link .HC: $HC_STATUS"
+    if [[ "$HC_STATUS" == "${GREEN}✅ CONFIGURADO${NC}" ]]; then
+        echo -e "  Link actual: ${CYAN}$HC_DISPLAY${NC}"
+    fi
     echo -e "  Test: ${GREEN}1 hora${NC} | Limpieza: ${GREEN}cada 15 min${NC}"
     echo -e ""
     
@@ -1276,9 +1271,6 @@ while true; do
             echo -e "\n${YELLOW}💸 INGRESOS HOY:${NC}"
             sqlite3 "$DB" "SELECT 'Hoy: $' || printf('%.2f', SUM(CASE WHEN date(approved_at) = date('now') THEN final_amount ELSE 0 END)) FROM payments"
             
-            echo -e "\n${YELLOW}🔗 LINK .HC ACTUAL:${NC}"
-            echo -e "$(get_val '.links.hc_file')"
-            
             read -p "\nPresiona Enter..." 
             ;;
         9)
@@ -1295,42 +1287,71 @@ while true; do
             
             if [[ -n "$CURRENT_LINK" && "$CURRENT_LINK" != "null" && "$CURRENT_LINK" != "" ]]; then
                 echo -e "${GREEN}✅ Link actual configurado${NC}"
-                echo -e "${YELLOW}Link: $CURRENT_LINK${NC}\n"
-                echo -e "${CYAN}📋 Ejemplo de link válido:${NC}"
-                echo -e "https://www.mediafire.com/file/anh8ykihien46fg/%F0%9F%8C%B2_PERSONAL_FRONT_1_%F0%9F%8C%B2.hc/file\n"
+                echo -e "${YELLOW}Link actual: $CURRENT_LINK${NC}\n"
             else
                 echo -e "${YELLOW}⚠️  Sin link configurado${NC}\n"
-                echo -e "${CYAN}📋 Ejemplo de link válido:${NC}"
-                echo -e "https://www.mediafire.com/file/anh8ykihien46fg/%F0%9F%8C%B2_PERSONAL_FRONT_1_%F0%9F%8C%B2.hc/file\n"
             fi
+            
+            echo -e "${CYAN}📋 EJEMPLOS DE LINKS VÁLIDOS:${NC}"
+            echo -e "1. ${GREEN}MediaFire:${NC}"
+            echo -e "   https://www.mediafire.com/file/anh8ykihien46fg/%F0%9F%8C%B2_PERSONAL_FRONT_1_%F0%9F%8C%B2.hc/file"
+            echo -e "2. ${GREEN}Dropbox:${NC}"
+            echo -e "   https://www.dropbox.com/s/xxxxx/config.hc?dl=1"
+            echo -e "3. ${GREEN}Google Drive:${NC}"
+            echo -e "   https://drive.google.com/uc?export=download&id=FILE_ID"
+            echo -e ""
+            echo -e "${YELLOW}⚠️  EL SISTEMA ACEPTA CUALQUIER FORMATO DE LINK${NC}"
+            echo -e "   • Links codificados (%F0%9F%8C%B2)"
+            echo -e "   • Links doble codificados (%25F0%259F%258C%25B2)"
+            echo -e "   • Links directos"
+            echo -e ""
             
             read -p "¿Configurar nuevo link .hc? (s/N): " CONF
             if [[ "$CONF" == "s" ]]; then
                 echo ""
-                echo -e "${CYAN}📝 Pega el link completo:${NC}"
-                echo -e "Ejemplo: https://www.mediafire.com/file/anh8ykihien46fg/..."
+                echo -e "${CYAN}📝 PEGA TU LINK COMPLETO:${NC}"
+                echo -e "Puedes pegar cualquier formato, el sistema lo aceptará:"
                 echo ""
-                read -p "Nuevo link .hc: " NEW_LINK
+                echo -e "${YELLOW}Ejemplo 1 (codificado):${NC}"
+                echo -e "https://www.mediafire.com/file/anh8ykihien46fg/%F0%9F%8C%B2_PERSONAL_FRONT_1_%F0%9F%8C%B2.hc/file"
+                echo ""
+                echo -e "${YELLOW}Ejemplo 2 (doble codificado):${NC}"
+                echo -e "https://www.mediafire.com/file/anh8ykihien46fg/%25F0%259F%258C%25B2_PERSONAL_FRONT_1_%25F0%259F%258C%25B2.hc/file"
+                echo ""
+                echo -e "${GREEN}→ Ambos formatos funcionarán correctamente ←${NC}"
+                echo ""
                 
-                if [[ "$NEW_LINK" =~ ^https?:// ]] && [[ "$NEW_LINK" =~ \.hc$ ]]; then
-                    set_val '.links.hc_file' "$NEW_LINK"
-                    echo -e "\n${GREEN}✅ Link .hc configurado${NC}"
-                    echo -e "${YELLOW}🔄 Reiniciando bot...${NC}"
-                    cd /root/http-custom-bot && pm2 restart http-custom-bot
-                    sleep 2
-                    echo -e "${GREEN}✅ Bot actualizado con nuevo link${NC}"
-                    echo -e "${YELLOW}📱 Los nuevos usuarios recibirán este link${NC}"
+                read -p "Pega tu link .hc aquí: " NEW_LINK
+                
+                if [[ -n "$NEW_LINK" ]]; then
+                    # Limpiar entrada (remover espacios extra)
+                    NEW_LINK=$(echo "$NEW_LINK" | xargs)
+                    
+                    if [[ "$NEW_LINK" =~ ^https?:// ]]; then
+                        set_val '.links.hc_file' "$NEW_LINK"
+                        echo -e "\n${GREEN}✅ Link .hc configurado exitosamente${NC}"
+                        echo -e "${YELLOW}🔄 Reiniciando bot para aplicar cambios...${NC}"
+                        cd /root/http-custom-bot && pm2 restart http-custom-bot
+                        sleep 2
+                        echo -e "${GREEN}✅ Bot actualizado con nuevo link${NC}"
+                        echo -e "${CYAN}📱 Los nuevos usuarios recibirán este link${NC}"
+                        echo -e ""
+                        echo -e "${YELLOW}📋 LINK CONFIGURADO:${NC}"
+                        echo -e "$NEW_LINK"
+                    else
+                        echo -e "${RED}❌ Link inválido${NC}"
+                        echo -e "${YELLOW}El link debe comenzar con http:// o https://${NC}"
+                    fi
                 else
-                    echo -e "${RED}❌ Link inválido${NC}"
-                    echo -e "${YELLOW}Debe ser un link HTTPS/HTTP que termine en .hc${NC}"
+                    echo -e "${RED}❌ No se ingresó ningún link${NC}"
                 fi
             fi
             
             echo -e "\n${CYAN}💡 CONSEJOS:${NC}"
-            echo -e "1. Usa MediaFire, Dropbox, Google Drive"
-            echo -e "2. Asegúrate que el link sea de descarga directa"
-            echo -e "3. El archivo debe ser .hc"
-            echo -e "4. Prueba el link antes de configurarlo\n"
+            echo -e "1. Prueba el link en tu navegador antes de configurarlo"
+            echo -e "2. Asegúrate que sea un link de descarga directa"
+            echo -e "3. El sistema acepta cualquier formato de codificación"
+            echo -e "4. Los cambios se aplican inmediatamente\n"
             
             read -p "Presiona Enter..." 
             ;;
@@ -1347,7 +1368,7 @@ done
 PANELEOF
 
 chmod +x /usr/local/bin/hcbot
-echo -e "${GREEN}✅ Panel de control creado${NC}"
+echo -e "${GREEN}✅ Panel de control mejorado creado${NC}"
 
 # ================================================
 # INICIAR BOT
@@ -1369,11 +1390,11 @@ echo -e "${GREEN}${BOLD}"
 cat << "FINAL"
 ╔══════════════════════════════════════════════════════════════╗
 ║                                                              ║
-║       🎉 INSTALACIÓN COMPLETADA - PANEL CONFIG 🎉          ║
+║       🎉 INSTALACIÓN COMPLETADA - v3.0 🎉                  ║
 ║                                                              ║
 ║               HTTP CUSTOM BOT - CONFIGURADO                 ║
-║               ⚙️  CONFIGURA LINK .HC FÁCILMENTE           ║
-║               📱 PANEL INTUITIVO DE CONTROL                ║
+║               🔗 ACEPTA TODOS LOS FORMATOS DE LINK         ║
+║               ⚙️  CONFIGURACIÓN FÁCIL DESDE PANEL         ║
 ║               💰 MERCADOPAGO INTEGRADO                      ║
 ║                                                              ║
 ╚══════════════════════════════════════════════════════════════╝
@@ -1381,21 +1402,22 @@ FINAL
 echo -e "${NC}"
 
 echo -e "${CYAN}══════════════════════════════════════════════════════════════${NC}"
-echo -e "${GREEN}✅ Sistema instalado con panel de configuración${NC}"
-echo -e "${GREEN}✅ Menú: 1=Prueba, 2=Comprar, 3=Renovar, 4=Cambiar HWID, 5=App${NC}"
+echo -e "${GREEN}✅ Sistema instalado exitosamente${NC}"
 echo -e "${GREEN}✅ Panel de control: ${CYAN}hcbot${NC}"
-echo -e "${GREEN}✅ Configura link .hc desde el panel${NC}"
-echo -e "${GREEN}✅ Planes disponibles: 7, 15, 30, 50 días${NC}"
+echo -e "${GREEN}✅ Acepta cualquier formato de link .hc${NC}"
+echo -e "${GREEN}✅ Configuración fácil desde el panel${NC}"
 echo -e "${CYAN}══════════════════════════════════════════════════════════════${NC}\n"
 
 echo -e "${YELLOW}📋 COMANDOS PRINCIPALES:${NC}\n"
 echo -e "  ${GREEN}hcbot${NC}         - Panel de control completo"
-echo -e "  ${GREEN}pm2 logs http-custom-bot${NC} - Ver logs"
+echo -e "  ${GREEN}pm2 logs http-custom-bot${NC} - Ver logs en tiempo real"
 echo -e "  ${GREEN}pm2 status${NC}    - Estado del bot\n"
 
-echo -e "${YELLOW}🔧 CONFIGURACIÓN INICIAL:${NC}\n"
+echo -e "${YELLOW}🔧 CONFIGURACIÓN RÁPIDA:${NC}\n"
 echo -e "  1. Ejecuta: ${GREEN}hcbot${NC}"
-echo -e "  2. Opción ${CYAN}[10]${NC} - Configurar link .hc"
+echo -e "  2. Opción ${PURPLE}[10]${NC} - Configurar link .hc"
+echo -e "     • Pega tu link (cualquier formato)"
+echo -e "     • El bot se reinicia automáticamente"
 echo -e "  3. Opción ${CYAN}[7]${NC} - Configurar MercadoPago"
 echo -e "  4. Opción ${CYAN}[3]${NC} - Escanear QR WhatsApp"
 echo -e "  5. Opción ${CYAN}[6]${NC} - Ajustar precios\n"
@@ -1406,17 +1428,20 @@ echo -e "  15 días: ${GREEN}$2500 ARS${NC}"
 echo -e "  30 días: ${GREEN}$5500 ARS${NC}"
 echo -e "  50 días: ${GREEN}$8500 ARS${NC}\n"
 
-echo -e "${YELLOW}🔗 CÓMO CONFIGURAR LINK .HC:${NC}\n"
-echo -e "  1. Ejecuta: ${GREEN}hcbot${NC}"
-echo -e "  2. Selecciona opción ${CYAN}[10]${NC}"
-echo -e "  3. Pega tu link de MediaFire/Dropbox"
-echo -e "  4. El bot se reiniciará automáticamente"
-echo -e "  5. ¡Listo! Los usuarios recibirán tu link\n"
+echo -e "${YELLOW}🔗 FORMATOS DE LINK ACEPTADOS:${NC}\n"
+echo -e "  ✅ ${GREEN}Codificado normal:${NC}"
+echo -e "     https://.../%F0%9F%8C%B2_PERSONAL.hc/file"
+echo -e "  ✅ ${GREEN}Doble codificado:${NC}"
+echo -e "     https://.../%25F0%259F%258C%25B2_PERSONAL.hc/file"
+echo -e "  ✅ ${GREEN}Directo:${NC}"
+echo -e "     https://.../config.hc"
+echo -e "  ✅ ${GREEN}Cualquier otro formato${NC}\n"
 
-echo -e "${YELLOW}📊 INFO:${NC}"
+echo -e "${YELLOW}📊 INFO DEL SISTEMA:${NC}"
 echo -e "  IP: ${CYAN}$SERVER_IP${NC}"
 echo -e "  Puerto: ${CYAN}8080${NC}"
 echo -e "  Config: ${CYAN}/opt/http-custom-bot/config/config.json${NC}"
+echo -e "  BD: ${CYAN}/opt/http-custom-bot/data/users.db${NC}"
 echo -e "  Panel: ${CYAN}hcbot${NC}\n"
 
 echo -e "${CYAN}══════════════════════════════════════════════════════════════${NC}\n"
@@ -1429,12 +1454,13 @@ if [[ $REPLY =~ ^[Ss]$ ]]; then
     /usr/local/bin/hcbot
 else
     echo -e "\n${YELLOW}💡 Ejecuta: ${GREEN}hcbot${NC} para abrir el panel\n"
+    echo -e "${YELLOW}Para configurar tu link .hc:${NC}"
+    echo -e "1. ${GREEN}hcbot${NC}"
+    echo -e "2. Opción ${PURPLE}[10]${NC}"
+    echo -e "3. Pega tu link (cualquier formato)"
+    echo -e "4. ¡Listo! Los usuarios recibirán tu link\n"
 fi
 
-echo -e "${GREEN}${BOLD}¡Sistema instalado exitosamente! 🚀${NC}\n"
-echo -e "${YELLOW}Para configurar tu link .hc:${NC}"
-echo -e "1. ${GREEN}hcbot${NC}"
-echo -e "2. Opción ${CYAN}[10]${NC} - Configurar link .hc"
-echo -e "3. Pega: https://www.mediafire.com/file/anh8ykihien46fg/...\n"
+echo -e "${GREEN}${BOLD}¡Sistema instalado y listo para usar! 🚀${NC}\n"
 
 exit 0
