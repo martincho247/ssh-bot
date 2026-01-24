@@ -1,7 +1,7 @@
 #!/bin/bash
 # ================================================
-# HTTP CUSTOM BOT - ARCHIVO .HC DIRECTO
-# Sin archivos .txt, solo .hc puro y descarga directa
+# HTTP CUSTOM BOT - ENVÍA TU ARCHIVO .HC PERSONAL
+# Usa TU archivo .hc y lo envía directamente por WhatsApp
 # ================================================
 
 set -e
@@ -30,9 +30,9 @@ cat << "BANNER"
 ║     ╚═╝  ╚═╝   ╚═╝      ╚═╝   ╚═╝          ╚═════╝ ╚═════╝   ║
 ╠══════════════════════════════════════════════════════════════╣
 ║                                                              ║
-║                HTTP CUSTOM BOT - .HC DIRECTO               ║
-║               📥 DESCARGA DIRECTA CON TU LINK PERSONAL      ║
-║               ⚡ USANDO EL ARCHIVO .HC DEL PANEL            ║
+║            HTTP CUSTOM BOT - TU ARCHIVO .HC PERSONAL       ║
+║               📤 ENVÍA TU ARCHIVO POR WHATSAPP              ║
+║               ⚡ MISMO ARCHIVO PARA TODOS LOS USUARIOS      ║
 ║               💰 MERCADOPAGO INTEGRADO                      ║
 ║                                                              ║
 ╚══════════════════════════════════════════════════════════════╝
@@ -40,9 +40,9 @@ BANNER
 echo -e "${NC}"
 
 echo -e "${GREEN}✅ SISTEMA CON TU ARCHIVO .HC PERSONAL:${NC}"
-echo -e "  🎯 ${CYAN}CLIENTE NO NECESITA EDITAR NADA${NC}"
-echo -e "  📥 ${GREEN}Descarga directa de TU archivo .hc${NC}"
-echo -e "  ⚡ ${YELLOW}Todos usan el mismo archivo configurado en el panel${NC}"
+echo -e "  🎯 ${CYAN}ENVÍA TU ARCHIVO .HC POR WHATSAPP${NC}"
+echo -e "  📤 ${GREEN}Sin generación automática, usa TU archivo${NC}"
+echo -e "  ⚡ ${YELLOW}Mismo archivo para todos los usuarios${NC}"
 echo -e "  🎛️  ${PURPLE}Panel admin: hcbot${NC}"
 echo -e "${CYAN}══════════════════════════════════════════════════════════════${NC}\n"
 
@@ -63,14 +63,156 @@ fi
 
 echo -e "${GREEN}✅ IP detectada: ${CYAN}$SERVER_IP${NC}\n"
 
+# Preguntar por archivo .hc personal
+echo -e "${YELLOW}📁 CONFIGURACIÓN DE TU ARCHIVO .HC PERSONAL${NC}"
+echo -e ""
+echo -e "${CYAN}💡 Necesitas tener tu archivo .hc listo para usar${NC}"
+echo -e "${CYAN}📝 El bot enviará ESTE MISMO archivo a todos los usuarios${NC}"
+echo -e ""
+
+# Opción 1: Subir archivo ahora
+echo -e "${GREEN}📤 OPCIONES PARA TU ARCHIVO .HC:${NC}"
+echo -e "  1. Subir mi archivo .hc ahora (recomendado)"
+echo -e "  2. Configurar path a mi archivo existente"
+echo -e "  3. Usar archivo de ejemplo y configurar después"
+echo -e ""
+
+read -p "👉 Selecciona opción [1]: " HC_OPTION
+HC_OPTION=${HC_OPTION:-1}
+
+HC_FILE_PATH=""
+HC_FILE_NAME=""
+
+case $HC_OPTION in
+    1)
+        echo -e "\n${CYAN}📤 SUBIR TU ARCHIVO .HC${NC}"
+        echo -e "${YELLOW}1. Asegúrate de tener tu archivo .hc en tu computadora${NC}"
+        echo -e "${YELLOW}2. Debe llamarse: TU_ARCHIVO.hc (con extensión .hc)${NC}"
+        echo -e "${YELLOW}3. Usa SCP, FTP o arrastra al servidor si usas VPS con interfaz${NC}"
+        echo -e ""
+        echo -e "${GREEN}📝 Path donde subir el archivo:${NC}"
+        echo -e "  /root/http-custom-bot/MI_ARCHIVO.hc"
+        echo -e ""
+        read -p "Presiona Enter cuando hayas subido el archivo..."
+        
+        # Verificar si se subió algún archivo
+        DEFAULT_HC="/root/http-custom-bot/MI_ARCHIVO.hc"
+        if [[ -f "$DEFAULT_HC" ]]; then
+            HC_FILE_PATH="$DEFAULT_HC"
+            HC_FILE_NAME=$(basename "$DEFAULT_HC")
+            echo -e "${GREEN}✅ Archivo encontrado: $HC_FILE_NAME${NC}"
+        else
+            echo -e "${YELLOW}⚠️  No se encontró archivo en $DEFAULT_HC${NC}"
+            read -p "📝 Ingresa el path completo de tu archivo .hc: " HC_FILE_PATH
+            if [[ -f "$HC_FILE_PATH" ]]; then
+                HC_FILE_NAME=$(basename "$HC_FILE_PATH")
+                echo -e "${GREEN}✅ Archivo encontrado: $HC_FILE_NAME${NC}"
+            else
+                echo -e "${YELLOW}⚠️  Usando archivo de ejemplo, podrás cambiarlo después${NC}"
+                HC_FILE_PATH="/opt/http-custom-bot/MI_ARCHIVO.hc"
+                HC_FILE_NAME="MI_ARCHIVO.hc"
+            fi
+        fi
+        ;;
+    2)
+        read -p "📝 Ingresa el path completo de tu archivo .hc: " HC_FILE_PATH
+        if [[ -f "$HC_FILE_PATH" ]]; then
+            HC_FILE_NAME=$(basename "$HC_FILE_PATH")
+            echo -e "${GREEN}✅ Archivo encontrado: $HC_FILE_NAME${NC}"
+        else
+            echo -e "${RED}❌ Archivo no encontrado${NC}"
+            echo -e "${YELLOW}⚠️  Usando archivo de ejemplo, podrás cambiarlo después${NC}"
+            HC_FILE_PATH="/opt/http-custom-bot/MI_ARCHIVO.hc"
+            HC_FILE_NAME="MI_ARCHIVO.hc"
+        fi
+        ;;
+    3)
+        HC_FILE_PATH="/opt/http-custom-bot/MI_ARCHIVO.hc"
+        HC_FILE_NAME="MI_ARCHIVO.hc"
+        echo -e "${YELLOW}⚠️  Usando archivo de ejemplo${NC}"
+        echo -e "${CYAN}💡 Podrás cambiarlo después en el panel de control${NC}"
+        ;;
+esac
+
+# Crear archivo de ejemplo si no existe
+if [[ ! -f "$HC_FILE_PATH" && "$HC_OPTION" == "3" ]]; then
+    echo -e "\n${YELLOW}📝 Creando archivo .hc de ejemplo...${NC}"
+    mkdir -p /opt/http-custom-bot
+    cat > "$HC_FILE_PATH" << 'HCEOF'
+# HTTP Custom Configuration - TU ARCHIVO PERSONAL
+# Configuración lista para usar
+
+[general]
+mode=http
+listen_port=8080
+enable_http=0
+enable_socks5=0
+enable_dns=0
+enable_ipv6=1
+enable_udp=1
+enable_mux=1
+log_level=info
+
+[server]
+server=TU_SERVIDOR_AQUI
+server_port=8080
+method=chacha20
+password=123456
+fast_open=1
+reuse_port=1
+
+[obfs]
+obfs=http
+obfs_host=www.bing.com
+obfs_uri=/search
+
+[tls]
+tls_enable=0
+tls_server_name=www.bing.com
+skip_cert_verify=1
+
+[advanced]
+mux_concurrency=8
+connection_timeout=30
+buffer_size=4096
+max_connection=100
+
+[user_info]
+username=TU_USUARIO
+hwid=TU_HWID_AQUI
+expire_date=2024-12-31
+plan_days=30
+
+# Instrucciones:
+# 1. Guardar este archivo
+# 2. En HTTP Custom: Profiles → Import
+# 3. Seleccionar este archivo
+# 4. ¡Conectar!
+
+# Cambia "TU_SERVIDOR_AQUI" por tu IP real
+# Cambia "TU_HWID_AQUI" por el HWID del usuario
+HCEOF
+    echo -e "${GREEN}✅ Archivo de ejemplo creado: $HC_FILE_NAME${NC}"
+fi
+
+# Verificar tamaño del archivo
+if [[ -f "$HC_FILE_PATH" ]]; then
+    FILE_SIZE=$(stat -c%s "$HC_FILE_PATH" 2>/dev/null || stat -f%z "$HC_FILE_PATH" 2>/dev/null || echo "0")
+    echo -e "${GREEN}📏 Tamaño del archivo: $FILE_SIZE bytes${NC}"
+    
+    if [[ $FILE_SIZE -gt 10000000 ]]; then
+        echo -e "${YELLOW}⚠️  Archivo muy grande (>10MB), WhatsApp podría tener problemas${NC}"
+    fi
+fi
+
 # Confirmar instalación
-echo -e "${YELLOW}⚠️  ESTE INSTALADOR HARÁ:${NC}"
+echo -e "\n${YELLOW}⚠️  ESTE INSTALADOR HARÁ:${NC}"
 echo -e "   • Instalar Node.js 20.x + Chrome + Dependencias"
 echo -e "   • Crear HTTP Custom Bot completo"
 echo -e "   • Panel de control: ${GREEN}hcbot${NC}"
-echo -e "   • Usa TU archivo .hc personal (configurado en panel)"
-echo -e "   • Cliente solo descarga e importa"
-echo -e "   • Configuración automática incluida"
+echo -e "   • Enviar TU archivo: ${CYAN}$HC_FILE_NAME${NC}"
+echo -e "   • Mismo archivo para todos los usuarios"
+echo -e "   • Sin generación automática, usa TU archivo"
 echo -e "   • Menú: 1=Prueba, 2=Comprar, 3=Renovar, 4=Cambiar HWID, 5=App"
 echo -e "   • Planes: 7, 15, 30, 50 días"
 echo -e "\n${RED}⚠️  Se eliminarán instalaciones anteriores${NC}"
@@ -148,8 +290,7 @@ INSTALL_DIR="/opt/http-custom-bot"
 USER_HOME="/root/http-custom-bot"
 DB_FILE="$INSTALL_DIR/data/users.db"
 CONFIG_FILE="$INSTALL_DIR/config/config.json"
-HC_DIR="$INSTALL_DIR/hc_files"
-WEB_DIR="/var/www/html/hc"
+HC_STORAGE="$INSTALL_DIR/hc_storage"
 
 # Limpiar instalaciones anteriores
 echo -e "${YELLOW}🧹 Limpiando instalaciones anteriores...${NC}"
@@ -157,24 +298,60 @@ pm2 delete http-custom-bot 2>/dev/null || true
 pm2 flush 2>/dev/null || true
 rm -rf "$INSTALL_DIR" "$USER_HOME" 2>/dev/null || true
 rm -rf /root/.wwebjs_auth /root/.wwebjs_cache 2>/dev/null || true
-rm -rf "$HC_DIR" "$WEB_DIR" 2>/dev/null || true
+rm -rf "$HC_STORAGE" 2>/dev/null || true
 
 # Crear directorios
 mkdir -p "$INSTALL_DIR"/{data,config,qr_codes,logs}
 mkdir -p "$USER_HOME"
-mkdir -p "$HC_DIR"
-mkdir -p "$WEB_DIR"
+mkdir -p "$HC_STORAGE"
 mkdir -p /root/.wwebjs_auth
 chmod -R 755 "$INSTALL_DIR"
-chmod -R 755 "$WEB_DIR"
+chmod -R 755 "$HC_STORAGE"
 chmod -R 700 /root/.wwebjs_auth
+
+# Copiar archivo .hc personal a la ubicación segura
+if [[ -f "$HC_FILE_PATH" ]]; then
+    echo -e "${YELLOW}📁 Copiando tu archivo .hc personal...${NC}"
+    cp "$HC_FILE_PATH" "$HC_STORAGE/MI_ARCHIVO.hc"
+    HC_STORAGE_PATH="$HC_STORAGE/MI_ARCHIVO.hc"
+    echo -e "${GREEN}✅ Archivo copiado a: $HC_STORAGE_PATH${NC}"
+else
+    # Crear archivo de ejemplo
+    HC_STORAGE_PATH="$HC_STORAGE/MI_ARCHIVO.hc"
+    cat > "$HC_STORAGE_PATH" << 'HCEOF'
+# HTTP Custom Configuration - TU ARCHIVO PERSONAL
+# Este es un archivo de ejemplo
+
+[general]
+mode=http
+listen_port=8080
+enable_http=0
+enable_socks5=0
+enable_dns=0
+enable_ipv6=1
+enable_udp=1
+enable_mux=1
+log_level=info
+
+[server]
+server=TU_IP_AQUI
+server_port=8080
+method=chacha20
+password=123456
+fast_open=1
+reuse_port=1
+
+# Reemplaza TU_IP_AQUI con tu IP real en el panel hcbot
+HCEOF
+    echo -e "${YELLOW}⚠️  Creado archivo de ejemplo en: $HC_STORAGE_PATH${NC}"
+fi
 
 # Crear configuración
 cat > "$CONFIG_FILE" << EOF
 {
     "bot": {
         "name": "HTTP Custom Bot",
-        "version": "4.0-HC-PERSONAL",
+        "version": "5.0-TU-ARCHIVO",
         "server_ip": "$SERVER_IP",
         "server_port": "8080",
         "encryption": "chacha20",
@@ -195,15 +372,14 @@ cat > "$CONFIG_FILE" << EOF
     "links": {
         "tutorial": "https://youtube.com",
         "support": "https://wa.me/543435071016",
-        "app_download": "https://www.mediafire.com/file/p8kgthxbsid7xws/MAJ/DNI_AND_FIL",
-        "hc_file": "https://www.mediafire.com/file/anh8ykihien46fg/%F0%9F%8C%B2_PERSONAL_FRONT_1_%F0%9F%8C%B2.hc/file"
+        "app_download": "https://www.mediafire.com/file/p8kgthxbsid7xws/MAJ/DNI_AND_FIL"
     },
     "paths": {
         "database": "$DB_FILE",
         "chromium": "/usr/bin/google-chrome",
         "qr_codes": "$INSTALL_DIR/qr_codes",
-        "hc_files": "$HC_DIR",
-        "web_download": "$WEB_DIR"
+        "hc_storage": "$HC_STORAGE",
+        "hc_file": "$HC_STORAGE_PATH"
     },
     "hc_config": {
         "server": "$SERVER_IP",
@@ -224,8 +400,6 @@ CREATE TABLE users (
     tipo TEXT DEFAULT 'test',
     expires_at DATETIME,
     status INTEGER DEFAULT 1,
-    download_url TEXT,
-    config_file TEXT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 CREATE TABLE daily_tests (
@@ -268,103 +442,119 @@ CREATE INDEX idx_users_phone ON users(phone);
 CREATE INDEX idx_users_hwid ON users(hwid);
 SQL
 
-# Configurar Nginx para descargas directas
-cat > /etc/nginx/sites-available/hc-download << EOF
-server {
-    listen 80;
-    server_name $SERVER_IP;
-    root /var/www/html/hc;
-    
-    location / {
-        autoindex on;
-        autoindex_exact_size off;
-        autoindex_localtime on;
-        add_header Access-Control-Allow-Origin "*";
-    }
-    
-    location ~* \.hc$ {
-        add_header Content-Type application/octet-stream;
-        add_header Content-Disposition "attachment";
-        add_header Access-Control-Allow-Origin "*";
-        default_type application/octet-stream;
-    }
-    
-    location ~* \.txt$ {
-        return 404;
-    }
-}
-EOF
-
-ln -sf /etc/nginx/sites-available/hc-download /etc/nginx/sites-enabled/
-rm -f /etc/nginx/sites-enabled/default
-nginx -t && systemctl restart nginx
-
 echo -e "${GREEN}✅ Estructura creada${NC}"
 
 # ================================================
-# CREAR ARCHIVO .HC DE EJEMPLO (opcional)
+# CREAR SCRIPT PARA MODIFICAR ARCHIVO .HC
 # ================================================
-echo -e "\n${CYAN}${BOLD}🔧 CREANDO ARCHIVO .HC DE EJEMPLO...${NC}"
+echo -e "\n${CYAN}${BOLD}🔧 CREANDO SCRIPT PARA MODIFICAR TU ARCHIVO .HC...${NC}"
 
-# Crear archivo .hc de ejemplo para descarga directa
-cat > "$WEB_DIR/HTTP_CUSTOM_PERSONAL.hc" << 'HCEOF'
-# HTTP Custom Configuration - ARCHIVO PERSONAL
-# Configuración lista para usar - Solo importar
+cat > "$INSTALL_DIR/modify_hc_file.py" << 'PYEOF'
+#!/usr/bin/env python3
+import sys
+import os
+import re
+from datetime import datetime, timedelta
 
-[general]
-mode=http
-listen_port=8080
-enable_http=0
-enable_socks5=0
-enable_dns=0
-enable_ipv6=1
-enable_udp=1
-enable_mux=1
-log_level=info
+def modify_hc_file(input_file, output_file, username, hwid, server_ip, port, method, password, days):
+    """Modifica TU archivo .hc personal con datos del usuario"""
+    
+    # Leer el archivo original
+    with open(input_file, 'r', encoding='utf-8') as f:
+        content = f.read()
+    
+    # Calcular fecha de expiración
+    expire_date = (datetime.now() + timedelta(days=days)).strftime('%Y-%m-%d')
+    
+    # Reemplazar marcadores de posición
+    modified_content = content
+    
+    # Reemplazar server IP si existe marcador
+    if 'TU_IP_AQUI' in modified_content:
+        modified_content = modified_content.replace('TU_IP_AQUI', server_ip)
+    
+    if 'TU_SERVIDOR_AQUI' in modified_content:
+        modified_content = modified_content.replace('TU_SERVIDOR_AQUI', server_ip)
+    
+    # Reemplazar HWID
+    if 'TU_HWID_AQUI' in modified_content:
+        modified_content = modified_content.replace('TU_HWID_AQUI', hwid)
+    
+    # Reemplazar usuario
+    if 'TU_USUARIO' in modified_content:
+        modified_content = modified_content.replace('TU_USUARIO', username)
+    
+    # Reemplazar fecha de expiración
+    if 'TU_FECHA_EXPIRA' in modified_content:
+        modified_content = modified_content.replace('TU_FECHA_EXPIRA', expire_date)
+    
+    # Si no hay marcadores, agregar sección [user_info] al final
+    if '[user_info]' not in modified_content:
+        user_info_section = f"""
+[user_info]
+username={username}
+hwid={hwid}
+expire_date={expire_date}
+plan_days={days}
+server={server_ip}
+port={port}
+method={method}
+password={password}
 
-[server]
-server=TU_SERVIDOR_AQUI
-server_port=8080
-method=chacha20
-password=123456
-fast_open=1
-reuse_port=1
+# Archivo personalizado para: {username}
+# HWID: {hwid}
+# Válido hasta: {expire_date}
+"""
+        modified_content += user_info_section
+    
+    # Escribir archivo modificado
+    with open(output_file, 'w', encoding='utf-8') as f:
+        f.write(modified_content)
+    
+    # Verificar que se creó
+    if os.path.exists(output_file):
+        size = os.path.getsize(output_file)
+        return {
+            'success': True,
+            'filePath': output_file,
+            'fileName': os.path.basename(output_file),
+            'fileSize': size
+        }
+    else:
+        return {
+            'success': False,
+            'error': 'No se pudo crear el archivo modificado'
+        }
 
-[obfs]
-obfs=http
-obfs_host=www.bing.com
-obfs_uri=/search
+if __name__ == "__main__":
+    if len(sys.argv) < 9:
+        print('{"success": false, "error": "Faltan argumentos"}')
+        sys.exit(1)
+    
+    input_file = sys.argv[1]
+    output_file = sys.argv[2]
+    username = sys.argv[3]
+    hwid = sys.argv[4]
+    server_ip = sys.argv[5]
+    port = sys.argv[6]
+    method = sys.argv[7]
+    password = sys.argv[8]
+    days = int(sys.argv[9])
+    
+    result = modify_hc_file(input_file, output_file, username, hwid, server_ip, port, method, password, days)
+    
+    import json
+    print(json.dumps(result))
+PYEOF
 
-[tls]
-tls_enable=0
-tls_server_name=www.bing.com
-skip_cert_verify=1
+chmod +x "$INSTALL_DIR/modify_hc_file.py"
 
-[advanced]
-mux_concurrency=8
-connection_timeout=30
-buffer_size=4096
-max_connection=100
-
-# Instrucciones:
-# 1. Descargar este archivo
-# 2. En HTTP Custom: Profiles → Import
-# 3. Seleccionar este archivo .hc
-# 4. ¡Conectar!
-
-# Este es un archivo .hc personal configurado en el panel
-# Cambia "TU_SERVIDOR_AQUI" por la IP real de tu servidor
-# en el panel de control hcbot
-HCEOF
-
-chmod 644 "$WEB_DIR/HTTP_CUSTOM_PERSONAL.hc"
-
-echo -e "${GREEN}✅ Archivo .hc de ejemplo creado${NC}"
+echo -e "${GREEN}✅ Script para modificar archivos .hc creado${NC}"
 
 # ================================================
-# CREAR BOT QUE USA TU ARCHIVO .HC PERSONAL
+# CREAR BOT QUE ENVÍA TU ARCHIVO .HC
 # ================================================
-echo -e "\n${CYAN}${BOLD}🤖 CREANDO BOT CON TU ARCHIVO .HC PERSONAL...${NC}"
+echo -e "\n${CYAN}${BOLD}🤖 CREANDO BOT QUE ENVÍA TU ARCHIVO .HC...${NC}"
 
 cd "$USER_HOME"
 
@@ -372,7 +562,7 @@ cd "$USER_HOME"
 cat > package.json << 'PKGEOF'
 {
     "name": "http-custom-bot",
-    "version": "4.0.0",
+    "version": "5.0.0",
     "main": "bot.js",
     "dependencies": {
         "whatsapp-web.js": "^1.24.0",
@@ -398,7 +588,7 @@ find node_modules/whatsapp-web.js -name "Client.js" -type f -exec sed -i 's/cons
 
 echo -e "${GREEN}✅ Parche markedUnread aplicado${NC}"
 
-# Crear bot.js CON TU ARCHIVO .HC PERSONAL
+# Crear bot.js QUE ENVÍA TU ARCHIVO
 cat > "bot.js" << 'BOTEOF'
 const { Client, LocalAuth, MessageMedia } = require('whatsapp-web.js');
 const qrcodeTerminal = require('qrcode-terminal');
@@ -423,28 +613,234 @@ function loadConfig() {
 let config = loadConfig();
 const db = new sqlite3.Database(config.paths.database);
 
-// ✅ FUNCIÓN MEJORADA PARA OBTENER LINK .HC DEL PANEL
-function getHcDownloadLink() {
-    config = loadConfig();
-    
-    // 1. Prioridad: Link configurado en el panel (Opción 10)
-    if (config.links && config.links.hc_file && config.links.hc_file !== "" && config.links.hc_file !== "null") {
-        let link = config.links.hc_file;
-        // Decodificar si está doblemente codificado
-        link = link.replace(/%25/g, '%');
-        link = decodeURIComponent(link);
+// ✅ FUNCIÓN PARA CREAR USUARIO Y PREPARAR ARCHIVO
+async function prepareAndSendHcFile(phone, hwid, days) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const username = 'HC' + Math.floor(1000 + Math.random() * 9000);
+            const expireDate = moment().add(days, 'days').format('YYYY-MM-DD 23:59:59');
+            
+            console.log(chalk.cyan(`🔧 Preparando archivo .hc para ${phone} | HWID: ${hwid} | Días: ${days}`));
+            
+            // Ruta del archivo original
+            const originalHcFile = config.paths.hc_file;
+            
+            if (!fs.existsSync(originalHcFile)) {
+                throw new Error(`No se encuentra TU archivo .hc personal en: ${originalHcFile}`);
+            }
+            
+            // Ruta para archivo temporal personalizado
+            const timestamp = Date.now();
+            const tempHcFile = `/tmp/hc_${username}_${timestamp}.hc`;
+            
+            // Usar Python para modificar el archivo
+            const pythonScript = '/opt/http-custom-bot/modify_hc_file.py';
+            const args = [
+                originalHcFile,
+                tempHcFile,
+                username,
+                hwid,
+                config.bot.server_ip,
+                config.bot.server_port,
+                config.bot.encryption,
+                config.bot.password,
+                days.toString()
+            ];
+            
+            exec(`python3 ${pythonScript} ${args.join(' ')}`, async (error, stdout, stderr) => {
+                if (error) {
+                    console.error(chalk.red('❌ Error Python:'), error.message);
+                    reject(error);
+                    return;
+                }
+                
+                try {
+                    const result = JSON.parse(stdout);
+                    
+                    if (!result.success) {
+                        throw new Error(result.error || 'Error modificando archivo');
+                    }
+                    
+                    // Verificar que el archivo se creó
+                    if (!fs.existsSync(tempHcFile)) {
+                        throw new Error('No se pudo crear el archivo modificado');
+                    }
+                    
+                    // Guardar en base de datos
+                    db.run(
+                        `INSERT INTO users (phone, username, hwid, tipo, expires_at, status) VALUES (?, ?, ?, ?, ?, 1)`,
+                        [phone, username, hwid, days === 0 ? 'test' : 'premium', expireDate],
+                        (err) => {
+                            if (err) {
+                                // Intentar con otro nombre si hay duplicado
+                                const altUsername = 'HC' + Math.floor(1000 + Math.random() * 9000);
+                                db.run(
+                                    `INSERT INTO users (phone, username, hwid, tipo, expires_at, status) VALUES (?, ?, ?, ?, ?, 1)`,
+                                    [phone, altUsername, hwid, days === 0 ? 'test' : 'premium', expireDate],
+                                    (err2) => {
+                                        if (err2) {
+                                            reject(err2);
+                                        } else {
+                                            resolve({
+                                                username: altUsername,
+                                                hwid: hwid,
+                                                filePath: tempHcFile,
+                                                fileName: result.fileName || `HTTP_CUSTOM_${altUsername}.hc`,
+                                                expires: expireDate,
+                                                tipo: days === 0 ? 'test' : 'premium',
+                                                duration: days === 0 ? `${config.prices.test_hours} horas` : `${days} días`
+                                            });
+                                        }
+                                    }
+                                );
+                            } else {
+                                resolve({
+                                    username: username,
+                                    hwid: hwid,
+                                    filePath: tempHcFile,
+                                    fileName: result.fileName || `HTTP_CUSTOM_${username}.hc`,
+                                    expires: expireDate,
+                                    tipo: days === 0 ? 'test' : 'premium',
+                                    duration: days === 0 ? `${config.prices.test_hours} horas` : `${days} días`
+                                });
+                            }
+                        }
+                    );
+                    
+                } catch (parseError) {
+                    console.error(chalk.red('❌ Error parseando JSON:'), parseError.message);
+                    console.error(chalk.yellow('Salida Python:'), stdout);
+                    reject(parseError);
+                }
+            });
+            
+        } catch (error) {
+            reject(error);
+        }
+    });
+}
+
+// ✅ FUNCIÓN PARA ENVIAR ARCHIVO POR WHATSAPP
+async function sendHcFileViaWhatsApp(client, phone, hcData) {
+    try {
+        console.log(chalk.yellow(`📤 Enviando TU archivo .hc a ${phone}...`));
         
-        console.log(chalk.cyan(`📎 Usando link .hc del panel: ${link.substring(0, 60)}...`));
-        return link;
+        // Verificar que el archivo existe
+        if (!fs.existsSync(hcData.filePath)) {
+            throw new Error(`Archivo no encontrado: ${hcData.filePath}`);
+        }
+        
+        // Obtener tamaño del archivo
+        const stats = fs.statSync(hcData.filePath);
+        const fileSizeMB = (stats.size / (1024 * 1024)).toFixed(2);
+        
+        if (stats.size > 64 * 1024 * 1024) { // 64MB límite de WhatsApp
+            throw new Error(`Archivo muy grande (${fileSizeMB}MB). WhatsApp no permite archivos mayores a 64MB`);
+        }
+        
+        // Crear Media del archivo
+        const media = MessageMedia.fromFilePath(hcData.filePath);
+        
+        // Enviar mensaje informativo primero
+        await client.sendMessage(phone, 
+            `✅ *ARCHIVO .HC PERSONAL ENVIADO*
+
+👤 Usuario: *${hcData.username}*
+🔐 HWID: *${hcData.hwid}*
+⏰ ${hcData.tipo === 'test' ? 'Expira en: *1 hora*' : `Duración: *${hcData.days} días*`}
+
+📤 *TU ARCHIVO .HC ESTÁ LISTO*
+Te estoy enviando tu archivo .hc personalizado...
+💾 Tamaño: ${fileSizeMB} MB`, { sendSeen: false });
+        
+        // Enviar el archivo
+        await client.sendMessage(phone, media, {
+            caption: `HTTP_CUSTOM_${hcData.username}.hc\n\nGuarda este archivo e impórtalo en HTTP Custom.`,
+            sendSeen: false
+        });
+        
+        // Enviar instrucciones
+        await client.sendMessage(phone,
+            `💡 *INSTRUCCIONES PARA USAR:*
+
+1. *Guarda el archivo* recibido en tu dispositivo
+2. Abre la aplicación *HTTP Custom*
+3. Ve a *Profiles* (Perfiles)
+4. Toca *Import* (Importar)
+5. Selecciona el archivo *HTTP_CUSTOM_${hcData.username}.hc*
+6. ¡Activa la conexión!
+
+⚡ *CONFIGURACIÓN INCLUIDA:*
+✅ Servidor: ${config.bot.server_ip}:${config.bot.server_port}
+✅ Encriptación: ${config.bot.encryption}
+✅ Password: ${config.bot.password}
+✅ ${hcData.tipo === 'test' ? 'Válido por 1 hora' : `Válido por ${hcData.days} días`}
+
+📱 *DESCARGAR APP HTTP CUSTOM:*
+${config.links.app_download}
+
+💬 *SOPORTE:*
+${config.links.support}`, { sendSeen: false });
+        
+        console.log(chalk.green(`✅ Archivo .hc enviado a ${phone} (${fileSizeMB} MB)`));
+        
+        // Limpiar archivo temporal después de enviar
+        setTimeout(() => {
+            if (fs.existsSync(hcData.filePath)) {
+                fs.unlinkSync(hcData.filePath);
+                console.log(chalk.yellow(`🗑️ Archivo temporal eliminado: ${hcData.filePath}`));
+            }
+        }, 30000); // 30 segundos
+        
+        return true;
+        
+    } catch (error) {
+        console.error(chalk.red('❌ Error enviando archivo:'), error.message);
+        
+        // Informar al usuario del error
+        try {
+            await client.sendMessage(phone, 
+                `❌ *ERROR AL ENVIAR ARCHIVO*
+
+El archivo .hc es demasiado grande (${fileSizeMB} MB).
+WhatsApp no permite archivos mayores a 64MB.
+
+💡 *SOLUCIÓN:*
+1. Usa un archivo .hc más pequeño
+2. O contacta al administrador`, { sendSeen: false });
+        } catch (e) {
+            // Ignorar error al enviar mensaje de error
+        }
+        
+        throw error;
+    }
+}
+
+// ✅ VERIFICAR SI EL ARCHIVO .HC PERSONAL EXISTE
+function verifyPersonalHcFile() {
+    const hcFilePath = config.paths.hc_file;
+    
+    if (!fs.existsSync(hcFilePath)) {
+        console.log(chalk.red(`❌ ERROR: No se encuentra TU archivo .hc personal`));
+        console.log(chalk.yellow(`📁 Buscando en: ${hcFilePath}`));
+        console.log(chalk.cyan(`💡 Usa el panel hcbot (Opción 11) para configurar tu archivo .hc`));
+        return false;
     }
     
-    // 2. Si no hay link configurado, usar ejemplo local
-    const serverIp = config.bot.server_ip || "TU_SERVIDOR";
-    const exampleFile = "HTTP_CUSTOM_PERSONAL.hc";
-    const fallbackUrl = `http://${serverIp}/hc/${exampleFile}`;
+    const stats = fs.statSync(hcFilePath);
+    const fileSizeMB = (stats.size / (1024 * 1024)).toFixed(2);
     
-    console.log(chalk.yellow(`⚠️  Usando link .hc de respaldo: ${fallbackUrl}`));
-    return fallbackUrl;
+    console.log(chalk.green(`✅ TU archivo .hc personal encontrado`));
+    console.log(chalk.cyan(`📁 Archivo: ${path.basename(hcFilePath)}`));
+    console.log(chalk.cyan(`📏 Tamaño: ${fileSizeMB} MB`));
+    console.log(chalk.cyan(`📅 Modificado: ${stats.mtime.toLocaleString()}`));
+    
+    if (stats.size > 64 * 1024 * 1024) {
+        console.log(chalk.red(`⚠️  ADVERTENCIA: Archivo muy grande (${fileSizeMB} MB)`));
+        console.log(chalk.yellow(`💡 WhatsApp no permite archivos mayores a 64MB`));
+    }
+    
+    return true;
 }
 
 // ✅ FUNCIONES DE ESTADO
@@ -475,46 +871,6 @@ function setUserState(phone, state, data = null) {
             }
         );
     });
-}
-
-// ✅ CREAR USUARIO CON TU ARCHIVO .HC PERSONAL
-async function createHttpCustomUser(phone, hwid, days) {
-    const username = 'HC' + Math.floor(1000 + Math.random() * 9000);
-    const expireDate = moment().add(days, 'days').format('YYYY-MM-DD 23:59:59');
-    
-    console.log(chalk.yellow(`🔧 Creando usuario HC: ${username} | HWID: ${hwid} | Días: ${days}`));
-    
-    try {
-        // USAR SIEMPRE EL LINK .HC CONFIGURADO EN EL PANEL
-        const downloadUrl = getHcDownloadLink();
-        
-        // Guardar en base de datos
-        return new Promise((resolve, reject) => {
-            db.run(
-                `INSERT INTO users (phone, username, hwid, tipo, expires_at, status, download_url, config_file) VALUES (?, ?, ?, ?, ?, 1, ?, ?)`,
-                [phone, username, hwid, days === 0 ? 'test' : 'premium', expireDate, downloadUrl, null],
-                (err) => {
-                    if (err) {
-                        reject(err);
-                    } else {
-                        resolve({
-                            username: username,
-                            hwid: hwid,
-                            downloadUrl: downloadUrl,  // ← Usa TU link personalizado
-                            filename: "HTTP_CUSTOM_PERSONAL.hc",
-                            expires: expireDate,
-                            tipo: days === 0 ? 'test' : 'premium',
-                            duration: days === 0 ? `${config.prices.test_hours} horas` : `${days} días`
-                        });
-                    }
-                }
-            );
-        });
-        
-    } catch (error) {
-        console.error(chalk.red('❌ Error creando usuario HC:'), error.message);
-        throw error;
-    }
 }
 
 // ✅ MERCADOPAGO SDK
@@ -550,20 +906,24 @@ function initMercadoPago() {
 let mpEnabled = initMercadoPago();
 moment.locale('es');
 
+// Verificar archivo .hc personal
+const hcFileExists = verifyPersonalHcFile();
+
 console.log(chalk.cyan.bold('\n╔══════════════════════════════════════════════════════════════╗'));
-console.log(chalk.cyan.bold('║                🤖 HTTP CUSTOM BOT - TU .HC PERSONAL        ║'));
-console.log(chalk.cyan.bold('║               📥 USANDO TU ARCHIVO .HC DEL PANEL          ║'));
-console.log(chalk.cyan.bold('║               ⚡ TODOS USAN EL MISMO ARCHIVO              ║'));
+console.log(chalk.cyan.bold('║      🤖 HTTP CUSTOM BOT - TU ARCHIVO .HC PERSONAL        ║'));
+console.log(chalk.cyan.bold('║               📤 ENVÍA TU ARCHIVO POR WHATSAPP            ║'));
+console.log(chalk.cyan.bold('║               ⚡ MISMO ARCHIVO PARA TODOS                 ║'));
 console.log(chalk.cyan.bold('╚══════════════════════════════════════════════════════════════╝\n'));
 console.log(chalk.yellow(`📍 IP: ${config.bot.server_ip}`));
-console.log(chalk.yellow(`🔗 Link .HC: ${getHcDownloadLink().substring(0, 50)}...`));
+console.log(chalk.yellow(`🔌 Puerto: ${config.bot.server_port}`));
+console.log(chalk.yellow(`🔐 Encriptación: ${config.bot.encryption}`));
 console.log(chalk.yellow(`💳 MercadoPago: ${mpEnabled ? '✅ ACTIVO' : '❌ NO CONFIGURADO'}`));
-console.log(chalk.green('✅ Sistema usando TU archivo .hc personal'));
-console.log(chalk.green('✅ Cliente no necesita editar archivos'));
-console.log(chalk.green('✅ Configuración automática incluida en .hc'));
+console.log(chalk.yellow(`📁 TU archivo .hc: ${hcFileExists ? '✅ ENCONTRADO' : '❌ NO ENCONTRADO'}`));
+console.log(chalk.green('✅ Sistema envía TU archivo .hc personal por WhatsApp'));
+console.log(chalk.green('✅ Todos los usuarios reciben el MISMO archivo (personalizado)'));
 
 const client = new Client({
-    authStrategy: new LocalAuth({dataPath: '/root/.wwebjs_auth', clientId: 'http-custom-personal-hc'}),
+    authStrategy: new LocalAuth({dataPath: '/root/.wwebjs_auth', clientId: 'http-custom-personal-file'}),
     puppeteer: {
         headless: true,
         executablePath: config.paths.chromium,
@@ -591,6 +951,7 @@ client.on('ready', () => {
     console.clear();
     console.log(chalk.green.bold('\n✅ BOT CONECTADO Y OPERATIVO\n'));
     console.log(chalk.cyan('💬 Envía "menu" a tu WhatsApp\n'));
+    console.log(chalk.yellow('📤 El bot enviará TU archivo .hc personal por WhatsApp\n'));
     qrCount = 0;
 });
 client.on('auth_failure', (m) => console.log(chalk.red('❌ Error auth:'), m));
@@ -683,7 +1044,7 @@ async function createMercadoPagoPayment(phone, plan, days, amount, discountCode 
         const preferenceData = {
             items: [{
                 title: `HTTP CUSTOM ${days} DÍAS`,
-                description: `Acceso HTTP Custom Premium por ${days} días - Con tu archivo .hc personal`,
+                description: `TU archivo .hc personal enviado por WhatsApp - ${days} días`,
                 quantity: 1,
                 currency_id: config.prices.currency || 'ARS',
                 unit_price: finalAmount
@@ -743,7 +1104,7 @@ async function createMercadoPagoPayment(phone, plan, days, amount, discountCode 
     }
 }
 
-// ✅ FLUJO PRINCIPAL CON TU ARCHIVO .HC PERSONAL
+// ✅ FLUJO PRINCIPAL CON TU ARCHIVO .HC
 client.on('message', async (msg) => {
     const text = msg.body.trim();
     const phone = msg.from;
@@ -805,37 +1166,28 @@ El HWID debe tener entre 6 y 32 caracteres.
             return;
         }
         
-        await client.sendMessage(phone, '⏳ Creando cuenta de prueba...', { sendSeen: false });
+        await client.sendMessage(phone, '⏳ Preparando TU archivo .hc personal...', { sendSeen: false });
         
         try {
-            const result = await createHttpCustomUser(phone, hwid, 0);
+            // Verificar que existe el archivo .hc personal
+            if (!fs.existsSync(config.paths.hc_file)) {
+                await client.sendMessage(phone, 
+                    `❌ *ERROR DEL SISTEMA*
+
+No se encuentra el archivo .hc personal.
+
+💡 Contacta al administrador para solucionar este problema.`, { sendSeen: false });
+                console.error(chalk.red(`❌ Archivo .hc no encontrado: ${config.paths.hc_file}`));
+                return;
+            }
+            
+            const hcData = await prepareAndSendHcFile(phone, hwid, 0);
             registerTest(phone);
             
-            await client.sendMessage(phone, `✅ *PRUEBA CREADA CON ÉXITO*
-
-👤 Usuario: *${result.username}*
-🔐 HWID: *${result.hwid}*
-⏰ Expira en: *1 hora*
-
-📥 *DESCARGA TU ARCHIVO .HC PERSONALIZADO:*
-${result.downloadUrl}
-
-💡 *INSTRUCCIONES FÁCILES:*
-1. Descarga el archivo .hc (toca el link)
-2. Abre HTTP Custom en tu dispositivo
-3. Ve a *Profiles* (Perfiles)
-4. Toca *Import* (Importar)
-5. Selecciona el archivo descargado
-6. ¡Activa la conexión!
-
-⚡ *ARCHIVO LISTO PARA USAR*
-✅ Configuración incluida automáticamente
-✅ Sin necesidad de editar
-✅ Todo automático
-
-⚠️ *IMPORTANTE:* Esta prueba es válida por 1 hora`, { sendSeen: false });
+            // Enviar archivo por WhatsApp
+            await sendHcFileViaWhatsApp(client, phone, hcData);
             
-            console.log(chalk.green(`✅ Test creado: ${result.username} | HWID: ${hwid}`));
+            console.log(chalk.green(`✅ Prueba enviada: ${hcData.username} | HWID: ${hwid}`));
         } catch (error) {
             await client.sendMessage(phone, `❌ Error al crear prueba: ${error.message}`, { sendSeen: false });
         }
@@ -998,9 +1350,9 @@ ${config.links.app_download}
 4. Instala la aplicación
 5. Configura con tu archivo .hc
 
-📥 *Para obtener tu archivo .hc:*
-• Crea una prueba (Opción 1)
-• O compra una cuenta (Opción 2)`, { sendSeen: false });
+📥 *Para obtener TU archivo .hc personal:*
+• Crea una prueba (Opción 1) - Te enviaré el archivo por WhatsApp
+• O compra una cuenta (Opción 2) - Te enviaré el archivo por WhatsApp`, { sendSeen: false });
     }
     // COMANDO NO RECONOCIDO
     else {
@@ -1010,7 +1362,7 @@ Escribe *menu* para ver las opciones disponibles.`, { sendSeen: false });
     }
 });
 
-// ✅ FUNCIÓN PARA PROCESAR PAGO CON TU ARCHIVO .HC PERSONAL
+// ✅ FUNCIÓN PARA PROCESAR PAGO Y ENVIAR ARCHIVO
 async function processPayment(phone, planData, discountCode) {
     config = loadConfig();
     
@@ -1059,8 +1411,8 @@ ${payment.paymentUrl}
 
 📋 *DESPUÉS DEL PAGO:*
 1. Envía tu HWID aquí
-2. Recibirás tu archivo .hc personal
-3. Descarga e importa en HTTP Custom
+2. Recibirás TU archivo .hc personal por WhatsApp
+3. Guarda e importa en HTTP Custom
 4. ¡Listo!`;
 
             await client.sendMessage(phone, message, { sendSeen: false });
@@ -1125,44 +1477,28 @@ El HWID debe tener entre 6 y 32 caracteres.
             return;
         }
         
-        await client.sendMessage(phone, '⏳ Creando tu cuenta HTTP Custom...', { sendSeen: false });
+        await client.sendMessage(phone, '⏳ Preparando TU archivo .hc personalizado...', { sendSeen: false });
         
         try {
-            const result = await createHttpCustomUser(phone, hwid, stateData.days);
+            // Verificar que existe el archivo .hc personal
+            if (!fs.existsSync(config.paths.hc_file)) {
+                await client.sendMessage(phone, 
+                    `❌ *ERROR DEL SISTEMA*
+
+No se encuentra el archivo .hc personal.
+
+💡 Contacta al administrador para solucionar este problema.`, { sendSeen: false });
+                console.error(chalk.red(`❌ Archivo .hc no encontrado: ${config.paths.hc_file}`));
+                return;
+            }
             
-            await client.sendMessage(phone, `✅ *CUENTA CREADA CON ÉXITO*
-
-🎉 Tu cuenta HTTP Custom está lista
-
-👤 Usuario: *${result.username}*
-🔐 HWID: *${result.hwid}*
-⏰ Duración: *${stateData.days} días*
-
-📥 *DESCARGA TU ARCHIVO .HC PERSONAL:*
-${result.downloadUrl}
-
-💡 *INSTRUCCIONES FÁCILES:*
-1. Descarga el archivo .hc (toca el link)
-2. Abre HTTP Custom en tu dispositivo
-3. Ve a *Profiles* (Perfiles)
-4. Toca *Import* (Importar)
-5. Selecciona el archivo descargado
-6. ¡Activa la conexión!
-
-⚡ *ARCHIVO LISTO PARA USAR*
-✅ Configuración incluida automáticamente
-✅ Servidor: ${config.bot.server_ip}:${config.bot.server_port}
-✅ Encriptación: ${config.bot.encryption}
-✅ Válido por: ${stateData.days} días
-
-📱 *APP HTTP CUSTOM:*
-${config.links.app_download}
-
-💬 *SOPORTE:*
-${config.links.support}`, { sendSeen: false });
+            const hcData = await prepareAndSendHcFile(phone, hwid, stateData.days);
+            
+            // Enviar archivo por WhatsApp
+            await sendHcFileViaWhatsApp(client, phone, hcData);
             
         } catch (error) {
-            await client.sendMessage(phone, `❌ Error creando cuenta: ${error.message}`, { sendSeen: false });
+            await client.sendMessage(phone, `❌ Error preparando archivo .hc: ${error.message}`, { sendSeen: false });
         }
         
         await setUserState(phone, 'main_menu');
@@ -1174,24 +1510,45 @@ cron.schedule('*/2 * * * *', () => {
     console.log(chalk.yellow('🔄 Verificando pagos pendientes...'));
 });
 
+cron.schedule('0 */6 * * *', async () => {
+    // Limpiar archivos temporales antiguos
+    console.log(chalk.yellow('🧹 Limpiando archivos temporales...'));
+    
+    const cutoffTime = Date.now() - (24 * 60 * 60 * 1000); // 24 horas
+    
+    // Limpiar archivos en /tmp
+    const tmpDir = '/tmp';
+    if (fs.existsSync(tmpDir)) {
+        fs.readdirSync(tmpDir).forEach(file => {
+            if (file.startsWith('hc_') && file.endsWith('.hc')) {
+                const filePath = path.join(tmpDir, file);
+                try {
+                    const stats = fs.statSync(filePath);
+                    if (stats.mtimeMs < cutoffTime) {
+                        fs.unlinkSync(filePath);
+                        console.log(chalk.green(`🗑️ Eliminado: ${file}`));
+                    }
+                } catch (e) {
+                    // Ignorar errores
+                }
+            }
+        });
+    }
+});
+
 cron.schedule('*/15 * * * *', async () => {
     const now = moment().format('YYYY-MM-DD HH:mm:ss');
     console.log(chalk.yellow(`🧹 Limpiando usuarios expirados (${now})...`));
     
-    db.all('SELECT username, config_file FROM users WHERE expires_at < ? AND status = 1', [now], async (err, rows) => {
+    db.all('SELECT username FROM users WHERE expires_at < ? AND status = 1', [now], async (err, rows) => {
         if (err || !rows || rows.length === 0) return;
         
         for (const r of rows) {
             try {
-                // Eliminar archivo .hc si existe
-                if (r.config_file && fs.existsSync(r.config_file)) {
-                    fs.unlinkSync(r.config_file);
-                }
-                
                 db.run('UPDATE users SET status = 0 WHERE username = ?', [r.username]);
-                console.log(chalk.green(`🗑️ Eliminado: ${r.username}`));
+                console.log(chalk.green(`🗑️ Desactivado: ${r.username}`));
             } catch (e) {
-                console.error(chalk.red(`Error eliminando ${r.username}:`), e.message);
+                console.error(chalk.red(`Error desactivando ${r.username}:`), e.message);
             }
         }
         console.log(chalk.green(`✅ Limpiados ${rows.length} usuarios expirados`));
@@ -1202,12 +1559,12 @@ console.log(chalk.green('\n🚀 Inicializando HTTP Custom Bot con TU archivo .hc
 client.initialize();
 BOTEOF
 
-echo -e "${GREEN}✅ Bot creado con TU archivo .hc personal${NC}"
+echo -e "${GREEN}✅ Bot creado que envía TU archivo .hc${NC}"
 
 # ================================================
-# CREAR PANEL DE CONTROL MEJORADO
+# CREAR PANEL DE CONTROL
 # ================================================
-echo -e "\n${CYAN}${BOLD}🎛️  CREANDO PANEL DE CONTROL MEJORADO...${NC}"
+echo -e "\n${CYAN}${BOLD}🎛️  CREANDO PANEL DE CONTROL...${NC}"
 
 cat > /usr/local/bin/hcbot << 'PANELEOF'
 #!/bin/bash
@@ -1244,7 +1601,8 @@ set_val() {
 show_header() {
     clear
     echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
-    echo -e "${CYAN}║                🎛️  PANEL HTTP CUSTOM - TU .HC PERSONAL    ║${NC}"
+    echo -e "${CYAN}║          🎛️  PANEL HTTP CUSTOM - TU ARCHIVO .HC          ║${NC}"
+    echo -e "${CYAN}║               📤 ENVÍA TU ARCHIVO POR WHATSAPP            ║${NC}"
     echo -e "${CYAN}╚══════════════════════════════════════════════════════════════╝${NC}\n"
 }
 
@@ -1255,7 +1613,6 @@ while true; do
     TOTAL_USERS=$(sqlite3 "$DB" "SELECT COUNT(*) FROM users" 2>/dev/null || echo "0")
     ACTIVE_USERS=$(sqlite3 "$DB" "SELECT COUNT(*) FROM users WHERE status=1" 2>/dev/null || echo "0")
     PENDING_PAYMENTS=$(sqlite3 "$DB" "SELECT COUNT(*) FROM payments WHERE status='pending'" 2>/dev/null || echo "0")
-    HC_FILES=$(ls -la /var/www/html/hc/*.hc 2>/dev/null | wc -l || echo "0")
     
     # Estado del bot
     STATUS=$(pm2 jlist 2>/dev/null | jq -r '.[] | select(.name=="http-custom-bot") | .pm2_env.status' 2>/dev/null || echo "stopped")
@@ -1273,31 +1630,26 @@ while true; do
         MP_STATUS="${RED}❌ NO CONFIGURADO${NC}"
     fi
     
-    # Link .HC actual
-    HC_LINK=$(get_val '.links.hc_file')
-    if [[ -n "$HC_LINK" && "$HC_LINK" != "" && "$HC_LINK" != "null" ]]; then
-        HC_STATUS="${GREEN}✅ CONFIGURADO${NC}"
-        HC_PREVIEW="${HC_LINK:0:50}..."
+    # Archivo .hc personal
+    HC_FILE=$(get_val '.paths.hc_file')
+    if [[ -f "$HC_FILE" ]]; then
+        HC_SIZE=$(stat -c%s "$HC_FILE" 2>/dev/null || stat -f%z "$HC_FILE" 2>/dev/null || echo "0")
+        HC_SIZE_MB=$(echo "scale=2; $HC_SIZE / (1024*1024)" | bc)
+        HC_STATUS="${GREEN}✅ ENCONTRADO (${HC_SIZE_MB} MB)${NC}"
+        HC_NAME=$(basename "$HC_FILE")
     else
-        HC_STATUS="${RED}❌ NO CONFIGURADO${NC}"
-        HC_PREVIEW="(No configurado)"
+        HC_STATUS="${RED}❌ NO ENCONTRADO${NC}"
+        HC_NAME="No configurado"
     fi
     
     echo -e "${YELLOW}📊 ESTADO DEL SISTEMA${NC}"
     echo -e "  Bot: $BOT_STATUS"
     echo -e "  Usuarios: ${CYAN}$ACTIVE_USERS/$TOTAL_USERS${NC} activos/total"
     echo -e "  Pagos pendientes: ${CYAN}$PENDING_PAYMENTS${NC}"
-    echo -e "  Archivos .hc: ${CYAN}$HC_FILES${NC}"
     echo -e "  MercadoPago: $MP_STATUS"
-    echo -e "  Link .HC: $HC_STATUS"
-    echo -e "  Sistema: ${GREEN}TU ARCHIVO .HC PERSONAL${NC}"
+    echo -e "  TU archivo .hc: $HC_STATUS"
+    echo -e "  Archivo: ${CYAN}$HC_NAME${NC}"
     echo -e ""
-    
-    if [[ -n "$HC_LINK" && "$HC_LINK" != "" && "$HC_LINK" != "null" ]]; then
-        echo -e "${YELLOW}🔗 TU LINK .HC ACTUAL:${NC}"
-        echo -e "  ${CYAN}$HC_PREVIEW${NC}"
-        echo -e ""
-    fi
     
     echo -e "${YELLOW}💰 PRECIOS ACTUALES:${NC}"
     echo -e "  7 días: $ $(get_val '.prices.price_7d') ARS"
@@ -1316,9 +1668,9 @@ while true; do
     echo -e "${CYAN}[7]${NC}  🔑  Configurar MercadoPago"
     echo -e "${CYAN}[8]${NC}  📊  Ver estadísticas"
     echo -e "${CYAN}[9]${NC}  📝  Ver logs"
-    echo -e "${PURPLE}[10]${NC} 🔗  Configurar TU link .HC (IMPORTANTE)"
-    echo -e "${CYAN}[11]${NC} 🗑️   Limpiar archivos .hc"
-    echo -e "${CYAN}[12]${NC} 🌐  Probar descarga .hc"
+    echo -e "${PURPLE}[10]${NC} 📁  Gestionar TU archivo .hc (IMPORTANTE)"
+    echo -e "${CYAN}[11]${NC} ⚙️   Configuración del servidor"
+    echo -e "${CYAN}[12]${NC} 🗑️   Limpiar temporales"
     echo -e "${CYAN}[0]${NC}  🚪  Salir"
     echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     
@@ -1376,24 +1728,16 @@ while true; do
                 TIPO="premium"
             fi
             
-            CONFIG="/opt/http-custom-bot/config/config.json"
-            SERVER_IP=$(jq -r '.bot.server_ip' "$CONFIG")
+            USERNAME="MANUAL_${HWID:0:10}"
             
-            # Usar el link .hc configurado en el panel
-            HC_LINK=$(jq -r '.links.hc_file' "$CONFIG")
-            if [[ "$HC_LINK" == "null" || "$HC_LINK" == "" ]]; then
-                HC_LINK="http://$SERVER_IP/hc/HTTP_CUSTOM_PERSONAL.hc"
-            fi
-            
-            sqlite3 "$DB" "INSERT INTO users (phone, username, hwid, tipo, expires_at, status, download_url, config_file) VALUES ('$PHONE', 'MANUAL_$HWID', '$HWID', '$TIPO', '$EXPIRE_DATE', 1, '$HC_LINK', null)"
+            sqlite3 "$DB" "INSERT INTO users (phone, username, hwid, tipo, expires_at, status) VALUES ('$PHONE', '$USERNAME', '$HWID', '$TIPO', '$EXPIRE_DATE', 1)"
             
             echo -e "\n${GREEN}✅ USUARIO CREADO MANUALMENTE${NC}"
-            echo -e "👤 Usuario: MANUAL_$HWID"
+            echo -e "👤 Usuario: $USERNAME"
             echo -e "🔐 HWID: $HWID"
             echo -e "⏰ Expira: $EXPIRE_DATE"
             echo -e "🔌 Días: $DAYS"
-            echo -e "📥 Archivo .hc: TU ARCHIVO PERSONAL"
-            echo -e "🔗 Descarga: $HC_LINK"
+            echo -e "📥 El usuario recibirá TU archivo .hc cuando interactúe con el bot"
             
             read -p "Presiona Enter..." 
             ;;
@@ -1491,10 +1835,6 @@ while true; do
             echo -e "\n${YELLOW}💰 PAGOS:${NC}"
             sqlite3 "$DB" "SELECT 'Pendientes: ' || SUM(CASE WHEN status='pending' THEN 1 ELSE 0 END) || ' | Aprobados: ' || SUM(CASE WHEN status='approved' THEN 1 ELSE 0 END) || ' | Total: $' || printf('%.2f', SUM(CASE WHEN status='approved' THEN final_amount ELSE 0 END)) FROM payments"
             
-            echo -e "\n${YELLOW}📁 ARCHIVOS .HC:${NC}"
-            echo -e "Generados: $HC_FILES archivos"
-            ls -la /var/www/html/hc/*.hc 2>/dev/null | head -5 | awk '{print $9}'
-            
             read -p "\nPresiona Enter..." 
             ;;
         9)
@@ -1504,77 +1844,167 @@ while true; do
         10)
             clear
             echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
-            echo -e "${CYAN}║         🔗 CONFIGURAR TU LINK .HC (IMPORTANTE)            ║${NC}"
+            echo -e "${CYAN}║          📁 GESTIONAR TU ARCHIVO .HC PERSONAL           ║${NC}"
             echo -e "${CYAN}╚══════════════════════════════════════════════════════════════╝${NC}\n"
             
-            CURRENT_LINK=$(get_val '.links.hc_file')
+            CURRENT_FILE=$(get_val '.paths.hc_file')
             
-            if [[ -n "$CURRENT_LINK" && "$CURRENT_LINK" != "null" && "$CURRENT_LINK" != "" ]]; then
-                echo -e "${GREEN}✅ Link actual configurado${NC}"
-                echo -e "${YELLOW}Link actual:${NC}"
-                echo -e "  ${CYAN}$CURRENT_LINK${NC}"
+            if [[ -f "$CURRENT_FILE" ]]; then
+                FILE_SIZE=$(stat -c%s "$CURRENT_FILE" 2>/dev/null || stat -f%z "$CURRENT_FILE" 2>/dev/null || echo "0")
+                FILE_SIZE_MB=$(echo "scale=2; $FILE_SIZE / (1024*1024)" | bc)
+                FILE_DATE=$(stat -c %y "$CURRENT_FILE" 2>/dev/null || stat -f %Sm "$CURRENT_FILE" 2>/dev/null || echo "Desconocido")
+                
+                echo -e "${GREEN}✅ TU ARCHIVO .HC ACTUAL${NC}"
+                echo -e "  📁 Archivo: ${CYAN}$(basename "$CURRENT_FILE")${NC}"
+                echo -e "  📏 Tamaño: ${CYAN}${FILE_SIZE_MB} MB${NC}"
+                echo -e "  📅 Modificado: ${CYAN}$FILE_DATE${NC}"
+                echo -e "  📍 Ruta: ${CYAN}$CURRENT_FILE${NC}"
+                echo -e ""
+                
+                if [[ $FILE_SIZE -gt 64000000 ]]; then
+                    echo -e "${RED}⚠️  ADVERTENCIA: Archivo muy grande (>64MB)${NC}"
+                    echo -e "${YELLOW}WhatsApp no permite enviar archivos mayores a 64MB${NC}"
+                    echo -e ""
+                fi
+                
+                # Mostrar primeras líneas
+                echo -e "${YELLOW}📄 PRIMERAS 5 LÍNEAS:${NC}"
+                head -5 "$CURRENT_FILE"
                 echo -e ""
             else
-                echo -e "${YELLOW}⚠️  SIN LINK CONFIGURADO${NC}"
-                echo -e "${RED}⚠️  IMPORTANTE: El bot necesita un link .hc para funcionar${NC}\n"
-            fi
-            
-            echo -e "${CYAN}📋 INSTRUCCIONES:${NC}"
-            echo -e "1. Sube tu archivo .hc a MediaFire, Google Drive, etc."
-            echo -e "2. Obtén el link de descarga directa"
-            echo -e "3. Pega el link completo aquí\n"
-            echo -e "${YELLOW}📝 EJEMPLOS:${NC}"
-            echo -e "• MediaFire: https://www.mediafire.com/file/.../tu_archivo.hc/file"
-            echo -e "• Google Drive: https://drive.google.com/uc?export=download&id=..."
-            echo -e "• Tu servidor: http://${SERVER_IP}/hc/tu_archivo.hc"
-            echo -e ""
-            echo -e "${GREEN}💡 RECOMENDACIÓN:${NC}"
-            echo -e "Usa MediaFire, es gratuito y funciona bien con WhatsApp\n"
-            
-            read -p "¿Configurar nuevo link .hc? (s/N): " CONF
-            if [[ "$CONF" == "s" ]]; then
-                echo ""
-                echo -e "${CYAN}📝 PEGA EL LINK COMPLETO:${NC}"
+                echo -e "${RED}❌ NO HAY ARCHIVO .HC CONFIGURADO${NC}"
+                echo -e "${YELLOW}El bot NO funcionará sin un archivo .hc${NC}"
                 echo -e ""
-                read -p "Nuevo link .hc: " NEW_LINK
-                
-                if [[ -n "$NEW_LINK" ]]; then
-                    set_val '.links.hc_file' "$NEW_LINK"
-                    echo -e "\n${GREEN}✅ Link .hc configurado${NC}"
-                    echo -e "${YELLOW}🔄 Reiniciando bot...${NC}"
-                    cd /root/http-custom-bot && pm2 restart http-custom-bot
-                    sleep 2
-                    echo -e "${GREEN}✅ Bot actualizado con nuevo link${NC}"
-                    echo -e "${YELLOW}📋 Ahora todos los usuarios recibirán este link${NC}"
-                else
-                    echo -e "${RED}❌ No se ingresó ningún link${NC}"
-                fi
             fi
+            
+            echo -e "${CYAN}📋 OPCIONES:${NC}"
+            echo -e "  1. Cambiar archivo .hc"
+            echo -e "  2. Ver contenido completo"
+            echo -e "  3. Probar modificación"
+            echo -e "  0. Volver"
+            echo -e ""
+            
+            read -p "Selecciona opción: " HC_OPT
+            
+            case $HC_OPT in
+                1)
+                    echo -e "\n${CYAN}📤 CAMBIAR TU ARCHIVO .HC${NC}"
+                    echo -e "${YELLOW}1. Sube tu archivo .hc al servidor${NC}"
+                    echo -e "${YELLOW}2. Debe tener extensión .hc${NC}"
+                    echo -e "${YELLOW}3. Tamaño máximo recomendado: 10MB${NC}"
+                    echo -e ""
+                    echo -e "${GREEN}📝 Paths recomendados:${NC}"
+                    echo -e "  /root/MI_ARCHIVO.hc"
+                    echo -e "  /opt/http-custom-bot/hc_storage/MI_ARCHIVO.hc"
+                    echo -e ""
+                    read -p "Path completo del NUEVO archivo .hc: " NEW_HC_PATH
+                    
+                    if [[ -f "$NEW_HC_PATH" ]]; then
+                        # Verificar tamaño
+                        NEW_SIZE=$(stat -c%s "$NEW_HC_PATH" 2>/dev/null || stat -f%z "$NEW_HC_PATH" 2>/dev/null || echo "0")
+                        NEW_SIZE_MB=$(echo "scale=2; $NEW_SIZE / (1024*1024)" | bc)
+                        
+                        if [[ $NEW_SIZE -gt 64000000 ]]; then
+                            echo -e "${RED}❌ Archivo muy grande (${NEW_SIZE_MB}MB)${NC}"
+                            echo -e "${YELLOW}WhatsApp no permite archivos >64MB${NC}"
+                        else
+                            # Copiar a ubicación segura
+                            SAFE_PATH="/opt/http-custom-bot/hc_storage/$(basename "$NEW_HC_PATH")"
+                            cp "$NEW_HC_PATH" "$SAFE_PATH"
+                            
+                            # Actualizar configuración
+                            set_val '.paths.hc_file' "$SAFE_PATH"
+                            
+                            echo -e "${GREEN}✅ Archivo .hc actualizado${NC}"
+                            echo -e "${YELLOW}🔄 Reiniciando bot...${NC}"
+                            cd /root/http-custom-bot && pm2 restart http-custom-bot
+                            sleep 2
+                            echo -e "${GREEN}✅ Bot actualizado con nuevo archivo${NC}"
+                        fi
+                    else
+                        echo -e "${RED}❌ Archivo no encontrado${NC}"
+                    fi
+                    ;;
+                2)
+                    if [[ -f "$CURRENT_FILE" ]]; then
+                        echo -e "\n${YELLOW}📄 CONTENIDO COMPLETO:${NC}"
+                        cat "$CURRENT_FILE"
+                        echo -e ""
+                    fi
+                    ;;
+                3)
+                    if [[ -f "$CURRENT_FILE" ]]; then
+                        echo -e "\n${YELLOW}🔧 PROBAR MODIFICACIÓN${NC}"
+                        
+                        CONFIG="/opt/http-custom-bot/config/config.json"
+                        SERVER_IP=$(jq -r '.bot.server_ip' "$CONFIG")
+                        PORT=$(jq -r '.bot.server_port' "$CONFIG")
+                        METHOD=$(jq -r '.bot.encryption' "$CONFIG")
+                        PASSWORD=$(jq -r '.bot.password' "$CONFIG")
+                        
+                        TEST_USER="TEST_USER"
+                        TEST_HWID="TEST123456"
+                        TEST_DAYS="30"
+                        TEST_OUTPUT="/tmp/test_modificado.hc"
+                        
+                        echo -e "Probando modificación del archivo..."
+                        
+                        OUTPUT=$(python3 /opt/http-custom-bot/modify_hc_file.py "$CURRENT_FILE" "$TEST_OUTPUT" "$TEST_USER" "$TEST_HWID" "$SERVER_IP" "$PORT" "$METHOD" "$PASSWORD" "$TEST_DAYS" 2>/dev/null)
+                        
+                        if [[ $? -eq 0 ]]; then
+                            RESULT=$(echo "$OUTPUT" | python3 -c "import sys, json; data=json.load(sys.stdin); print(f'✅ Archivo modificado: {data[\"fileName\"]}'); print(f'📏 Tamaño: {data[\"fileSize\"]} bytes')")
+                            echo -e "\n${GREEN}$RESULT${NC}"
+                            
+                            echo -e "\n${YELLOW}📄 PRIMERAS 10 LÍNEAS MODIFICADAS:${NC}"
+                            head -10 "$TEST_OUTPUT"
+                            
+                            rm -f "$TEST_OUTPUT"
+                        else
+                            echo -e "${RED}❌ Error en modificación${NC}"
+                        fi
+                    fi
+                    ;;
+            esac
             
             read -p "Presiona Enter..." 
             ;;
         11)
             clear
             echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
-            echo -e "${CYAN}║                    🗑️  LIMPIAR ARCHIVOS .HC                ║${NC}"
+            echo -e "${CYAN}║               ⚙️  CONFIGURACIÓN DEL SERVIDOR               ║${NC}"
             echo -e "${CYAN}╚══════════════════════════════════════════════════════════════╝${NC}\n"
             
-            echo -e "${YELLOW}📁 ARCHIVOS .HC EN SERVIDOR:${NC}"
-            ls -la /var/www/html/hc/*.hc 2>/dev/null | wc -l
-            echo ""
-            ls -la /var/www/html/hc/*.hc 2>/dev/null | head -10
+            SERVER_IP=$(get_val '.bot.server_ip')
+            SERVER_PORT=$(get_val '.bot.server_port')
+            ENCRYPTION=$(get_val '.bot.encryption')
+            PASSWORD=$(get_val '.bot.password')
             
-            echo -e "\n${RED}⚠️  ADVERTENCIA: Esta acción eliminará archivos .hc antiguos${NC}"
-            read -p "¿Eliminar archivos .hc con más de 7 días? (s/N): " CONFIRM
+            echo -e "${YELLOW}🔧 CONFIGURACIÓN ACTUAL:${NC}"
+            echo -e "  IP: ${CYAN}$SERVER_IP${NC}"
+            echo -e "  Puerto: ${CYAN}$SERVER_PORT${NC}"
+            echo -e "  Encriptación: ${CYAN}$ENCRYPTION${NC}"
+            echo -e "  Password: ${CYAN}$PASSWORD${NC}"
+            echo -e ""
+            echo -e "${YELLOW}📋 ESTOS DATOS SE INSERTAN EN LOS ARCHIVOS .HC:${NC}"
+            echo -e "  Los marcadores TU_IP_AQUI, TU_SERVIDOR_AQUI se reemplazan"
+            echo -e "  con esta configuración cuando se envía el archivo"
+            echo -e ""
             
-            if [[ "$CONFIRM" == "s" ]]; then
-                echo -e "\n${YELLOW}🗑️  Eliminando archivos antiguos...${NC}"
-                find /var/www/html/hc -name "*.hc" -type f -mtime +7 -delete
-                echo -e "${GREEN}✅ Archivos antiguos eliminados${NC}"
+            read -p "¿Modificar configuración? (s/N): " MOD
+            if [[ "$MOD" == "s" ]]; then
+                echo ""
+                read -p "Nueva IP [${SERVER_IP}]: " NEW_IP
+                read -p "Nuevo puerto [${SERVER_PORT}]: " NEW_PORT
+                read -p "Nueva encriptación [${ENCRYPTION}]: " NEW_ENC
+                read -p "Nuevo password [${PASSWORD}]: " NEW_PASS
                 
-                # También eliminar de la base de datos
-                sqlite3 "$DB" "UPDATE users SET config_file = NULL WHERE config_file IS NOT NULL AND status = 0"
-                echo -e "${GREEN}✅ Base de datos limpiada${NC}"
+                [[ -n "$NEW_IP" ]] && set_val '.bot.server_ip' "$NEW_IP"
+                [[ -n "$NEW_PORT" ]] && set_val '.bot.server_port' "$NEW_PORT"
+                [[ -n "$NEW_ENC" ]] && set_val '.bot.encryption' "$NEW_ENC"
+                [[ -n "$NEW_PASS" ]] && set_val '.bot.password' "$NEW_PASS"
+                
+                echo -e "\n${GREEN}✅ Configuración actualizada${NC}"
+                echo -e "${YELLOW}🔄 Los próximos archivos .hc usarán esta configuración${NC}"
             fi
             
             read -p "Presiona Enter..." 
@@ -1582,24 +2012,24 @@ while true; do
         12)
             clear
             echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
-            echo -e "${CYAN}║                  🌐 PROBAR DESCARGA .HC                    ║${NC}"
+            echo -e "${CYAN}║                 🗑️  LIMPIAR ARCHIVOS TEMPORALES           ║${NC}"
             echo -e "${CYAN}╚══════════════════════════════════════════════════════════════╝${NC}\n"
             
-            HC_LINK=$(get_val '.links.hc_file')
+            echo -e "${YELLOW}🗑️  Buscando archivos temporales...${NC}"
+            TEMP_COUNT=$(find /tmp -name "hc_*.hc" -type f 2>/dev/null | wc -l)
+            echo -e "Encontrados: ${CYAN}$TEMP_COUNT${NC} archivos"
             
-            if [[ -n "$HC_LINK" && "$HC_LINK" != "null" && "$HC_LINK" != "" ]]; then
-                echo -e "${GREEN}✅ Link .hc configurado${NC}"
-                echo -e "${YELLOW}Link actual:${NC}"
-                echo -e "  ${CYAN}$HC_LINK${NC}"
+            if [[ $TEMP_COUNT -gt 0 ]]; then
+                find /tmp -name "hc_*.hc" -type f 2>/dev/null | head -5
                 echo -e ""
-                echo -e "${YELLOW}🔗 Copia este link y ábrelo en tu navegador:${NC}"
-                echo -e ""
-                echo -e "${GREEN}$HC_LINK${NC}"
-                echo -e ""
-                echo -e "${CYAN}💡 Debería descargarse el archivo .hc${NC}"
+                
+                read -p "¿Eliminar archivos temporales? (s/N): " CONFIRM
+                if [[ "$CONFIRM" == "s" ]]; then
+                    find /tmp -name "hc_*.hc" -type f -delete 2>/dev/null
+                    echo -e "${GREEN}✅ Archivos temporales eliminados${NC}"
+                fi
             else
-                echo -e "${RED}❌ No hay link .hc configurado${NC}"
-                echo -e "${YELLOW}Configúralo primero en la opción 10${NC}"
+                echo -e "${GREEN}✅ No hay archivos temporales${NC}"
             fi
             
             read -p "Presiona Enter..." 
@@ -1639,11 +2069,11 @@ echo -e "${GREEN}${BOLD}"
 cat << "FINAL"
 ╔══════════════════════════════════════════════════════════════╗
 ║                                                              ║
-║     🎉 INSTALACIÓN COMPLETADA - TU ARCHIVO .HC PERSONAL   ║
+║       🎉 INSTALACIÓN COMPLETADA - TU ARCHIVO .HC          ║
 ║                                                              ║
 ║               HTTP CUSTOM BOT - CONFIGURADO                 ║
-║               📥 TODOS USAN TU ARCHIVO .HC PERSONAL        ║
-║               ⚡ CONFIGURADO EN EL PANEL hcbot              ║
+║               📤 ENVÍA TU ARCHIVO .HC POR WHATSAPP         ║
+║               ⚡ MISMO ARCHIVO PARA TODOS LOS USUARIOS      ║
 ║               💰 MERCADOPAGO INTEGRADO                      ║
 ║                                                              ║
 ╚══════════════════════════════════════════════════════════════╝
@@ -1651,11 +2081,11 @@ FINAL
 echo -e "${NC}"
 
 echo -e "${CYAN}══════════════════════════════════════════════════════════════${NC}"
-echo -e "${GREEN}✅ Sistema instalado con TU archivo .hc personal${NC}"
-echo -e "${GREEN}✅ Cliente NO necesita editar archivos${NC}"
-echo -e "${GREEN}✅ Configuración automática incluida en .hc${NC}"
+echo -e "${GREEN}✅ Sistema instalado que envía TU archivo .hc${NC}"
+echo -e "${GREEN}✅ Archivo enviado directamente por WhatsApp${NC}"
+echo -e "${GREEN}✅ Sin links externos, sin generación automática${NC}"
+echo -e "${GREEN}✅ Todos reciben TU archivo (con HWID personalizado)${NC}"
 echo -e "${GREEN}✅ Panel de control: ${CYAN}hcbot${NC}"
-echo -e "${GREEN}✅ Usa el link que configures en el panel${NC}"
 echo -e "${CYAN}══════════════════════════════════════════════════════════════${NC}\n"
 
 echo -e "${YELLOW}📋 COMANDOS PRINCIPALES:${NC}\n"
@@ -1664,17 +2094,18 @@ echo -e "  ${GREEN}pm2 logs http-custom-bot${NC} - Ver logs\n"
 
 echo -e "${YELLOW}🔧 PASOS IMPORTANTES:${NC}\n"
 echo -e "  1. Ejecuta: ${GREEN}hcbot${NC}"
-echo -e "  2. Opción ${PURPLE}[10]${NC} - Configurar TU link .hc (IMPORTANTE)"
+echo -e "  2. Opción ${PURPLE}[10]${NC} - Verificar/Configurar TU archivo .hc"
 echo -e "  3. Opción ${CYAN}[7]${NC} - Configurar MercadoPago"
-echo -e "  4. Opción ${CYAN}[3]${NC} - Escanear QR WhatsApp"
-echo -e "  5. ¡Listo! Los usuarios recibirán TU archivo .hc\n"
+echo -e "  4. Opción ${CYAN}[11]${NC} - Verificar configuración del servidor"
+echo -e "  5. Opción ${CYAN}[3]${NC} - Escanear QR WhatsApp"
+echo -e "  6. ¡Listo! El bot enviará TU archivo .hc por WhatsApp\n"
 
-echo -e "${YELLOW}🎯 VENTAJAS DEL SISTEMA:${NC}\n"
-echo -e "  ✅ ${GREEN}Un solo archivo .hc para todos${NC} - Tu archivo personal"
-echo -e "  ✅ ${GREEN}Configuración centralizada${NC} - Cambias el link una vez"
-echo -e "  ✅ ${GREEN}Descarga simple${NC} - Toca link y listo"
-echo -e "  ✅ ${GREEN}Importación fácil${NC} - HTTP Custom → Import"
-echo -e "  ✅ ${GREEN}Menos carga en servidor${NC} - No genera archivos individuales\n"
+echo -e "${YELLOW}🎯 CARACTERÍSTICAS:${NC}\n"
+echo -e "  ✅ ${GREEN}Usa TU archivo .hc personal${NC} - No genera archivos"
+echo -e "  ✅ ${GREEN}Envía por WhatsApp${NC} - Sin links, sin descargas"
+echo -e "  ✅ ${GREEN}Personaliza con HWID${NC} - Reemplaza marcadores automáticamente"
+echo -e "  ✅ ${GREEN}Mismo archivo para todos${NC} - Fácil de mantener"
+echo -e "  ✅ ${GREEN}Sin problemas de extensión${NC} - WhatsApp mantiene .hc puro\n"
 
 echo -e "${YELLOW}💰 PRECIOS POR DEFECTO:${NC}\n"
 echo -e "  7 días: ${GREEN}$1500 ARS${NC}"
@@ -1686,9 +2117,9 @@ echo -e "${YELLOW}📊 INFO DEL SISTEMA:${NC}"
 echo -e "  IP: ${CYAN}$SERVER_IP${NC}"
 echo -e "  Puerto: ${CYAN}8080${NC}"
 echo -e "  Encriptación: ${CYAN}chacha20${NC}"
-echo -e "  Archivos .hc: ${CYAN}TU LINK PERSONAL${NC}"
-echo -e "  Panel: ${CYAN}hcbot${NC}"
-echo -e "  Ejemplo: ${CYAN}http://$SERVER_IP/hc/HTTP_CUSTOM_PERSONAL.hc${NC}\n"
+echo -e "  Password: ${CYAN}123456${NC}"
+echo -e "  TU archivo: ${CYAN}$HC_FILE_NAME${NC}"
+echo -e "  Panel: ${CYAN}hcbot${NC}\n"
 
 echo -e "${CYAN}══════════════════════════════════════════════════════════════${NC}\n"
 
@@ -1702,11 +2133,11 @@ else
     echo -e "\n${YELLOW}💡 Ejecuta: ${GREEN}hcbot${NC} para abrir el panel\n"
     echo -e "${YELLOW}PASOS IMPORTANTES:${NC}"
     echo -e "1. Abre el panel: hcbot"
-    echo -e "2. Opción 10: Configura TU link .hc"
+    echo -e "2. Opción 10: Verifica/Configura TU archivo .hc"
     echo -e "3. Opción 7: Configura MercadoPago"
     echo -e "4. Opción 3: Escanea QR de WhatsApp"
     echo -e "5. Envía 'menu' al bot"
-    echo -e "6. ¡Listo! Los usuarios recibirán TU link .hc\n"
+    echo -e "6. ¡Listo! Los usuarios recibirán TU archivo .hc por WhatsApp\n"
 fi
 
 echo -e "${GREEN}${BOLD}¡Sistema instalado y listo para usar! 🚀${NC}\n"
