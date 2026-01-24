@@ -770,10 +770,10 @@ client.on('message', async (msg) => {
 
 Elija una opción:
 
-1 - CREAR PRUEBA
-2 - COMPRAR LOGIN SSH
-3 - RENOVAR LOGIN SSH
-4 - DESCARGAR APLICACIÓN`, { sendSeen: false });
+🧾 1 - CREAR PRUEBA
+💰 2 - COMPRAR USUARIO SSH
+🔄 3 - RENOVAR USUARIO SSH
+📱4 - DESCARGAR APLICACIÓN`, { sendSeen: false });
     }
     // OPCIÓN 1: CREAR PRUEBA
     else if (text === '1' && userState.state === 'main_menu') {
@@ -806,16 +806,16 @@ APP: ${config.links.app_download}`, { sendSeen: false });
             await client.sendMessage(phone, `❌ Error al crear cuenta: ${error.message}`, { sendSeen: false });
         }
     }
-    // OPCIÓN 2: COMPRAR LOGIN SSH
+    // OPCIÓN 2: COMPRAR USUARIO SSH
     else if (text === '2' && userState.state === 'main_menu') {
         await setUserState(phone, 'buying_ssh');
         
         await client.sendMessage(phone, `PLANES SSH PREMIUM !
 
 Elija una opción:
-1 - PLANES SSH DIARIOS
-2 - PLANES SSH MENSUALES
-0 - VOLVER`, { sendSeen: false });
+🌐 1 - PLANES SSH DIARIOS
+🌐 2 - PLANES SSH MENSUALES
+⬅️ 0 - VOLVER`, { sendSeen: false });
     }
     // SUBMENÚ DE COMPRAS
     else if (userState.state === 'buying_ssh') {
@@ -827,24 +827,24 @@ Elija una opción:
             let plansMessage = `A CONTINUACIÓN SE MUESTRAN NUESTROS PLANES PREMIUM DISPONIBLES
 
 Elija un plan:
-1 - 1 LOGIN(S) - 7 DÍAS - $${config.prices.price_7d_1conn}
-2 - 1 LOGIN(S) - 15 DÍAS - $${config.prices.price_15d_1conn}
-3 - 1 LOGIN(S) - 30 DÍAS - $${config.prices.price_30d_1conn}
-4 - 1 LOGIN(S) - 50 DÍAS - $${config.prices.price_50d_1conn}
+1 - 1 USUARIO(SSH) - 7 DÍAS - $${config.prices.price_7d_1conn}
+2 - 1 USUARIO(SSH) - 15 DÍAS - $${config.prices.price_15d_1conn}
+3 - 1 USUARIO(SSH) - 30 DÍAS - $${config.prices.price_30d_1conn}
+4 - 1 USUARIO(SSH) - 50 DÍAS - $${config.prices.price_50d_1conn}
 0 - VOLVER`;
             
             await client.sendMessage(phone, plansMessage, { sendSeen: false });
         }
         else if (text === '0') {
             await setUserState(phone, 'main_menu');
-            await client.sendMessage(phone, `HOLA, BIENVENIDO
+            await client.sendMessage(phone, `HOLA, BIENVENIDO MGVPN
 
 Elija una opción:
 
-1 - CREAR PRUEBA
-2 - COMPRAR LOGIN SSH
-3 - RENOVAR LOGIN SSH
-4 - DESCARGAR Aplicación`, { sendSeen: false });
+🧾 1 - CREAR PRUEBA
+💰 2 - COMPRAR USUARIO SSH
+🔄 3 - RENOVAR USUARIO SSH
+📱 4 - DESCARGAR Aplicación`, { sendSeen: false });
         }
     }
     // SELECCIÓN DE PLAN ESPECÍFICO
@@ -878,9 +878,9 @@ Responde: sí o no.`, { sendSeen: false });
             await client.sendMessage(phone, `PLANES SSH PREMIUM !
 
 Elija una opción:
-1 - PLANES SSH DIARIOS
-2 - PLANES SSH MENSUALES
-0 - VOLVER`, { sendSeen: false });
+🌐 1 - PLANES SSH DIARIOS
+🌐 2 - PLANES SSH MENSUALES
+⬅️ 0 - VOLVER`, { sendSeen: false });
         }
     }
     // PREGUNTA POR CUPÓN DE DESCUENTO
@@ -906,9 +906,9 @@ Elija una opción:
         
         await processPayment(phone, stateData, discountCode);
     }
-    // OPCIÓN 3: RENOVAR LOGIN SSH (SIMPLIFICADO)
+    // OPCIÓN 3: RENOVAR USUARIO SSH (SIMPLIFICADO)
     else if (text === '3' && userState.state === 'main_menu') {
-        await client.sendMessage(phone, `🔄 *RENOVAR LOGIN SSH*
+        await client.sendMessage(phone, `🔄 *RENOVAR USUARIO SSH*
 
 Para renovar tu cuenta SSH existente, por favor:
 
@@ -975,7 +975,7 @@ El administrador debe configurar MercadoPago primero.
                 amountText = `$${payment.originalAmount} → $${payment.amount} (${payment.discountPercentage}% descuento)`;
             }
             
-            const message = `### LOGIN(s) SSH
+            const message = `### USUARIO(ssh) SSH
 
 - **Precio:** ${amountText}
 - **Límite:** 1 dispositivo(s)
