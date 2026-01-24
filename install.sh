@@ -827,11 +827,11 @@ Elija una opción:
             let plansMessage = `A CONTINUACIÓN SE MUESTRAN NUESTROS PLANES PREMIUM DISPONIBLES
 
 Elija un plan:
-1 - 1 USUARIO(SSH) - 7 DÍAS - $${config.prices.price_7d_1conn}
-2 - 1 USUARIO(SSH) - 15 DÍAS - $${config.prices.price_15d_1conn}
-3 - 1 USUARIO(SSH) - 30 DÍAS - $${config.prices.price_30d_1conn}
-4 - 1 USUARIO(SSH) - 50 DÍAS - $${config.prices.price_50d_1conn}
-0 - VOLVER`;
+🗓 1 - 1 USUARIO(SSH) - 7 DÍAS - $${config.prices.price_7d_1conn}
+🗓 2 - 1 USUARIO(SSH) - 15 DÍAS - $${config.prices.price_15d_1conn}
+🗓 3 - 1 USUARIO(SSH) - 30 DÍAS - $${config.prices.price_30d_1conn}
+🗓 4 - 1 USUARIO(SSH) - 50 DÍAS - $${config.prices.price_50d_1conn}
+⬅️ 0 - VOLVER`;
             
             await client.sendMessage(phone, plansMessage, { sendSeen: false });
         }
