@@ -574,8 +574,8 @@ max_connection=100
 
 # Instrucciones:
 # 1. Descargar este archivo
-# 2. En HTTP Custom: Profiles → Import
-# 3. Seleccionar este archivo .hc
+# 2. Arriba en notificación tocalo
+# 3. Selecciona http custom abrilo
 # 4. ¡Conectar!
 HCEOF
 
@@ -1021,11 +1021,11 @@ client.on('message', async (msg) => {
 
 Elija una opción:
 
-1 - CREAR PRUEBA
-2 - COMPRAR HTTP CUSTOM
-3 - RENOVAR HTTP CUSTOM
-4 - CAMBIAR HWID CUSTOM
-5 - DESCARGAR HTTP CUSTOM`, { sendSeen: false });
+1 - CREAR PRUEBA 🧾
+2 - COMPRAR HTTP CUSTOM 💰
+3 - RENOVAR HTTP CUSTOM 🔄
+4 - CAMBIAR HWID CUSTOM 🫆
+5 - DESCARGAR HTTP CUSTOM 📱`, { sendSeen: false });
     }
     // OPCIÓN 1: CREAR PRUEBA
     else if (text === '1' && userState.state === 'main_menu') {
@@ -1046,7 +1046,7 @@ Para crear tu prueba, necesitamos tu HWID (identificador único).
 4. Envíalo aquí
 
 🔢 *Formato:* Letras y números, 6-32 caracteres
-📝 *Ejemplo:* ABC123XYZ456`, { sendSeen: false });
+📝 *Ejemplo:* 822ab8c5d5de5341bb925`, { sendSeen: false });
         
         await setUserState(phone, 'asking_hwid_test');
     }
@@ -1072,20 +1072,15 @@ El HWID debe tener entre 6 y 32 caracteres.
             
             await client.sendMessage(phone, `✅ *PRUEBA CREADA CON ÉXITO*
 
-👤 Usuario: *${result.username}*
-🔐 HWID: *${result.hwid}*
-⏰ Expira en: *1 hora*
 
 📥 *DESCARGA TU ARCHIVO .HC:*
 ${result.downloadUrl}
 
 💡 *INSTRUCCIONES FÁCILES:*
 1. Descarga el archivo .hc (toca el link)
-2. Abre HTTP Custom en tu dispositivo
-3. Ve a *Profiles* (Perfiles)
-4. Toca *Import* (Importar)
-5. Selecciona el archivo descargado
-6. ¡Activa la conexión!
+2. En notificación toca el archivo 
+3. Abrilo con HTTP Custom 
+4. ¡Conectate!
 
 ⚡ *ARCHIVO LISTO PARA USAR*
 ✅ Configuración incluida
@@ -1134,11 +1129,11 @@ Elija un plan:
 
 Elija una opción:
 
-1 - CREAR PRUEBA
-2 - COMPRAR HTTP CUSTOM
-3 - RENOVAR HTTP CUSTOM
-4 - CAMBIAR HWID CUSTOM
-5 - DESCARGAR HTTP CUSTOM`, { sendSeen: false });
+1 - CREAR PRUEBA 🧾
+2 - COMPRAR HTTP CUSTOM 💰
+3 - RENOVAR HTTP CUSTOM 🔄
+4 - CAMBIAR HWID CUSTOM 🫆
+5 - DESCARGAR HTTP CUSTOM 📱`, { sendSeen: false });
         }
     }
     // SELECCIÓN DE PLAN ESPECÍFICO
