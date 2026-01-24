@@ -1,7 +1,7 @@
 #!/bin/bash
 # ================================================
-# HTTP CUSTOM BOT - ENVÍA TU ARCHIVO .HC PERSONAL
-# Usa TU archivo .hc y lo envía directamente por WhatsApp
+# SSH BOT PRO - CON FLUJO DE CAPTURAS Y MÁS PLANES
+# Planes: 7, 15, 30, 50 días
 # ================================================
 
 set -e
@@ -22,28 +22,35 @@ echo -e "${CYAN}${BOLD}"
 cat << "BANNER"
 ╔══════════════════════════════════════════════════════════════╗
 ║                                                              ║
-║     ██╗  ██╗████████╗████████╗██████╗      ██████╗██╗   ██╗  ║
-║     ██║  ██║╚══██╔══╝╚══██╔══╝██╔══██╗    ██╔════╝██║   ██║  ║
-║     ███████║   ██║      ██║   ██████╔╝    ██║     ██║   ██║  ║
-║     ██╔══██║   ██║      ██║   ██╔═══╝     ██║     ██║   ██║  ║
-║     ██║  ██║   ██║      ██║   ██║         ╚██████╗╚██████╔╝  ║
-║     ╚═╝  ╚═╝   ╚═╝      ╚═╝   ╚═╝          ╚═════╝ ╚═════╝   ║
+║     ███████╗███████╗██║  ██║    ██████╗  ██████╗ ████████╗  ║
+║     ██╔════╝██╔════╝██║  ██║    ██╔══██╗██╔═══██╗╚══██╔══╝  ║
+║     ███████╗███████╗███████║    ██████╔╝██║   ██║   ██║     ║
+║     ╚════██║╚════██║██╔══██║    ██╔══██╗██║   ██║   ██║     ║
+║     ███████║███████║██║  ██║    ██████╔╝╚██████╔╝   ██║     ║
+║     ╚══════╝╚══════╝╚═╝  ╚═╝    ╚═════╝  ╚═════╝    ╚═╝     ║
 ╠══════════════════════════════════════════════════════════════╣
 ║                                                              ║
-║            HTTP CUSTOM BOT - TU ARCHIVO .HC PERSONAL       ║
-║               📤 ENVÍA TU ARCHIVO POR WHATSAPP              ║
-║               ⚡ MISMO ARCHIVO PARA TODOS LOS USUARIOS      ║
+║                SSH BOT PRO - MÚLTIPLES PLANES               ║
+║               💡 PLANES: 7, 15, 30, 50 DÍAS                 ║
+║               🔐 CONTRASEÑA FIJA: mgvpn247                  ║
 ║               💰 MERCADOPAGO INTEGRADO                      ║
 ║                                                              ║
 ╚══════════════════════════════════════════════════════════════╝
 BANNER
 echo -e "${NC}"
 
-echo -e "${GREEN}✅ SISTEMA CON TU ARCHIVO .HC PERSONAL:${NC}"
-echo -e "  🎯 ${CYAN}ENVÍA TU ARCHIVO .HC POR WHATSAPP${NC}"
-echo -e "  📤 ${GREEN}Sin generación automática, usa TU archivo${NC}"
-echo -e "  ⚡ ${YELLOW}Mismo archivo para todos los usuarios${NC}"
-echo -e "  🎛️  ${PURPLE}Panel admin: hcbot${NC}"
+echo -e "${GREEN}✅ FLUJO BASADO EN CAPTURAS CON MÁS PLANES:${NC}"
+echo -e "  🔴 ${RED}MENÚ PRINCIPAL:${NC}"
+echo -e "     ${GREEN}1${NC} = Crear Prueba (TEST)"
+echo -e "     ${GREEN}2${NC} = Comprar Login SSH"
+echo -e "     ${GREEN}3${NC} = Renovar Login SSH"
+echo -e "     ${GREEN}4${NC} = Descargar Aplicación"
+echo -e "  🟡 ${YELLOW}SUBMENÚ COMPRAS:${NC}"
+echo -e "     ${GREEN}1${NC} = Planes SSH Diarios"
+echo -e "     ${GREEN}2${NC} = Planes SSH Mensuales"
+echo -e "     ${GREEN}0${NC} = Volver"
+echo -e "  🟢 ${GREEN}PLANES DISPONIBLES:${NC}"
+echo -e "     ${CYAN}7 días${NC} - 15 días - 30 días - 50 días"
 echo -e "${CYAN}══════════════════════════════════════════════════════════════${NC}\n"
 
 # Verificar root
@@ -63,158 +70,20 @@ fi
 
 echo -e "${GREEN}✅ IP detectada: ${CYAN}$SERVER_IP${NC}\n"
 
-# Preguntar por archivo .hc personal
-echo -e "${YELLOW}📁 CONFIGURACIÓN DE TU ARCHIVO .HC PERSONAL${NC}"
-echo -e ""
-echo -e "${CYAN}💡 Necesitas tener tu archivo .hc listo para usar${NC}"
-echo -e "${CYAN}📝 El bot enviará ESTE MISMO archivo a todos los usuarios${NC}"
-echo -e ""
-
-# Opción 1: Subir archivo ahora
-echo -e "${GREEN}📤 OPCIONES PARA TU ARCHIVO .HC:${NC}"
-echo -e "  1. Subir mi archivo .hc ahora (recomendado)"
-echo -e "  2. Configurar path a mi archivo existente"
-echo -e "  3. Usar archivo de ejemplo y configurar después"
-echo -e ""
-
-read -p "👉 Selecciona opción [1]: " HC_OPTION
-HC_OPTION=${HC_OPTION:-1}
-
-HC_FILE_PATH=""
-HC_FILE_NAME=""
-
-case $HC_OPTION in
-    1)
-        echo -e "\n${CYAN}📤 SUBIR TU ARCHIVO .HC${NC}"
-        echo -e "${YELLOW}1. Asegúrate de tener tu archivo .hc en tu computadora${NC}"
-        echo -e "${YELLOW}2. Debe llamarse: TU_ARCHIVO.hc (con extensión .hc)${NC}"
-        echo -e "${YELLOW}3. Usa SCP, FTP o arrastra al servidor si usas VPS con interfaz${NC}"
-        echo -e ""
-        echo -e "${GREEN}📝 Path donde subir el archivo:${NC}"
-        echo -e "  /root/http-custom-bot/MI_ARCHIVO.hc"
-        echo -e ""
-        read -p "Presiona Enter cuando hayas subido el archivo..."
-        
-        # Verificar si se subió algún archivo
-        DEFAULT_HC="/root/http-custom-bot/MI_ARCHIVO.hc"
-        if [[ -f "$DEFAULT_HC" ]]; then
-            HC_FILE_PATH="$DEFAULT_HC"
-            HC_FILE_NAME=$(basename "$DEFAULT_HC")
-            echo -e "${GREEN}✅ Archivo encontrado: $HC_FILE_NAME${NC}"
-        else
-            echo -e "${YELLOW}⚠️  No se encontró archivo en $DEFAULT_HC${NC}"
-            read -p "📝 Ingresa el path completo de tu archivo .hc: " HC_FILE_PATH
-            if [[ -f "$HC_FILE_PATH" ]]; then
-                HC_FILE_NAME=$(basename "$HC_FILE_PATH")
-                echo -e "${GREEN}✅ Archivo encontrado: $HC_FILE_NAME${NC}"
-            else
-                echo -e "${YELLOW}⚠️  Usando archivo de ejemplo, podrás cambiarlo después${NC}"
-                HC_FILE_PATH="/opt/http-custom-bot/MI_ARCHIVO.hc"
-                HC_FILE_NAME="MI_ARCHIVO.hc"
-            fi
-        fi
-        ;;
-    2)
-        read -p "📝 Ingresa el path completo de tu archivo .hc: " HC_FILE_PATH
-        if [[ -f "$HC_FILE_PATH" ]]; then
-            HC_FILE_NAME=$(basename "$HC_FILE_PATH")
-            echo -e "${GREEN}✅ Archivo encontrado: $HC_FILE_NAME${NC}"
-        else
-            echo -e "${RED}❌ Archivo no encontrado${NC}"
-            echo -e "${YELLOW}⚠️  Usando archivo de ejemplo, podrás cambiarlo después${NC}"
-            HC_FILE_PATH="/opt/http-custom-bot/MI_ARCHIVO.hc"
-            HC_FILE_NAME="MI_ARCHIVO.hc"
-        fi
-        ;;
-    3)
-        HC_FILE_PATH="/opt/http-custom-bot/MI_ARCHIVO.hc"
-        HC_FILE_NAME="MI_ARCHIVO.hc"
-        echo -e "${YELLOW}⚠️  Usando archivo de ejemplo${NC}"
-        echo -e "${CYAN}💡 Podrás cambiarlo después en el panel de control${NC}"
-        ;;
-esac
-
-# Crear archivo de ejemplo si no existe
-if [[ ! -f "$HC_FILE_PATH" && "$HC_OPTION" == "3" ]]; then
-    echo -e "\n${YELLOW}📝 Creando archivo .hc de ejemplo...${NC}"
-    mkdir -p /opt/http-custom-bot
-    cat > "$HC_FILE_PATH" << 'HCEOF'
-# HTTP Custom Configuration - TU ARCHIVO PERSONAL
-# Configuración lista para usar
-
-[general]
-mode=http
-listen_port=8080
-enable_http=0
-enable_socks5=0
-enable_dns=0
-enable_ipv6=1
-enable_udp=1
-enable_mux=1
-log_level=info
-
-[server]
-server=TU_SERVIDOR_AQUI
-server_port=8080
-method=chacha20
-password=123456
-fast_open=1
-reuse_port=1
-
-[obfs]
-obfs=http
-obfs_host=www.bing.com
-obfs_uri=/search
-
-[tls]
-tls_enable=0
-tls_server_name=www.bing.com
-skip_cert_verify=1
-
-[advanced]
-mux_concurrency=8
-connection_timeout=30
-buffer_size=4096
-max_connection=100
-
-[user_info]
-username=TU_USUARIO
-hwid=TU_HWID_AQUI
-expire_date=2024-12-31
-plan_days=30
-
-# Instrucciones:
-# 1. Guardar este archivo
-# 2. En HTTP Custom: Profiles → Import
-# 3. Seleccionar este archivo
-# 4. ¡Conectar!
-
-# Cambia "TU_SERVIDOR_AQUI" por tu IP real
-# Cambia "TU_HWID_AQUI" por el HWID del usuario
-HCEOF
-    echo -e "${GREEN}✅ Archivo de ejemplo creado: $HC_FILE_NAME${NC}"
-fi
-
-# Verificar tamaño del archivo
-if [[ -f "$HC_FILE_PATH" ]]; then
-    FILE_SIZE=$(stat -c%s "$HC_FILE_PATH" 2>/dev/null || stat -f%z "$HC_FILE_PATH" 2>/dev/null || echo "0")
-    echo -e "${GREEN}📏 Tamaño del archivo: $FILE_SIZE bytes${NC}"
-    
-    if [[ $FILE_SIZE -gt 10000000 ]]; then
-        echo -e "${YELLOW}⚠️  Archivo muy grande (>10MB), WhatsApp podría tener problemas${NC}"
-    fi
-fi
-
 # Confirmar instalación
-echo -e "\n${YELLOW}⚠️  ESTE INSTALADOR HARÁ:${NC}"
-echo -e "   • Instalar Node.js 20.x + Chrome + Dependencias"
-echo -e "   • Crear HTTP Custom Bot completo"
-echo -e "   • Panel de control: ${GREEN}hcbot${NC}"
-echo -e "   • Enviar TU archivo: ${CYAN}$HC_FILE_NAME${NC}"
-echo -e "   • Mismo archivo para todos los usuarios"
-echo -e "   • Sin generación automática, usa TU archivo"
-echo -e "   • Menú: 1=Prueba, 2=Comprar, 3=Renovar, 4=Cambiar HWID, 5=App"
+echo -e "${YELLOW}⚠️  ESTE INSTALADOR HARÁ:${NC}"
+echo -e "   • Instalar Node.js 20.x + Chrome"
+echo -e "   • Crear SSH Bot Pro con múltiples planes"
+echo -e "   • Sistema de estados inteligente"
+echo -e "   • Menú: 1=Prueba, 2=Comprar, 3=Renovar, 4=APP"
+echo -e "   • Submenú: Planes Diarios/Mensuales"
 echo -e "   • Planes: 7, 15, 30, 50 días"
+echo -e "   • Pregunta por cupón de descuento"
+echo -e "   • Generación de link MercadoPago"
+echo -e "   • Panel de control 100% funcional"
+echo -e "   • APK automático + Test 1h"
+echo -e "   • Cron limpieza cada 15 minutos"
+echo -e "   • 🔐 CONTRASEÑA FIJA: mgvpn247 para todos"
 echo -e "\n${RED}⚠️  Se eliminarán instalaciones anteriores${NC}"
 
 read -p "$(echo -e "${YELLOW}¿Continuar con la instalación? (s/N): ${NC}")" -n 1 -r
@@ -256,14 +125,18 @@ apt-get install -y \
     sqlite3 \
     jq \
     build-essential \
+    libcairo2-dev \
+    libpango1.0-dev \
+    libjpeg-dev \
+    libgif-dev \
+    librsvg2-dev \
+    pkg-config \
     python3 \
     python3-pip \
+    ffmpeg \
     unzip \
     cron \
-    ufw \
-    nginx \
-    zip \
-    openssl
+    ufw
 
 # Instalar PM2 globalmente
 echo -e "${YELLOW}🔄 Instalando PM2...${NC}"
@@ -286,83 +159,40 @@ echo -e "${GREEN}✅ Dependencias instaladas${NC}"
 # ================================================
 echo -e "\n${CYAN}${BOLD}📁 CREANDO ESTRUCTURA...${NC}"
 
-INSTALL_DIR="/opt/http-custom-bot"
-USER_HOME="/root/http-custom-bot"
+INSTALL_DIR="/opt/ssh-bot"
+USER_HOME="/root/ssh-bot"
 DB_FILE="$INSTALL_DIR/data/users.db"
 CONFIG_FILE="$INSTALL_DIR/config/config.json"
-HC_STORAGE="$INSTALL_DIR/hc_storage"
 
 # Limpiar instalaciones anteriores
 echo -e "${YELLOW}🧹 Limpiando instalaciones anteriores...${NC}"
-pm2 delete http-custom-bot 2>/dev/null || true
+pm2 delete ssh-bot 2>/dev/null || true
 pm2 flush 2>/dev/null || true
 rm -rf "$INSTALL_DIR" "$USER_HOME" 2>/dev/null || true
 rm -rf /root/.wwebjs_auth /root/.wwebjs_cache 2>/dev/null || true
-rm -rf "$HC_STORAGE" 2>/dev/null || true
 
 # Crear directorios
 mkdir -p "$INSTALL_DIR"/{data,config,qr_codes,logs}
 mkdir -p "$USER_HOME"
-mkdir -p "$HC_STORAGE"
 mkdir -p /root/.wwebjs_auth
 chmod -R 755 "$INSTALL_DIR"
-chmod -R 755 "$HC_STORAGE"
 chmod -R 700 /root/.wwebjs_auth
 
-# Copiar archivo .hc personal a la ubicación segura
-if [[ -f "$HC_FILE_PATH" ]]; then
-    echo -e "${YELLOW}📁 Copiando tu archivo .hc personal...${NC}"
-    cp "$HC_FILE_PATH" "$HC_STORAGE/MI_ARCHIVO.hc"
-    HC_STORAGE_PATH="$HC_STORAGE/MI_ARCHIVO.hc"
-    echo -e "${GREEN}✅ Archivo copiado a: $HC_STORAGE_PATH${NC}"
-else
-    # Crear archivo de ejemplo
-    HC_STORAGE_PATH="$HC_STORAGE/MI_ARCHIVO.hc"
-    cat > "$HC_STORAGE_PATH" << 'HCEOF'
-# HTTP Custom Configuration - TU ARCHIVO PERSONAL
-# Este es un archivo de ejemplo
-
-[general]
-mode=http
-listen_port=8080
-enable_http=0
-enable_socks5=0
-enable_dns=0
-enable_ipv6=1
-enable_udp=1
-enable_mux=1
-log_level=info
-
-[server]
-server=TU_IP_AQUI
-server_port=8080
-method=chacha20
-password=123456
-fast_open=1
-reuse_port=1
-
-# Reemplaza TU_IP_AQUI con tu IP real en el panel hcbot
-HCEOF
-    echo -e "${YELLOW}⚠️  Creado archivo de ejemplo en: $HC_STORAGE_PATH${NC}"
-fi
-
-# Crear configuración
+# Crear configuración CON MÚLTIPLES PLANES
 cat > "$CONFIG_FILE" << EOF
 {
     "bot": {
-        "name": "HTTP Custom Bot",
-        "version": "5.0-TU-ARCHIVO",
+        "name": "SSH Bot Pro",
+        "version": "1.0-MULTIPLANES",
         "server_ip": "$SERVER_IP",
-        "server_port": "8080",
-        "encryption": "chacha20",
-        "password": "123456"
+        "default_password": "mgvpn247"
     },
     "prices": {
         "test_hours": 1,
-        "price_7d": 1500.00,
-        "price_15d": 2500.00,
-        "price_30d": 5500.00,
-        "price_50d": 8500.00,
+        "price_7d_1conn": 1500.00,
+        "price_15d_1conn": 2500.00,
+        "price_30d_1conn": 5500.00,
+        "price_50d_1conn": 8500.00,
         "currency": "ARS"
     },
     "mercadopago": {
@@ -377,15 +207,7 @@ cat > "$CONFIG_FILE" << EOF
     "paths": {
         "database": "$DB_FILE",
         "chromium": "/usr/bin/google-chrome",
-        "qr_codes": "$INSTALL_DIR/qr_codes",
-        "hc_storage": "$HC_STORAGE",
-        "hc_file": "$HC_STORAGE_PATH"
-    },
-    "hc_config": {
-        "server": "$SERVER_IP",
-        "port": "8080",
-        "method": "chacha20",
-        "password": "123456"
+        "qr_codes": "$INSTALL_DIR/qr_codes"
     }
 }
 EOF
@@ -396,9 +218,10 @@ CREATE TABLE users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     phone TEXT,
     username TEXT UNIQUE,
-    hwid TEXT UNIQUE,
+    password TEXT DEFAULT 'mgvpn247',
     tipo TEXT DEFAULT 'test',
     expires_at DATETIME,
+    max_connections INTEGER DEFAULT 1,
     status INTEGER DEFAULT 1,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
@@ -415,6 +238,7 @@ CREATE TABLE payments (
     phone TEXT,
     plan TEXT,
     days INTEGER,
+    connections INTEGER DEFAULT 1,
     amount REAL,
     discount_code TEXT,
     final_amount REAL,
@@ -439,130 +263,24 @@ CREATE TABLE user_state (
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 CREATE INDEX idx_users_phone ON users(phone);
-CREATE INDEX idx_users_hwid ON users(hwid);
+CREATE INDEX idx_users_status ON users(status);
+CREATE INDEX idx_payments_status ON payments(status);
 SQL
 
-echo -e "${GREEN}✅ Estructura creada${NC}"
+echo -e "${GREEN}✅ Estructura creada con sistema de estados${NC}"
 
 # ================================================
-# CREAR SCRIPT PARA MODIFICAR ARCHIVO .HC
+# CREAR BOT CON MÚLTIPLES PLANES
 # ================================================
-echo -e "\n${CYAN}${BOLD}🔧 CREANDO SCRIPT PARA MODIFICAR TU ARCHIVO .HC...${NC}"
-
-cat > "$INSTALL_DIR/modify_hc_file.py" << 'PYEOF'
-#!/usr/bin/env python3
-import sys
-import os
-import re
-from datetime import datetime, timedelta
-
-def modify_hc_file(input_file, output_file, username, hwid, server_ip, port, method, password, days):
-    """Modifica TU archivo .hc personal con datos del usuario"""
-    
-    # Leer el archivo original
-    with open(input_file, 'r', encoding='utf-8') as f:
-        content = f.read()
-    
-    # Calcular fecha de expiración
-    expire_date = (datetime.now() + timedelta(days=days)).strftime('%Y-%m-%d')
-    
-    # Reemplazar marcadores de posición
-    modified_content = content
-    
-    # Reemplazar server IP si existe marcador
-    if 'TU_IP_AQUI' in modified_content:
-        modified_content = modified_content.replace('TU_IP_AQUI', server_ip)
-    
-    if 'TU_SERVIDOR_AQUI' in modified_content:
-        modified_content = modified_content.replace('TU_SERVIDOR_AQUI', server_ip)
-    
-    # Reemplazar HWID
-    if 'TU_HWID_AQUI' in modified_content:
-        modified_content = modified_content.replace('TU_HWID_AQUI', hwid)
-    
-    # Reemplazar usuario
-    if 'TU_USUARIO' in modified_content:
-        modified_content = modified_content.replace('TU_USUARIO', username)
-    
-    # Reemplazar fecha de expiración
-    if 'TU_FECHA_EXPIRA' in modified_content:
-        modified_content = modified_content.replace('TU_FECHA_EXPIRA', expire_date)
-    
-    # Si no hay marcadores, agregar sección [user_info] al final
-    if '[user_info]' not in modified_content:
-        user_info_section = f"""
-[user_info]
-username={username}
-hwid={hwid}
-expire_date={expire_date}
-plan_days={days}
-server={server_ip}
-port={port}
-method={method}
-password={password}
-
-# Archivo personalizado para: {username}
-# HWID: {hwid}
-# Válido hasta: {expire_date}
-"""
-        modified_content += user_info_section
-    
-    # Escribir archivo modificado
-    with open(output_file, 'w', encoding='utf-8') as f:
-        f.write(modified_content)
-    
-    # Verificar que se creó
-    if os.path.exists(output_file):
-        size = os.path.getsize(output_file)
-        return {
-            'success': True,
-            'filePath': output_file,
-            'fileName': os.path.basename(output_file),
-            'fileSize': size
-        }
-    else:
-        return {
-            'success': False,
-            'error': 'No se pudo crear el archivo modificado'
-        }
-
-if __name__ == "__main__":
-    if len(sys.argv) < 9:
-        print('{"success": false, "error": "Faltan argumentos"}')
-        sys.exit(1)
-    
-    input_file = sys.argv[1]
-    output_file = sys.argv[2]
-    username = sys.argv[3]
-    hwid = sys.argv[4]
-    server_ip = sys.argv[5]
-    port = sys.argv[6]
-    method = sys.argv[7]
-    password = sys.argv[8]
-    days = int(sys.argv[9])
-    
-    result = modify_hc_file(input_file, output_file, username, hwid, server_ip, port, method, password, days)
-    
-    import json
-    print(json.dumps(result))
-PYEOF
-
-chmod +x "$INSTALL_DIR/modify_hc_file.py"
-
-echo -e "${GREEN}✅ Script para modificar archivos .hc creado${NC}"
-
-# ================================================
-# CREAR BOT QUE ENVÍA TU ARCHIVO .HC
-# ================================================
-echo -e "\n${CYAN}${BOLD}🤖 CREANDO BOT QUE ENVÍA TU ARCHIVO .HC...${NC}"
+echo -e "\n${CYAN}${BOLD}🤖 CREANDO BOT CON MÚLTIPLES PLANES...${NC}"
 
 cd "$USER_HOME"
 
 # package.json
 cat > package.json << 'PKGEOF'
 {
-    "name": "http-custom-bot",
-    "version": "5.0.0",
+    "name": "ssh-bot-pro",
+    "version": "1.0.0",
     "main": "bot.js",
     "dependencies": {
         "whatsapp-web.js": "^1.24.0",
@@ -588,7 +306,9 @@ find node_modules/whatsapp-web.js -name "Client.js" -type f -exec sed -i 's/cons
 
 echo -e "${GREEN}✅ Parche markedUnread aplicado${NC}"
 
-# Crear bot.js QUE ENVÍA TU ARCHIVO
+# Crear bot.js CON MÚLTIPLES PLANES
+echo -e "${YELLOW}📝 Creando bot.js con múltiples planes...${NC}"
+
 cat > "bot.js" << 'BOTEOF'
 const { Client, LocalAuth, MessageMedia } = require('whatsapp-web.js');
 const qrcodeTerminal = require('qrcode-terminal');
@@ -606,242 +326,12 @@ const axios = require('axios');
 const execPromise = util.promisify(exec);
 
 function loadConfig() {
-    delete require.cache[require.resolve('/opt/http-custom-bot/config/config.json')];
-    return require('/opt/http-custom-bot/config/config.json');
+    delete require.cache[require.resolve('/opt/ssh-bot/config/config.json')];
+    return require('/opt/ssh-bot/config/config.json');
 }
 
 let config = loadConfig();
 const db = new sqlite3.Database(config.paths.database);
-
-// ✅ FUNCIÓN PARA CREAR USUARIO Y PREPARAR ARCHIVO
-async function prepareAndSendHcFile(phone, hwid, days) {
-    return new Promise(async (resolve, reject) => {
-        try {
-            const username = 'HC' + Math.floor(1000 + Math.random() * 9000);
-            const expireDate = moment().add(days, 'days').format('YYYY-MM-DD 23:59:59');
-            
-            console.log(chalk.cyan(`🔧 Preparando archivo .hc para ${phone} | HWID: ${hwid} | Días: ${days}`));
-            
-            // Ruta del archivo original
-            const originalHcFile = config.paths.hc_file;
-            
-            if (!fs.existsSync(originalHcFile)) {
-                throw new Error(`No se encuentra TU archivo .hc personal en: ${originalHcFile}`);
-            }
-            
-            // Ruta para archivo temporal personalizado
-            const timestamp = Date.now();
-            const tempHcFile = `/tmp/hc_${username}_${timestamp}.hc`;
-            
-            // Usar Python para modificar el archivo
-            const pythonScript = '/opt/http-custom-bot/modify_hc_file.py';
-            const args = [
-                originalHcFile,
-                tempHcFile,
-                username,
-                hwid,
-                config.bot.server_ip,
-                config.bot.server_port,
-                config.bot.encryption,
-                config.bot.password,
-                days.toString()
-            ];
-            
-            exec(`python3 ${pythonScript} ${args.join(' ')}`, async (error, stdout, stderr) => {
-                if (error) {
-                    console.error(chalk.red('❌ Error Python:'), error.message);
-                    reject(error);
-                    return;
-                }
-                
-                try {
-                    const result = JSON.parse(stdout);
-                    
-                    if (!result.success) {
-                        throw new Error(result.error || 'Error modificando archivo');
-                    }
-                    
-                    // Verificar que el archivo se creó
-                    if (!fs.existsSync(tempHcFile)) {
-                        throw new Error('No se pudo crear el archivo modificado');
-                    }
-                    
-                    // Guardar en base de datos
-                    db.run(
-                        `INSERT INTO users (phone, username, hwid, tipo, expires_at, status) VALUES (?, ?, ?, ?, ?, 1)`,
-                        [phone, username, hwid, days === 0 ? 'test' : 'premium', expireDate],
-                        (err) => {
-                            if (err) {
-                                // Intentar con otro nombre si hay duplicado
-                                const altUsername = 'HC' + Math.floor(1000 + Math.random() * 9000);
-                                db.run(
-                                    `INSERT INTO users (phone, username, hwid, tipo, expires_at, status) VALUES (?, ?, ?, ?, ?, 1)`,
-                                    [phone, altUsername, hwid, days === 0 ? 'test' : 'premium', expireDate],
-                                    (err2) => {
-                                        if (err2) {
-                                            reject(err2);
-                                        } else {
-                                            resolve({
-                                                username: altUsername,
-                                                hwid: hwid,
-                                                filePath: tempHcFile,
-                                                fileName: result.fileName || `HTTP_CUSTOM_${altUsername}.hc`,
-                                                expires: expireDate,
-                                                tipo: days === 0 ? 'test' : 'premium',
-                                                duration: days === 0 ? `${config.prices.test_hours} horas` : `${days} días`
-                                            });
-                                        }
-                                    }
-                                );
-                            } else {
-                                resolve({
-                                    username: username,
-                                    hwid: hwid,
-                                    filePath: tempHcFile,
-                                    fileName: result.fileName || `HTTP_CUSTOM_${username}.hc`,
-                                    expires: expireDate,
-                                    tipo: days === 0 ? 'test' : 'premium',
-                                    duration: days === 0 ? `${config.prices.test_hours} horas` : `${days} días`
-                                });
-                            }
-                        }
-                    );
-                    
-                } catch (parseError) {
-                    console.error(chalk.red('❌ Error parseando JSON:'), parseError.message);
-                    console.error(chalk.yellow('Salida Python:'), stdout);
-                    reject(parseError);
-                }
-            });
-            
-        } catch (error) {
-            reject(error);
-        }
-    });
-}
-
-// ✅ FUNCIÓN PARA ENVIAR ARCHIVO POR WHATSAPP
-async function sendHcFileViaWhatsApp(client, phone, hcData) {
-    try {
-        console.log(chalk.yellow(`📤 Enviando TU archivo .hc a ${phone}...`));
-        
-        // Verificar que el archivo existe
-        if (!fs.existsSync(hcData.filePath)) {
-            throw new Error(`Archivo no encontrado: ${hcData.filePath}`);
-        }
-        
-        // Obtener tamaño del archivo
-        const stats = fs.statSync(hcData.filePath);
-        const fileSizeMB = (stats.size / (1024 * 1024)).toFixed(2);
-        
-        if (stats.size > 64 * 1024 * 1024) { // 64MB límite de WhatsApp
-            throw new Error(`Archivo muy grande (${fileSizeMB}MB). WhatsApp no permite archivos mayores a 64MB`);
-        }
-        
-        // Crear Media del archivo
-        const media = MessageMedia.fromFilePath(hcData.filePath);
-        
-        // Enviar mensaje informativo primero
-        await client.sendMessage(phone, 
-            `✅ *ARCHIVO .HC PERSONAL ENVIADO*
-
-👤 Usuario: *${hcData.username}*
-🔐 HWID: *${hcData.hwid}*
-⏰ ${hcData.tipo === 'test' ? 'Expira en: *1 hora*' : `Duración: *${hcData.days} días*`}
-
-📤 *TU ARCHIVO .HC ESTÁ LISTO*
-Te estoy enviando tu archivo .hc personalizado...
-💾 Tamaño: ${fileSizeMB} MB`, { sendSeen: false });
-        
-        // Enviar el archivo
-        await client.sendMessage(phone, media, {
-            caption: `HTTP_CUSTOM_${hcData.username}.hc\n\nGuarda este archivo e impórtalo en HTTP Custom.`,
-            sendSeen: false
-        });
-        
-        // Enviar instrucciones
-        await client.sendMessage(phone,
-            `💡 *INSTRUCCIONES PARA USAR:*
-
-1. *Guarda el archivo* recibido en tu dispositivo
-2. Abre la aplicación *HTTP Custom*
-3. Ve a *Profiles* (Perfiles)
-4. Toca *Import* (Importar)
-5. Selecciona el archivo *HTTP_CUSTOM_${hcData.username}.hc*
-6. ¡Activa la conexión!
-
-⚡ *CONFIGURACIÓN INCLUIDA:*
-✅ Servidor: ${config.bot.server_ip}:${config.bot.server_port}
-✅ Encriptación: ${config.bot.encryption}
-✅ Password: ${config.bot.password}
-✅ ${hcData.tipo === 'test' ? 'Válido por 1 hora' : `Válido por ${hcData.days} días`}
-
-📱 *DESCARGAR APP HTTP CUSTOM:*
-${config.links.app_download}
-
-💬 *SOPORTE:*
-${config.links.support}`, { sendSeen: false });
-        
-        console.log(chalk.green(`✅ Archivo .hc enviado a ${phone} (${fileSizeMB} MB)`));
-        
-        // Limpiar archivo temporal después de enviar
-        setTimeout(() => {
-            if (fs.existsSync(hcData.filePath)) {
-                fs.unlinkSync(hcData.filePath);
-                console.log(chalk.yellow(`🗑️ Archivo temporal eliminado: ${hcData.filePath}`));
-            }
-        }, 30000); // 30 segundos
-        
-        return true;
-        
-    } catch (error) {
-        console.error(chalk.red('❌ Error enviando archivo:'), error.message);
-        
-        // Informar al usuario del error
-        try {
-            await client.sendMessage(phone, 
-                `❌ *ERROR AL ENVIAR ARCHIVO*
-
-El archivo .hc es demasiado grande (${fileSizeMB} MB).
-WhatsApp no permite archivos mayores a 64MB.
-
-💡 *SOLUCIÓN:*
-1. Usa un archivo .hc más pequeño
-2. O contacta al administrador`, { sendSeen: false });
-        } catch (e) {
-            // Ignorar error al enviar mensaje de error
-        }
-        
-        throw error;
-    }
-}
-
-// ✅ VERIFICAR SI EL ARCHIVO .HC PERSONAL EXISTE
-function verifyPersonalHcFile() {
-    const hcFilePath = config.paths.hc_file;
-    
-    if (!fs.existsSync(hcFilePath)) {
-        console.log(chalk.red(`❌ ERROR: No se encuentra TU archivo .hc personal`));
-        console.log(chalk.yellow(`📁 Buscando en: ${hcFilePath}`));
-        console.log(chalk.cyan(`💡 Usa el panel hcbot (Opción 11) para configurar tu archivo .hc`));
-        return false;
-    }
-    
-    const stats = fs.statSync(hcFilePath);
-    const fileSizeMB = (stats.size / (1024 * 1024)).toFixed(2);
-    
-    console.log(chalk.green(`✅ TU archivo .hc personal encontrado`));
-    console.log(chalk.cyan(`📁 Archivo: ${path.basename(hcFilePath)}`));
-    console.log(chalk.cyan(`📏 Tamaño: ${fileSizeMB} MB`));
-    console.log(chalk.cyan(`📅 Modificado: ${stats.mtime.toLocaleString()}`));
-    
-    if (stats.size > 64 * 1024 * 1024) {
-        console.log(chalk.red(`⚠️  ADVERTENCIA: Archivo muy grande (${fileSizeMB} MB)`));
-        console.log(chalk.yellow(`💡 WhatsApp no permite archivos mayores a 64MB`));
-    }
-    
-    return true;
-}
 
 // ✅ FUNCIONES DE ESTADO
 function getUserState(phone) {
@@ -873,7 +363,11 @@ function setUserState(phone, state, data = null) {
     });
 }
 
-// ✅ MERCADOPAGO SDK
+function clearUserState(phone) {
+    db.run('DELETE FROM user_state WHERE phone = ?', [phone]);
+}
+
+// ✅ MERCADOPAGO SDK V2.X
 let mpClient = null;
 let mpPreference = null;
 
@@ -891,6 +385,7 @@ function initMercadoPago() {
             mpPreference = new Preference(mpClient);
             
             console.log(chalk.green('✅ MercadoPago SDK v2.x ACTIVO'));
+            console.log(chalk.cyan(`🔑 Token: ${config.mercadopago.access_token.substring(0, 20)}...`));
             return true;
         } catch (error) {
             console.log(chalk.red('❌ Error inicializando MP:'), error.message);
@@ -899,31 +394,28 @@ function initMercadoPago() {
             return false;
         }
     }
-    console.log(chalk.yellow('⚠️ MercadoPago NO CONFIGURADO'));
+    console.log(chalk.yellow('⚠️ MercadoPago NO configurado (token vacío)'));
     return false;
 }
 
 let mpEnabled = initMercadoPago();
 moment.locale('es');
 
-// Verificar archivo .hc personal
-const hcFileExists = verifyPersonalHcFile();
-
 console.log(chalk.cyan.bold('\n╔══════════════════════════════════════════════════════════════╗'));
-console.log(chalk.cyan.bold('║      🤖 HTTP CUSTOM BOT - TU ARCHIVO .HC PERSONAL        ║'));
-console.log(chalk.cyan.bold('║               📤 ENVÍA TU ARCHIVO POR WHATSAPP            ║'));
-console.log(chalk.cyan.bold('║               ⚡ MISMO ARCHIVO PARA TODOS                 ║'));
+console.log(chalk.cyan.bold('║                🤖 SSH BOT PRO - MÚLTIPLES PLANES            ║'));
+console.log(chalk.cyan.bold('║               💡 PLANES: 7, 15, 30, 50 DÍAS                 ║'));
+console.log(chalk.cyan.bold('║               🔐 CONTRASEÑA FIJA: mgvpn247                  ║'));
 console.log(chalk.cyan.bold('╚══════════════════════════════════════════════════════════════╝\n'));
 console.log(chalk.yellow(`📍 IP: ${config.bot.server_ip}`));
-console.log(chalk.yellow(`🔌 Puerto: ${config.bot.server_port}`));
-console.log(chalk.yellow(`🔐 Encriptación: ${config.bot.encryption}`));
-console.log(chalk.yellow(`💳 MercadoPago: ${mpEnabled ? '✅ ACTIVO' : '❌ NO CONFIGURADO'}`));
-console.log(chalk.yellow(`📁 TU archivo .hc: ${hcFileExists ? '✅ ENCONTRADO' : '❌ NO ENCONTRADO'}`));
-console.log(chalk.green('✅ Sistema envía TU archivo .hc personal por WhatsApp'));
-console.log(chalk.green('✅ Todos los usuarios reciben el MISMO archivo (personalizado)'));
+console.log(chalk.yellow(`💳 MercadoPago: ${mpEnabled ? '✅ SDK v2.x ACTIVO' : '❌ NO CONFIGURADO'}`));
+console.log(chalk.green('✅ WhatsApp Web parcheado (no markedUnread error)'));
+console.log(chalk.green('✅ Sistema de estados activo'));
+console.log(chalk.green('✅ Planes: 7, 15, 30, 50 días disponibles'));
+console.log(chalk.green('✅ Test 1 hora exacta'));
+console.log(chalk.green('✅ CONTRASEÑA FIJA: mgvpn247 para todos los usuarios'));
 
 const client = new Client({
-    authStrategy: new LocalAuth({dataPath: '/root/.wwebjs_auth', clientId: 'http-custom-personal-file'}),
+    authStrategy: new LocalAuth({dataPath: '/root/.wwebjs_auth', clientId: 'ssh-bot-multiplan'}),
     puppeteer: {
         headless: true,
         executablePath: config.paths.chromium,
@@ -947,17 +439,91 @@ client.on('qr', (qr) => {
 });
 
 client.on('authenticated', () => console.log(chalk.green('✅ Autenticado')));
+client.on('loading_screen', (p, m) => console.log(chalk.yellow(`⏳ Cargando: ${p}% - ${m}`)));
 client.on('ready', () => {
     console.clear();
     console.log(chalk.green.bold('\n✅ BOT CONECTADO Y OPERATIVO\n'));
     console.log(chalk.cyan('💬 Envía "menu" a tu WhatsApp\n'));
-    console.log(chalk.yellow('📤 El bot enviará TU archivo .hc personal por WhatsApp\n'));
     qrCount = 0;
 });
 client.on('auth_failure', (m) => console.log(chalk.red('❌ Error auth:'), m));
 client.on('disconnected', (r) => console.log(chalk.yellow('⚠️ Desconectado:'), r));
 
-// ✅ FUNCIONES AUXILIARES
+function generateUsername(tipo = 'test') {
+    // Generar nombre de usuario en minúsculas según el tipo
+    const randomNum = Math.floor(1000 + Math.random() * 9000);
+    if (tipo === 'test') {
+        return 'test' + randomNum;  // test1234
+    } else {
+        return 'user' + randomNum;  // user5678
+    }
+}
+
+function generatePassword() {
+    // Contraseña fija en minúsculas
+    return 'mgvpn247';
+}
+
+async function createSSHUser(phone, username, password, days, connections = 1) {
+    if (days === 0) {
+        const expireFull = moment().add(config.prices.test_hours, 'hours').format('YYYY-MM-DD HH:mm:ss');
+        
+        console.log(chalk.yellow(`⌛ Test ${username} expira: ${expireFull} (${config.prices.test_hours} horas)`));
+        
+        const commands = [
+            `useradd -m -s /bin/bash ${username}`,
+            `echo "${username}:${password}" | chpasswd`
+        ];
+        
+        for (const cmd of commands) {
+            try {
+                await execPromise(cmd);
+            } catch (error) {
+                console.error(chalk.red(`❌ Error: ${cmd}`), error.message);
+                throw error;
+            }
+        }
+        
+        const tipo = 'test';
+        return new Promise((resolve, reject) => {
+            db.run(`INSERT INTO users (phone, username, password, tipo, expires_at, max_connections, status) VALUES (?, ?, ?, ?, ?, ?, 1)`,
+                [phone, username, password, tipo, expireFull, 1],
+                (err) => err ? reject(err) : resolve({ 
+                    username, 
+                    password: password,
+                    expires: expireFull,
+                    tipo: 'test',
+                    duration: `${config.prices.test_hours} horas`
+                }));
+        });
+    } else {
+        const expireDate = moment().add(days, 'days').format('YYYY-MM-DD');
+        const expireFull = moment().add(days, 'days').format('YYYY-MM-DD 23:59:59');
+        
+        console.log(chalk.yellow(`⌛ Premium ${username} expira: ${expireDate} (${days} días)`));
+        
+        try {
+            await execPromise(`useradd -M -s /bin/false -e ${expireDate} ${username} && echo "${username}:${password}" | chpasswd`);
+        } catch (error) {
+            console.error(chalk.red('❌ Error creando premium:'), error.message);
+            throw error;
+        }
+        
+        const tipo = 'premium';
+        return new Promise((resolve, reject) => {
+            db.run(`INSERT INTO users (phone, username, password, tipo, expires_at, max_connections, status) VALUES (?, ?, ?, ?, ?, ?, 1)`,
+                [phone, username, password, tipo, expireFull, connections],
+                (err) => err ? reject(err) : resolve({ 
+                    username, 
+                    password: password,
+                    expires: expireFull,
+                    tipo: 'premium',
+                    duration: `${days} días`
+                }));
+        });
+    }
+}
+
 function canCreateTest(phone) {
     return new Promise((resolve) => {
         const today = moment().format('YYYY-MM-DD');
@@ -974,40 +540,41 @@ function registerTest(phone) {
 const availablePlans = {
     '7': { 
         days: 7, 
-        amountKey: 'price_7d',
+        amountKey: 'price_7d_1conn',
         name: '7 DÍAS',
-        description: 'Plan de 7 días de HTTP Custom'
+        description: 'Plan de 7 días de acceso SSH Premium'
     },
     '15': { 
         days: 15, 
-        amountKey: 'price_15d',
+        amountKey: 'price_15d_1conn',
         name: '15 DÍAS',
-        description: 'Plan de 15 días de HTTP Custom'
+        description: 'Plan de 15 días de acceso SSH Premium'
     },
     '30': { 
         days: 30, 
-        amountKey: 'price_30d',
+        amountKey: 'price_30d_1conn',
         name: '30 DÍAS',
-        description: 'Plan de 30 días de HTTP Custom'
+        description: 'Plan de 30 días de acceso SSH Premium'
     },
     '50': { 
         days: 50, 
-        amountKey: 'price_50d',
+        amountKey: 'price_50d_1conn',
         name: '50 DÍAS',
-        description: 'Plan de 50 días de HTTP Custom'
+        description: 'Plan de 50 días de acceso SSH Premium'
     }
 };
 
-// ✅ CREAR PAGO MERCADOPAGO
 async function createMercadoPagoPayment(phone, plan, days, amount, discountCode = null) {
     try {
         config = loadConfig();
         
         if (!config.mercadopago.access_token || config.mercadopago.access_token === '') {
-            return { success: false, error: 'MercadoPago no configurado' };
+            console.log(chalk.red('❌ Token MP vacío'));
+            return { success: false, error: 'MercadoPago no configurado - Token vacío' };
         }
         
         if (!mpPreference) {
+            console.log(chalk.yellow('🔄 Reinicializando MercadoPago...'));
             mpEnabled = initMercadoPago();
             if (!mpEnabled || !mpPreference) {
                 return { success: false, error: 'No se pudo inicializar MercadoPago' };
@@ -1015,13 +582,14 @@ async function createMercadoPagoPayment(phone, plan, days, amount, discountCode 
         }
         
         const phoneClean = phone.split('@')[0];
-        const paymentId = `HC-${phoneClean}-${days}d-${Date.now()}`;
+        const paymentId = `SSH-${phoneClean}-${days}d-${Date.now()}`;
         
         console.log(chalk.cyan(`🔄 Creando pago MP: ${paymentId}`));
         
         const expirationDate = moment().add(24, 'hours');
+        const isoDate = expirationDate.toISOString();
         
-        // Aplicar descuento
+        // Aplicar descuento si existe
         let finalAmount = parseFloat(amount);
         let discountPercentage = 0;
         
@@ -1043,8 +611,8 @@ async function createMercadoPagoPayment(phone, plan, days, amount, discountCode 
         
         const preferenceData = {
             items: [{
-                title: `HTTP CUSTOM ${days} DÍAS`,
-                description: `TU archivo .hc personal enviado por WhatsApp - ${days} días`,
+                title: `SSH PREMIUM ${days} DÍAS`,
+                description: `Acceso SSH Premium por ${days} días - 1 conexión`,
                 quantity: 1,
                 currency_id: config.prices.currency || 'ARS',
                 unit_price: finalAmount
@@ -1052,17 +620,22 @@ async function createMercadoPagoPayment(phone, plan, days, amount, discountCode 
             external_reference: paymentId,
             expires: true,
             expiration_date_from: moment().toISOString(),
-            expiration_date_to: expirationDate.toISOString(),
+            expiration_date_to: isoDate,
             back_urls: {
                 success: `https://wa.me/${phoneClean}?text=Pago%20exitoso`,
                 failure: `https://wa.me/${phoneClean}?text=Pago%20fallido`,
                 pending: `https://wa.me/${phoneClean}?text=Pago%20pendiente`
             },
             auto_return: 'approved',
-            statement_descriptor: 'HTTP CUSTOM'
+            statement_descriptor: 'SSH PREMIUM'
         };
         
+        console.log(chalk.yellow(`📦 Producto: ${preferenceData.items[0].title}`));
+        console.log(chalk.yellow(`💰 Monto: $${finalAmount} ${config.prices.currency}`));
+        
         const response = await mpPreference.create({ body: preferenceData });
+        
+        console.log(chalk.cyan('📄 Respuesta MP recibida'));
         
         if (response && response.id) {
             const paymentUrl = response.init_point;
@@ -1078,17 +651,24 @@ async function createMercadoPagoPayment(phone, plan, days, amount, discountCode 
             });
             
             db.run(
-                `INSERT INTO payments (payment_id, phone, plan, days, amount, discount_code, final_amount, status, payment_url, qr_code, preference_id) VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?)`,
-                [paymentId, phone, `${days}d`, days, amount, discountCode, finalAmount, paymentUrl, qrPath, response.id]
+                `INSERT INTO payments (payment_id, phone, plan, days, connections, amount, discount_code, final_amount, status, payment_url, qr_code, preference_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?)`,
+                [paymentId, phone, `${days}d`, days, 1, amount, discountCode, finalAmount, paymentUrl, qrPath, response.id],
+                (err) => {
+                    if (err) {
+                        console.error(chalk.red('❌ Error guardando en BD:'), err.message);
+                    }
+                }
             );
             
             console.log(chalk.green(`✅ Pago creado exitosamente`));
+            console.log(chalk.cyan(`🔗 URL: ${paymentUrl.substring(0, 50)}...`));
             
             return { 
                 success: true, 
                 paymentId, 
                 paymentUrl, 
                 qrPath,
+                preferenceId: response.id,
                 amount: finalAmount,
                 originalAmount: amount,
                 discountApplied: discountPercentage > 0,
@@ -1100,34 +680,108 @@ async function createMercadoPagoPayment(phone, plan, days, amount, discountCode 
         
     } catch (error) {
         console.error(chalk.red('❌ Error MercadoPago:'), error.message);
+        
+        db.run(
+            `INSERT INTO logs (type, message, data) VALUES ('mp_error', ?, ?)`,
+            [error.message, JSON.stringify({ stack: error.stack })]
+        );
+        
         return { success: false, error: error.message };
     }
 }
 
-// ✅ FLUJO PRINCIPAL CON TU ARCHIVO .HC
+async function checkPendingPayments() {
+    config = loadConfig();
+    if (!config.mercadopago.access_token || config.mercadopago.access_token === '') return;
+    
+    db.all('SELECT * FROM payments WHERE status = "pending" AND created_at > datetime("now", "-48 hours")', async (err, payments) => {
+        if (err || !payments || payments.length === 0) return;
+        
+        console.log(chalk.yellow(`🔍 Verificando ${payments.length} pagos pendientes...`));
+        
+        for (const payment of payments) {
+            try {
+                const url = `https://api.mercadopago.com/v1/payments/search?external_reference=${payment.payment_id}`;
+                const response = await axios.get(url, {
+                    headers: { 
+                        'Authorization': `Bearer ${config.mercadopago.access_token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    timeout: 15000
+                });
+                
+                if (response.data && response.data.results && response.data.results.length > 0) {
+                    const mpPayment = response.data.results[0];
+                    
+                    console.log(chalk.cyan(`📋 Pago ${payment.payment_id}: ${mpPayment.status}`));
+                    
+                    if (mpPayment.status === 'approved') {
+                        console.log(chalk.green(`✅ PAGO APROBADO: ${payment.payment_id}`));
+                        
+                        // Generar usuario en minúsculas para premium
+                        const username = generateUsername('premium'); // userXXXX
+                        const password = generatePassword();
+                        const result = await createSSHUser(payment.phone, username, password, payment.days, 1);
+                        
+                        db.run(`UPDATE payments SET status = 'approved', approved_at = CURRENT_TIMESTAMP WHERE payment_id = ?`, [payment.payment_id]);
+                        
+                        const expireDate = moment().add(payment.days, 'days').format('DD/MM/YYYY');
+                        
+                        const message = `✅ *PAGO CONFIRMADO*
+
+🎉 Tu compra ha sido aprobada
+
+📋 *DATOS DE ACCESO:*
+👤 Usuario: *${username}*
+🔑 Contraseña: *${password}*
+
+⏰ *VÁLIDO HASTA:* ${expireDate}
+🔌 *CONEXIÓN:* 1 dispositivo
+
+📱 *INSTALACIÓN:*
+1. Descarga la app (Opción *4*)
+2. Seleccionar servidor
+3. Ingresar Usuario y Contraseña
+4. ¡Conéctate automáticamente!
+
+🎊 ¡Disfruta del servicio premium!`;
+                        
+                        await client.sendMessage(payment.phone, message, { sendSeen: false });
+                        console.log(chalk.green(`✅ Usuario premium creado y notificado: ${username}`));
+                    }
+                }
+            } catch (error) {
+                console.error(chalk.red(`❌ Error verificando ${payment.payment_id}:`), error.message);
+            }
+        }
+    });
+}
+
+// ✅ FLUJO PRINCIPAL BASADO EN CAPTURAS CON MÚLTIPLES PLANES
 client.on('message', async (msg) => {
-    const text = msg.body.trim();
+    const text = msg.body.toLowerCase().trim();
     const phone = msg.from;
     if (phone.includes('@g.us')) return;
     
     config = loadConfig();
     console.log(chalk.cyan(`📩 [${phone.split('@')[0]}]: ${text.substring(0, 30)}`));
     
+    // Obtener estado actual del usuario
     const userState = await getUserState(phone);
     
     // COMANDO MENÚ PRINCIPAL
-    if (['menu', 'hola', 'start', 'hi', 'volver', 'atras', '0'].includes(text.toLowerCase())) {
+    if (['menu', 'hola', 'start', 'hi', 'volver', 'atras', '0'].includes(text)) {
+        // Resetear estado a menú principal
         await setUserState(phone, 'main_menu');
         
-        await client.sendMessage(phone, `HOLA, BIENVENIDO
+        await client.sendMessage(phone, `HOLA, BIENVENIDO BOT MGVPN 🚀
 
 Elija una opción:
 
-1 - CREAR PRUEBA
-2 - COMPRAR HTTP CUSTOM
-3 - RENOVAR HTTP CUSTOM
-4 - CAMBIAR HWID CUSTOM
-5 - DESCARGAR HTTP CUSTOM`, { sendSeen: false });
+🧾 1 - CREAR PRUEBA
+💰 2 - COMPRAR USUARIO SSH
+🔄 3 - RENOVAR USUARIO SSH
+📱 4 - DESCARGAR APLICACIÓN`, { sendSeen: false });
     }
     // OPCIÓN 1: CREAR PRUEBA
     else if (text === '1' && userState.state === 'main_menu') {
@@ -1138,100 +792,67 @@ Elija una opción:
             return;
         }
         
-        await client.sendMessage(phone, `📱 *ENVÍA TU HWID*
-
-Para crear tu prueba, necesitamos tu HWID (identificador único).
-
-1. Abre HTTP Custom en tu dispositivo
-2. Ve a *Configuración → Acerca de*
-3. Copia tu *HWID*
-4. Envíalo aquí
-
-🔢 *Formato:* Letras y números, 6-32 caracteres
-📝 *Ejemplo:* ABC123XYZ456`, { sendSeen: false });
-        
-        await setUserState(phone, 'asking_hwid_test');
-    }
-    // CAPTURAR HWID PARA PRUEBA
-    else if (userState.state === 'asking_hwid_test') {
-        const hwid = text.trim();
-        
-        // Validación simple de HWID
-        if (hwid.length < 6 || hwid.length > 32) {
-            await client.sendMessage(phone, `❌ *HWID INVÁLIDO*
-
-El HWID debe tener entre 6 y 32 caracteres.
-
-📝 Por favor, envía un HWID válido:`, { sendSeen: false });
-            return;
-        }
-        
-        await client.sendMessage(phone, '⏳ Preparando TU archivo .hc personal...', { sendSeen: false });
+        await client.sendMessage(phone, '⏳ Creando cuenta de prueba...', { sendSeen: false });
         
         try {
-            // Verificar que existe el archivo .hc personal
-            if (!fs.existsSync(config.paths.hc_file)) {
-                await client.sendMessage(phone, 
-                    `❌ *ERROR DEL SISTEMA*
-
-No se encuentra el archivo .hc personal.
-
-💡 Contacta al administrador para solucionar este problema.`, { sendSeen: false });
-                console.error(chalk.red(`❌ Archivo .hc no encontrado: ${config.paths.hc_file}`));
-                return;
-            }
-            
-            const hcData = await prepareAndSendHcFile(phone, hwid, 0);
+            const username = generateUsername('test'); // testXXXX
+            const password = generatePassword();
+            await createSSHUser(phone, username, password, 0, 1);
             registerTest(phone);
             
-            // Enviar archivo por WhatsApp
-            await sendHcFileViaWhatsApp(client, phone, hcData);
+            await client.sendMessage(phone, `PRUEBA CREADA CON ÉXITO !
+
+Usuario: ${username}
+Contraseña: ${password}
+Limite: 1 dispositivo(s)
+Expira en: ${config.prices.test_hours} hora(s)
+
+APP: ${config.links.app_download}`, { sendSeen: false });
             
-            console.log(chalk.green(`✅ Prueba enviada: ${hcData.username} | HWID: ${hwid}`));
+            console.log(chalk.green(`✅ Test creado: ${username}`));
         } catch (error) {
-            await client.sendMessage(phone, `❌ Error al crear prueba: ${error.message}`, { sendSeen: false });
+            await client.sendMessage(phone, `❌ Error al crear cuenta: ${error.message}`, { sendSeen: false });
         }
-        
-        await setUserState(phone, 'main_menu');
     }
-    // OPCIÓN 2: COMPRAR HTTP CUSTOM
+    // OPCIÓN 2: COMPRAR USUARIO SSH
     else if (text === '2' && userState.state === 'main_menu') {
-        await setUserState(phone, 'buying_hc');
+        await setUserState(phone, 'buying_ssh');
         
-        await client.sendMessage(phone, `🛒 *PLANES HTTP CUSTOM*
+        await client.sendMessage(phone, `PLANES SSH PREMIUM !
 
 Elija una opción:
-1 - PLANES DIARIOS (7-15 días)
-2 - PLANES MENSUALES (30-50 días)
-0 - VOLVER`, { sendSeen: false });
+🌐 1 - PLANES SSH DIARIOS
+🌐 2 - PLANES SSH MENSUALES
+⬅️ 0 - VOLVER`, { sendSeen: false });
     }
     // SUBMENÚ DE COMPRAS
-    else if (userState.state === 'buying_hc') {
+    else if (userState.state === 'buying_ssh') {
         if (text === '1' || text === '2') {
+            // Guardar tipo de plan seleccionado
             await setUserState(phone, 'selecting_plan', { plan_type: text });
             
-            let plansMessage = `💰 *PLANES DISPONIBLES*
+            // Mostrar todos los planes disponibles
+            let plansMessage = `A CONTINUACIÓN SE MUESTRAN NUESTROS PLANES PREMIUM DISPONIBLES
 
 Elija un plan:
-1 - 7 DÍAS - $${config.prices.price_7d} ARS
-2 - 15 DÍAS - $${config.prices.price_15d} ARS
-3 - 30 DÍAS - $${config.prices.price_30d} ARS
-4 - 50 DÍAS - $${config.prices.price_50d} ARS
-0 - VOLVER`;
+🗓 1 - 1 USUARIO(SSH) - 7 DÍAS - $${config.prices.price_7d_1conn}
+🗓 2 - 1 USUARIO(SSH) - 15 DÍAS - $${config.prices.price_15d_1conn}
+🗓 3 - 1 USUARIO(SSH) - 30 DÍAS - $${config.prices.price_30d_1conn}
+🗓 4 - 1 USUARIO(SSH) - 50 DÍAS - $${config.prices.price_50d_1conn}
+⬅️ 0 - VOLVER`;
             
             await client.sendMessage(phone, plansMessage, { sendSeen: false });
         }
         else if (text === '0') {
             await setUserState(phone, 'main_menu');
-            await client.sendMessage(phone, `HOLA, BIENVENIDO
+            await client.sendMessage(phone, `HOLA, BIENVENIDO MGVPN
 
 Elija una opción:
 
-1 - CREAR PRUEBA
-2 - COMPRAR HTTP CUSTOM
-3 - RENOVAR HTTP CUSTOM
-4 - CAMBIAR HWID CUSTOM
-5 - DESCARGAR HTTP CUSTOM`, { sendSeen: false });
+🧾 1 - CREAR PRUEBA
+💰 2 - COMPRAR USUARIO SSH
+🔄 3 - RENOVAR USUARIO SSH
+📱 4 - DESCARGAR Aplicación`, { sendSeen: false });
         }
     }
     // SELECCIÓN DE PLAN ESPECÍFICO
@@ -1248,6 +869,7 @@ Elija una opción:
             if (planData) {
                 const amount = config.prices[planData.amountKey];
                 
+                // Guardar el plan seleccionado
                 await setUserState(phone, 'asking_discount', { 
                     plan: `${planData.days}d`,
                     days: planData.days,
@@ -1260,24 +882,25 @@ Responde: sí o no.`, { sendSeen: false });
             }
         }
         else if (text === '0') {
-            await setUserState(phone, 'buying_hc');
-            await client.sendMessage(phone, `🛒 *PLANES HTTP CUSTOM*
+            await setUserState(phone, 'buying_ssh');
+            await client.sendMessage(phone, `PLANES SSH PREMIUM !
 
 Elija una opción:
-1 - PLANES DIARIOS (7-15 días)
-2 - PLANES MENSUALES (30-50 días)
-0 - VOLVER`, { sendSeen: false });
+🌐 1 - PLANES SSH DIARIOS
+🌐 2 - PLANES SSH MENSUALES
+⬅️ 0 - VOLVER`, { sendSeen: false });
         }
     }
     // PREGUNTA POR CUPÓN DE DESCUENTO
     else if (userState.state === 'asking_discount') {
         const stateData = userState.data || {};
         
-        if (text.toLowerCase().includes('sí') || text.toLowerCase().includes('si')) {
+        if (text === 'sí' || text === 'si' || text === 'sí.' || text === 'si.') {
             await setUserState(phone, 'entering_discount', stateData);
             await client.sendMessage(phone, '📝 Por favor, escribe tu código de descuento:', { sendSeen: false });
         }
-        else if (text.toLowerCase().includes('no')) {
+        else if (text === 'no' || text === 'no.' || text === 'no gracias') {
+            // Proceder sin descuento
             await processPayment(phone, stateData, null);
         }
         else {
@@ -1291,54 +914,21 @@ Elija una opción:
         
         await processPayment(phone, stateData, discountCode);
     }
-    // OPCIÓN 3: RENOVAR HTTP CUSTOM
+    // OPCIÓN 3: RENOVAR USUARIO SSH (SIMPLIFICADO)
     else if (text === '3' && userState.state === 'main_menu') {
-        db.get('SELECT username, hwid, expires_at FROM users WHERE phone = ? AND status = 1', [phone], async (err, user) => {
-            if (err || !user) {
-                await client.sendMessage(phone, `❌ *NO TIENES CUENTA ACTIVA*
+        await client.sendMessage(phone, `🔄 *RENOVAR USUARIO SSH*
 
-No se encontró una cuenta HTTP Custom activa asociada a este número.
+Para renovar tu cuenta SSH existente, por favor:
 
-💡 Puedes crear una prueba (Opción 1) o comprar una cuenta (Opción 2).`, { sendSeen: false });
-                return;
-            }
-            
-            const expireDate = moment(user.expires_at).format('DD/MM/YYYY');
-            
-            await client.sendMessage(phone, `🔄 *RENOVAR CUENTA*
+ Escribe tu nombre de usuario actual
+ Selecciona el plan de renovación
+ Realiza el pago
 
-👤 Usuario actual: *${user.username}*
-🔐 HWID: *${user.hwid}*
-📅 Expira: *${expireDate}*
-
-Para renovar contacta soporte:
-${config.links.support}`, { sendSeen: false });
-        });
+O contacta soporte para asistencia.`, { sendSeen: false });
     }
-    // OPCIÓN 4: CAMBIAR HWID
+    // OPCIÓN 4: DESCARGAR APLICACIÓN
     else if (text === '4' && userState.state === 'main_menu') {
-        db.get('SELECT username, hwid FROM users WHERE phone = ? AND status = 1', [phone], async (err, user) => {
-            if (err || !user) {
-                await client.sendMessage(phone, `❌ *NO TIENES CUENTA ACTIVA*
-
-No se encontró una cuenta HTTP Custom activa.
-
-💡 Crea una prueba (Opción 1) o compra una cuenta (Opción 2).`, { sendSeen: false });
-                return;
-            }
-            
-            await client.sendMessage(phone, `🔄 *CAMBIAR HWID*
-
-Para cambiar el HWID de tu cuenta, contacta soporte:
-${config.links.support}
-
-👤 Usuario: *${user.username}*
-🔐 HWID actual: *${user.hwid}*`, { sendSeen: false });
-        });
-    }
-    // OPCIÓN 5: DESCARGAR HTTP CUSTOM
-    else if (text === '5' && userState.state === 'main_menu') {
-        await client.sendMessage(phone, `📱 *DESCARGAR HTTP CUSTOM*
+        await client.sendMessage(phone, `📱 *DESCARGAR APLICACIÓN*
 
 🔗 Enlace de descarga:
 ${config.links.app_download}
@@ -1346,13 +936,13 @@ ${config.links.app_download}
 💡 *Instrucciones:*
 1. Abre el enlace en tu navegador
 2. Descarga el archivo APK
-3. Permite "Fuentes desconocidas" en ajustes
+3. click en mas detalles instalar de todas formas si te pide
 4. Instala la aplicación
-5. Configura con tu archivo .hc
+5. Configura con tus credenciales SSH
 
-📥 *Para obtener TU archivo .hc personal:*
-• Crea una prueba (Opción 1) - Te enviaré el archivo por WhatsApp
-• O compra una cuenta (Opción 2) - Te enviaré el archivo por WhatsApp`, { sendSeen: false });
+⚡ *Credenciales por defecto:*
+Usuario: (el que te proporcionamos)
+Contraseña: mgvpn247`, { sendSeen: false });
     }
     // COMANDO NO RECONOCIDO
     else {
@@ -1362,7 +952,7 @@ Escribe *menu* para ver las opciones disponibles.`, { sendSeen: false });
     }
 });
 
-// ✅ FUNCIÓN PARA PROCESAR PAGO Y ENVIAR ARCHIVO
+// ✅ FUNCIÓN PARA PROCESAR PAGO
 async function processPayment(phone, planData, discountCode) {
     config = loadConfig();
     
@@ -1393,12 +983,11 @@ El administrador debe configurar MercadoPago primero.
                 amountText = `$${payment.originalAmount} → $${payment.amount} (${payment.discountPercentage}% descuento)`;
             }
             
-            const message = `### HTTP CUSTOM ${planData.days} DÍAS
+            const message = `### USUARIO SSH
 
 - **Precio:** ${amountText}
+- **Límite:** 1 dispositivo(s)
 - **Duración:** ${planData.days} días
-- **Servidor:** ${config.bot.server_ip}:${config.bot.server_port}
-- **Encriptación:** ${config.bot.encryption}
 
 ---
 
@@ -1407,16 +996,11 @@ El administrador debe configurar MercadoPago primero.
 ${payment.paymentUrl}
 
 ⏰ *Este enlace expira en 24 horas*
-💳 *Pago seguro con MercadoPago*
-
-📋 *DESPUÉS DEL PAGO:*
-1. Envía tu HWID aquí
-2. Recibirás TU archivo .hc personal por WhatsApp
-3. Guarda e importa en HTTP Custom
-4. ¡Listo!`;
-
+💳 *Pago seguro con MercadoPago*`;
+            
             await client.sendMessage(phone, message, { sendSeen: false });
             
+            // Enviar QR si existe
             if (fs.existsSync(payment.qrPath)) {
                 try {
                     const media = MessageMedia.fromFilePath(payment.qrPath);
@@ -1428,20 +1012,12 @@ ${payment.paymentUrl}
                     console.error(chalk.red('⚠️ Error enviando QR:'), qrError.message);
                 }
             }
-            
-            // Esperar HWID después del pago
-            await setUserState(phone, 'awaiting_hwid_after_payment', {
-                days: planData.days,
-                amount: payment.amount
-            });
-            
         } else {
             await client.sendMessage(phone, `❌ *ERROR AL GENERAR PAGO*
 
 ${payment.error}
 
 Por favor, intenta de nuevo en unos minutos.`, { sendSeen: false });
-            await setUserState(phone, 'main_menu');
         }
     } catch (error) {
         console.error(chalk.red('❌ Error en proceso de pago:'), error);
@@ -1450,179 +1026,101 @@ Por favor, intenta de nuevo en unos minutos.`, { sendSeen: false });
 ${error.message}
 
 💬 Contacta soporte para asistencia.`, { sendSeen: false });
-        await setUserState(phone, 'main_menu');
     }
+    
+    await setUserState(phone, 'main_menu');
 }
 
-// ✅ ESCUCHAR HWID DESPUÉS DE PAGO
-client.on('message_create', async (msg) => {
-    const text = msg.body.trim();
-    const phone = msg.from;
-    if (phone.includes('@g.us')) return;
-    
-    const userState = await getUserState(phone);
-    
-    // CAPTURAR HWID DESPUÉS DE PAGO APROBADO
-    if (userState.state === 'awaiting_hwid_after_payment') {
-        const stateData = userState.data || {};
-        const hwid = text.trim();
-        
-        // Validación simple
-        if (hwid.length < 6 || hwid.length > 32) {
-            await client.sendMessage(phone, `❌ *HWID INVÁLIDO*
-
-El HWID debe tener entre 6 y 32 caracteres.
-
-📝 Por favor, envía un HWID válido:`, { sendSeen: false });
-            return;
-        }
-        
-        await client.sendMessage(phone, '⏳ Preparando TU archivo .hc personalizado...', { sendSeen: false });
-        
-        try {
-            // Verificar que existe el archivo .hc personal
-            if (!fs.existsSync(config.paths.hc_file)) {
-                await client.sendMessage(phone, 
-                    `❌ *ERROR DEL SISTEMA*
-
-No se encuentra el archivo .hc personal.
-
-💡 Contacta al administrador para solucionar este problema.`, { sendSeen: false });
-                console.error(chalk.red(`❌ Archivo .hc no encontrado: ${config.paths.hc_file}`));
-                return;
-            }
-            
-            const hcData = await prepareAndSendHcFile(phone, hwid, stateData.days);
-            
-            // Enviar archivo por WhatsApp
-            await sendHcFileViaWhatsApp(client, phone, hcData);
-            
-        } catch (error) {
-            await client.sendMessage(phone, `❌ Error preparando archivo .hc: ${error.message}`, { sendSeen: false });
-        }
-        
-        await setUserState(phone, 'main_menu');
-    }
-});
-
-// ✅ TAREAS PROGRAMADAS
+// ✅ Verificar pagos cada 2 minutos
 cron.schedule('*/2 * * * *', () => {
     console.log(chalk.yellow('🔄 Verificando pagos pendientes...'));
+    checkPendingPayments();
 });
 
-cron.schedule('0 */6 * * *', async () => {
-    // Limpiar archivos temporales antiguos
-    console.log(chalk.yellow('🧹 Limpiando archivos temporales...'));
-    
-    const cutoffTime = Date.now() - (24 * 60 * 60 * 1000); // 24 horas
-    
-    // Limpiar archivos en /tmp
-    const tmpDir = '/tmp';
-    if (fs.existsSync(tmpDir)) {
-        fs.readdirSync(tmpDir).forEach(file => {
-            if (file.startsWith('hc_') && file.endsWith('.hc')) {
-                const filePath = path.join(tmpDir, file);
-                try {
-                    const stats = fs.statSync(filePath);
-                    if (stats.mtimeMs < cutoffTime) {
-                        fs.unlinkSync(filePath);
-                        console.log(chalk.green(`🗑️ Eliminado: ${file}`));
-                    }
-                } catch (e) {
-                    // Ignorar errores
-                }
-            }
-        });
-    }
-});
-
+// ✅ Limpiar usuarios expirados cada 15 minutos
 cron.schedule('*/15 * * * *', async () => {
     const now = moment().format('YYYY-MM-DD HH:mm:ss');
-    console.log(chalk.yellow(`🧹 Limpiando usuarios expirados (${now})...`));
+    console.log(chalk.yellow(`🧹 Limpiando usuarios expirados cada 15 minutos (${now})...`));
     
     db.all('SELECT username FROM users WHERE expires_at < ? AND status = 1', [now], async (err, rows) => {
-        if (err || !rows || rows.length === 0) return;
+        if (err) {
+            console.error(chalk.red('❌ Error BD:'), err.message);
+            return;
+        }
+        if (!rows || rows.length === 0) return;
         
         for (const r of rows) {
             try {
+                await execPromise(`pkill -u ${r.username} 2>/dev/null || true`);
+                await execPromise(`userdel -f ${r.username} 2>/dev/null || true`);
                 db.run('UPDATE users SET status = 0 WHERE username = ?', [r.username]);
-                console.log(chalk.green(`🗑️ Desactivado: ${r.username}`));
+                console.log(chalk.green(`🗑️ Eliminado: ${r.username}`));
             } catch (e) {
-                console.error(chalk.red(`Error desactivando ${r.username}:`), e.message);
+                console.error(chalk.red(`Error eliminando ${r.username}:`), e.message);
             }
         }
         console.log(chalk.green(`✅ Limpiados ${rows.length} usuarios expirados`));
     });
 });
 
-console.log(chalk.green('\n🚀 Inicializando HTTP Custom Bot con TU archivo .hc personal...\n'));
+// ✅ Limpiar estados antiguos cada hora
+cron.schedule('0 * * * *', () => {
+    console.log(chalk.yellow('🧹 Limpiando estados antiguos...'));
+    db.run(`DELETE FROM user_state WHERE updated_at < datetime('now', '-1 hour')`, (err) => {
+        if (!err) console.log(chalk.green('✅ Estados antiguos limpiados'));
+    });
+});
+
+// ✅ Limpiar pagos antiguos cada 24 horas
+cron.schedule('0 0 * * *', () => {
+    console.log(chalk.yellow('🧹 Limpiando pagos antiguos...'));
+    db.run(`DELETE FROM payments WHERE status = 'pending' AND created_at < datetime('now', '-7 days')`, (err) => {
+        if (!err) console.log(chalk.green('✅ Pagos antiguos limpiados'));
+    });
+});
+
+console.log(chalk.green('\n🚀 Inicializando bot con múltiples planes...\n'));
 client.initialize();
 BOTEOF
 
-echo -e "${GREEN}✅ Bot creado que envía TU archivo .hc${NC}"
+echo -e "${GREEN}✅ Bot creado con múltiples planes${NC}"
 
 # ================================================
 # CREAR PANEL DE CONTROL
 # ================================================
 echo -e "\n${CYAN}${BOLD}🎛️  CREANDO PANEL DE CONTROL...${NC}"
 
-cat > /usr/local/bin/hcbot << 'PANELEOF'
+cat > /usr/local/bin/sshbot << 'PANELEOF'
 #!/bin/bash
-RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[0;33m'; CYAN='\033[0;36m'; BLUE='\033[0;34m'; PURPLE='\033[0;35m'; NC='\033[0m'
+RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[0;33m'; CYAN='\033[0;36m'; BLUE='\033[0;34m'; NC='\033[0m'
 
-DB="/opt/http-custom-bot/data/users.db"
-CONFIG="/opt/http-custom-bot/config/config.json"
+DB="/opt/ssh-bot/data/users.db"
+CONFIG="/opt/ssh-bot/config/config.json"
 
 get_val() { jq -r "$1" "$CONFIG" 2>/dev/null; }
-set_val() { 
-    local key="$1"
-    local value="$2"
-    local temp_file=$(mktemp)
-    
-    if [[ "$value" =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
-        jq "$key = $value" "$CONFIG" > "$temp_file"
-    elif [[ "$value" == "true" || "$value" == "false" || "$value" == "null" ]]; then
-        jq "$key = $value" "$CONFIG" > "$temp_file"
-    else
-        jq "$key = \"$value\"" "$CONFIG" > "$temp_file"
-    fi
-    
-    if [ $? -eq 0 ]; then
-        mv "$temp_file" "$CONFIG"
-        echo -e "${GREEN}✅ Configuración actualizada${NC}"
-        return 0
-    else
-        rm -f "$temp_file"
-        echo -e "${RED}❌ Error actualizando configuración${NC}"
-        return 1
-    fi
-}
+set_val() { local t=$(mktemp); jq "$1 = $2" "$CONFIG" > "$t" && mv "$t" "$CONFIG"; }
 
 show_header() {
     clear
     echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
-    echo -e "${CYAN}║          🎛️  PANEL HTTP CUSTOM - TU ARCHIVO .HC          ║${NC}"
-    echo -e "${CYAN}║               📤 ENVÍA TU ARCHIVO POR WHATSAPP            ║${NC}"
+    echo -e "${CYAN}║                🎛️  PANEL SSH BOT - MÚLTIPLES PLANES        ║${NC}"
     echo -e "${CYAN}╚══════════════════════════════════════════════════════════════╝${NC}\n"
 }
 
 while true; do
     show_header
     
-    # Obtener estadísticas
     TOTAL_USERS=$(sqlite3 "$DB" "SELECT COUNT(*) FROM users" 2>/dev/null || echo "0")
     ACTIVE_USERS=$(sqlite3 "$DB" "SELECT COUNT(*) FROM users WHERE status=1" 2>/dev/null || echo "0")
     PENDING_PAYMENTS=$(sqlite3 "$DB" "SELECT COUNT(*) FROM payments WHERE status='pending'" 2>/dev/null || echo "0")
     
-    # Estado del bot
-    STATUS=$(pm2 jlist 2>/dev/null | jq -r '.[] | select(.name=="http-custom-bot") | .pm2_env.status' 2>/dev/null || echo "stopped")
+    STATUS=$(pm2 jlist 2>/dev/null | jq -r '.[] | select(.name=="ssh-bot") | .pm2_env.status' 2>/dev/null || echo "stopped")
     if [[ "$STATUS" == "online" ]]; then
         BOT_STATUS="${GREEN}● ACTIVO${NC}"
     else
         BOT_STATUS="${RED}● DETENIDO${NC}"
     fi
     
-    # Estado MercadoPago
     MP_TOKEN=$(get_val '.mercadopago.access_token')
     if [[ -n "$MP_TOKEN" && "$MP_TOKEN" != "" && "$MP_TOKEN" != "null" ]]; then
         MP_STATUS="${GREEN}✅ CONFIGURADO${NC}"
@@ -1630,32 +1128,20 @@ while true; do
         MP_STATUS="${RED}❌ NO CONFIGURADO${NC}"
     fi
     
-    # Archivo .hc personal
-    HC_FILE=$(get_val '.paths.hc_file')
-    if [[ -f "$HC_FILE" ]]; then
-        HC_SIZE=$(stat -c%s "$HC_FILE" 2>/dev/null || stat -f%z "$HC_FILE" 2>/dev/null || echo "0")
-        HC_SIZE_MB=$(echo "scale=2; $HC_SIZE / (1024*1024)" | bc)
-        HC_STATUS="${GREEN}✅ ENCONTRADO (${HC_SIZE_MB} MB)${NC}"
-        HC_NAME=$(basename "$HC_FILE")
-    else
-        HC_STATUS="${RED}❌ NO ENCONTRADO${NC}"
-        HC_NAME="No configurado"
-    fi
-    
     echo -e "${YELLOW}📊 ESTADO DEL SISTEMA${NC}"
     echo -e "  Bot: $BOT_STATUS"
     echo -e "  Usuarios: ${CYAN}$ACTIVE_USERS/$TOTAL_USERS${NC} activos/total"
     echo -e "  Pagos pendientes: ${CYAN}$PENDING_PAYMENTS${NC}"
     echo -e "  MercadoPago: $MP_STATUS"
-    echo -e "  TU archivo .hc: $HC_STATUS"
-    echo -e "  Archivo: ${CYAN}$HC_NAME${NC}"
+    echo -e "  Test: ${GREEN}1 hora${NC} | Limpieza: ${GREEN}cada 15 min${NC}"
+    echo -e "  Contraseña: ${GREEN}mgvpn247${NC} (FIJA PARA TODOS)"
     echo -e ""
     
     echo -e "${YELLOW}💰 PRECIOS ACTUALES:${NC}"
-    echo -e "  7 días: $ $(get_val '.prices.price_7d') ARS"
-    echo -e "  15 días: $ $(get_val '.prices.price_15d') ARS"
-    echo -e "  30 días: $ $(get_val '.prices.price_30d') ARS"
-    echo -e "  50 días: $ $(get_val '.prices.price_50d') ARS"
+    echo -e "  7 días: $ $(get_val '.prices.price_7d_1conn') ARS"
+    echo -e "  15 días: $ $(get_val '.prices.price_15d_1conn') ARS"
+    echo -e "  30 días: $ $(get_val '.prices.price_30d_1conn') ARS"
+    echo -e "  50 días: $ $(get_val '.prices.price_50d_1conn') ARS"
     echo -e ""
     
     echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
@@ -1668,9 +1154,6 @@ while true; do
     echo -e "${CYAN}[7]${NC}  🔑  Configurar MercadoPago"
     echo -e "${CYAN}[8]${NC}  📊  Ver estadísticas"
     echo -e "${CYAN}[9]${NC}  📝  Ver logs"
-    echo -e "${PURPLE}[10]${NC} 📁  Gestionar TU archivo .hc (IMPORTANTE)"
-    echo -e "${CYAN}[11]${NC} ⚙️   Configuración del servidor"
-    echo -e "${CYAN}[12]${NC} 🗑️   Limpiar temporales"
     echo -e "${CYAN}[0]${NC}  🚪  Salir"
     echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     
@@ -1680,15 +1163,15 @@ while true; do
     case $OPTION in
         1)
             echo -e "\n${YELLOW}🔄 Reiniciando bot...${NC}"
-            cd /root/http-custom-bot
-            pm2 restart http-custom-bot 2>/dev/null || pm2 start bot.js --name http-custom-bot
+            cd /root/ssh-bot
+            pm2 restart ssh-bot 2>/dev/null || pm2 start bot.js --name ssh-bot
             pm2 save
             echo -e "${GREEN}✅ Bot reiniciado${NC}"
             sleep 2
             ;;
         2)
             echo -e "\n${YELLOW}🛑 Deteniendo bot...${NC}"
-            pm2 stop http-custom-bot
+            pm2 stop ssh-bot
             echo -e "${GREEN}✅ Bot detenido${NC}"
             sleep 2
             ;;
@@ -1701,44 +1184,53 @@ while true; do
             if [[ -f "/root/qr-whatsapp.png" ]]; then
                 echo -e "${GREEN}✅ QR guardado en: /root/qr-whatsapp.png${NC}\n"
                 read -p "¿Ver logs en tiempo real? (s/N): " VER
-                [[ "$VER" == "s" ]] && pm2 logs http-custom-bot --lines 100
+                [[ "$VER" == "s" ]] && pm2 logs ssh-bot --lines 100
             else
                 echo -e "${YELLOW}⚠️  QR no generado aún${NC}\n"
                 read -p "¿Ver logs? (s/N): " VER
-                [[ "$VER" == "s" ]] && pm2 logs http-custom-bot --lines 50
+                [[ "$VER" == "s" ]] && pm2 logs ssh-bot --lines 50
             fi
             ;;
         4)
             clear
             echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
-            echo -e "${CYAN}║                     👤 CREAR USUARIO MANUAL                 ║${NC}"
+            echo -e "${CYAN}║                     👤 CREAR USUARIO                        ║${NC}"
             echo -e "${CYAN}╚══════════════════════════════════════════════════════════════╝${NC}\n"
             
             read -p "Teléfono (ej: 5491122334455): " PHONE
-            read -p "HWID: " HWID
-            read -p "Días (0=test, 7,15,30,50): " DAYS
+            read -p "Usuario (auto=generar): " USERNAME
+            read -p "Tipo (test/premium): " TIPO
+            read -p "Días (0=test 1h, 7,15,30,50=premium): " DAYS
             
             [[ -z "$DAYS" ]] && DAYS="30"
+            if [[ "$USERNAME" == "auto" || -z "$USERNAME" ]]; then
+                if [[ "$TIPO" == "test" ]]; then
+                    USERNAME="test$(shuf -i 1000-9999 -n 1)"  # testXXXX
+                else
+                    USERNAME="user$(shuf -i 1000-9999 -n 1)"  # userXXXX
+                fi
+            fi
+            PASSWORD="mgvpn247"
             
-            if [[ "$DAYS" == "0" ]]; then
+            if [[ "$TIPO" == "test" ]]; then
+                DAYS="0"
                 EXPIRE_DATE=$(date -d "+1 hour" +"%Y-%m-%d %H:%M:%S")
-                TIPO="test"
+                useradd -M -s /bin/false "$USERNAME" && echo "$USERNAME:$PASSWORD" | chpasswd
             else
                 EXPIRE_DATE=$(date -d "+$DAYS days" +"%Y-%m-%d 23:59:59")
-                TIPO="premium"
+                useradd -M -s /bin/false -e "$(date -d "+$DAYS days" +%Y-%m-%d)" "$USERNAME" && echo "$USERNAME:$PASSWORD" | chpasswd
             fi
             
-            USERNAME="MANUAL_${HWID:0:10}"
-            
-            sqlite3 "$DB" "INSERT INTO users (phone, username, hwid, tipo, expires_at, status) VALUES ('$PHONE', '$USERNAME', '$HWID', '$TIPO', '$EXPIRE_DATE', 1)"
-            
-            echo -e "\n${GREEN}✅ USUARIO CREADO MANUALMENTE${NC}"
-            echo -e "👤 Usuario: $USERNAME"
-            echo -e "🔐 HWID: $HWID"
-            echo -e "⏰ Expira: $EXPIRE_DATE"
-            echo -e "🔌 Días: $DAYS"
-            echo -e "📥 El usuario recibirá TU archivo .hc cuando interactúe con el bot"
-            
+            if [[ $? -eq 0 ]]; then
+                sqlite3 "$DB" "INSERT INTO users (phone, username, password, tipo, expires_at, max_connections, status) VALUES ('$PHONE', '$USERNAME', '$PASSWORD', '$TIPO', '$EXPIRE_DATE', 1, 1)"
+                echo -e "\n${GREEN}✅ USUARIO CREADO${NC}"
+                echo -e "👤 Usuario: ${USERNAME}"
+                echo -e "🔑 Contraseña: ${PASSWORD}"
+                echo -e "⏰ Expira: ${EXPIRE_DATE}"
+                echo -e "🔌 Días: ${DAYS}"
+            else
+                echo -e "\n${RED}❌ Error creando usuario${NC}"
+            fi
             read -p "Presiona Enter..." 
             ;;
         5)
@@ -1747,9 +1239,8 @@ while true; do
             echo -e "${CYAN}║                     👥 USUARIOS ACTIVOS                     ║${NC}"
             echo -e "${CYAN}╚══════════════════════════════════════════════════════════════╝${NC}\n"
             
-            echo -e "${YELLOW}📋 ÚLTIMOS 20 USUARIOS:${NC}\n"
-            sqlite3 -column -header "$DB" "SELECT username, hwid, tipo, expires_at, substr(phone,1,12) as tel FROM users WHERE status = 1 ORDER BY expires_at DESC LIMIT 20"
-            echo -e "\n${YELLOW}Total activos: ${ACTIVE_USERS}${NC}"
+            sqlite3 -column -header "$DB" "SELECT username, password, tipo, expires_at, substr(phone,1,12) as tel FROM users WHERE status = 1 ORDER BY expires_at DESC LIMIT 20"
+            echo -e "\n${YELLOW}Total: ${ACTIVE_USERS} activos${NC}"
             read -p "Presiona Enter..." 
             ;;
         6)
@@ -1758,10 +1249,10 @@ while true; do
             echo -e "${CYAN}║                    💰 CAMBIAR PRECIOS                       ║${NC}"
             echo -e "${CYAN}╚══════════════════════════════════════════════════════════════╝${NC}\n"
             
-            CURRENT_7D=$(get_val '.prices.price_7d')
-            CURRENT_15D=$(get_val '.prices.price_15d')
-            CURRENT_30D=$(get_val '.prices.price_30d')
-            CURRENT_50D=$(get_val '.prices.price_50d')
+            CURRENT_7D=$(get_val '.prices.price_7d_1conn')
+            CURRENT_15D=$(get_val '.prices.price_15d_1conn')
+            CURRENT_30D=$(get_val '.prices.price_30d_1conn')
+            CURRENT_50D=$(get_val '.prices.price_50d_1conn')
             
             echo -e "${YELLOW}💰 PRECIOS ACTUALES:${NC}"
             echo -e "  1. 7 días: $${CURRENT_7D}"
@@ -1775,11 +1266,12 @@ while true; do
             read -p "Nuevo precio 30d [${CURRENT_30D}]: " NEW_30D
             read -p "Nuevo precio 50d [${CURRENT_50D}]: " NEW_50D
             
-            [[ -n "$NEW_7D" ]] && set_val '.prices.price_7d' "$NEW_7D"
-            [[ -n "$NEW_15D" ]] && set_val '.prices.price_15d' "$NEW_15D"
-            [[ -n "$NEW_30D" ]] && set_val '.prices.price_30d' "$NEW_30D"
-            [[ -n "$NEW_50D" ]] && set_val '.prices.price_50d' "$NEW_50D"
+            [[ -n "$NEW_7D" ]] && set_val '.prices.price_7d_1conn' "$NEW_7D"
+            [[ -n "$NEW_15D" ]] && set_val '.prices.price_15d_1conn' "$NEW_15D"
+            [[ -n "$NEW_30D" ]] && set_val '.prices.price_30d_1conn' "$NEW_30D"
+            [[ -n "$NEW_50D" ]] && set_val '.prices.price_50d_1conn' "$NEW_50D"
             
+            echo -e "\n${GREEN}✅ Precios actualizados${NC}"
             read -p "Presiona Enter..." 
             ;;
         7)
@@ -1809,11 +1301,11 @@ while true; do
                 read -p "Pega el Access Token: " NEW_TOKEN
                 
                 if [[ "$NEW_TOKEN" =~ ^APP_USR- ]] || [[ "$NEW_TOKEN" =~ ^TEST- ]]; then
-                    set_val '.mercadopago.access_token' "$NEW_TOKEN"
+                    set_val '.mercadopago.access_token' "\"$NEW_TOKEN\""
                     set_val '.mercadopago.enabled' "true"
                     echo -e "\n${GREEN}✅ Token configurado${NC}"
                     echo -e "${YELLOW}🔄 Reiniciando bot...${NC}"
-                    cd /root/http-custom-bot && pm2 restart http-custom-bot
+                    cd /root/ssh-bot && pm2 restart ssh-bot
                     sleep 2
                     echo -e "${GREEN}✅ MercadoPago activado${NC}"
                 else
@@ -1835,204 +1327,17 @@ while true; do
             echo -e "\n${YELLOW}💰 PAGOS:${NC}"
             sqlite3 "$DB" "SELECT 'Pendientes: ' || SUM(CASE WHEN status='pending' THEN 1 ELSE 0 END) || ' | Aprobados: ' || SUM(CASE WHEN status='approved' THEN 1 ELSE 0 END) || ' | Total: $' || printf('%.2f', SUM(CASE WHEN status='approved' THEN final_amount ELSE 0 END)) FROM payments"
             
+            echo -e "\n${YELLOW}📅 DISTRIBUCIÓN POR PLANES:${NC}"
+            sqlite3 "$DB" "SELECT '7 días: ' || SUM(CASE WHEN plan='7d' THEN 1 ELSE 0 END) || ' | 15 días: ' || SUM(CASE WHEN plan='15d' THEN 1 ELSE 0 END) || ' | 30 días: ' || SUM(CASE WHEN plan='30d' THEN 1 ELSE 0 END) || ' | 50 días: ' || SUM(CASE WHEN plan='50d' THEN 1 ELSE 0 END) FROM payments WHERE status='approved'"
+            
+            echo -e "\n${YELLOW}💸 INGRESOS HOY:${NC}"
+            sqlite3 "$DB" "SELECT 'Hoy: $' || printf('%.2f', SUM(CASE WHEN date(approved_at) = date('now') THEN final_amount ELSE 0 END)) FROM payments"
+            
             read -p "\nPresiona Enter..." 
             ;;
         9)
             echo -e "\n${YELLOW}📝 Logs (Ctrl+C para salir)...${NC}\n"
-            pm2 logs http-custom-bot --lines 100
-            ;;
-        10)
-            clear
-            echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
-            echo -e "${CYAN}║          📁 GESTIONAR TU ARCHIVO .HC PERSONAL           ║${NC}"
-            echo -e "${CYAN}╚══════════════════════════════════════════════════════════════╝${NC}\n"
-            
-            CURRENT_FILE=$(get_val '.paths.hc_file')
-            
-            if [[ -f "$CURRENT_FILE" ]]; then
-                FILE_SIZE=$(stat -c%s "$CURRENT_FILE" 2>/dev/null || stat -f%z "$CURRENT_FILE" 2>/dev/null || echo "0")
-                FILE_SIZE_MB=$(echo "scale=2; $FILE_SIZE / (1024*1024)" | bc)
-                FILE_DATE=$(stat -c %y "$CURRENT_FILE" 2>/dev/null || stat -f %Sm "$CURRENT_FILE" 2>/dev/null || echo "Desconocido")
-                
-                echo -e "${GREEN}✅ TU ARCHIVO .HC ACTUAL${NC}"
-                echo -e "  📁 Archivo: ${CYAN}$(basename "$CURRENT_FILE")${NC}"
-                echo -e "  📏 Tamaño: ${CYAN}${FILE_SIZE_MB} MB${NC}"
-                echo -e "  📅 Modificado: ${CYAN}$FILE_DATE${NC}"
-                echo -e "  📍 Ruta: ${CYAN}$CURRENT_FILE${NC}"
-                echo -e ""
-                
-                if [[ $FILE_SIZE -gt 64000000 ]]; then
-                    echo -e "${RED}⚠️  ADVERTENCIA: Archivo muy grande (>64MB)${NC}"
-                    echo -e "${YELLOW}WhatsApp no permite enviar archivos mayores a 64MB${NC}"
-                    echo -e ""
-                fi
-                
-                # Mostrar primeras líneas
-                echo -e "${YELLOW}📄 PRIMERAS 5 LÍNEAS:${NC}"
-                head -5 "$CURRENT_FILE"
-                echo -e ""
-            else
-                echo -e "${RED}❌ NO HAY ARCHIVO .HC CONFIGURADO${NC}"
-                echo -e "${YELLOW}El bot NO funcionará sin un archivo .hc${NC}"
-                echo -e ""
-            fi
-            
-            echo -e "${CYAN}📋 OPCIONES:${NC}"
-            echo -e "  1. Cambiar archivo .hc"
-            echo -e "  2. Ver contenido completo"
-            echo -e "  3. Probar modificación"
-            echo -e "  0. Volver"
-            echo -e ""
-            
-            read -p "Selecciona opción: " HC_OPT
-            
-            case $HC_OPT in
-                1)
-                    echo -e "\n${CYAN}📤 CAMBIAR TU ARCHIVO .HC${NC}"
-                    echo -e "${YELLOW}1. Sube tu archivo .hc al servidor${NC}"
-                    echo -e "${YELLOW}2. Debe tener extensión .hc${NC}"
-                    echo -e "${YELLOW}3. Tamaño máximo recomendado: 10MB${NC}"
-                    echo -e ""
-                    echo -e "${GREEN}📝 Paths recomendados:${NC}"
-                    echo -e "  /root/MI_ARCHIVO.hc"
-                    echo -e "  /opt/http-custom-bot/hc_storage/MI_ARCHIVO.hc"
-                    echo -e ""
-                    read -p "Path completo del NUEVO archivo .hc: " NEW_HC_PATH
-                    
-                    if [[ -f "$NEW_HC_PATH" ]]; then
-                        # Verificar tamaño
-                        NEW_SIZE=$(stat -c%s "$NEW_HC_PATH" 2>/dev/null || stat -f%z "$NEW_HC_PATH" 2>/dev/null || echo "0")
-                        NEW_SIZE_MB=$(echo "scale=2; $NEW_SIZE / (1024*1024)" | bc)
-                        
-                        if [[ $NEW_SIZE -gt 64000000 ]]; then
-                            echo -e "${RED}❌ Archivo muy grande (${NEW_SIZE_MB}MB)${NC}"
-                            echo -e "${YELLOW}WhatsApp no permite archivos >64MB${NC}"
-                        else
-                            # Copiar a ubicación segura
-                            SAFE_PATH="/opt/http-custom-bot/hc_storage/$(basename "$NEW_HC_PATH")"
-                            cp "$NEW_HC_PATH" "$SAFE_PATH"
-                            
-                            # Actualizar configuración
-                            set_val '.paths.hc_file' "$SAFE_PATH"
-                            
-                            echo -e "${GREEN}✅ Archivo .hc actualizado${NC}"
-                            echo -e "${YELLOW}🔄 Reiniciando bot...${NC}"
-                            cd /root/http-custom-bot && pm2 restart http-custom-bot
-                            sleep 2
-                            echo -e "${GREEN}✅ Bot actualizado con nuevo archivo${NC}"
-                        fi
-                    else
-                        echo -e "${RED}❌ Archivo no encontrado${NC}"
-                    fi
-                    ;;
-                2)
-                    if [[ -f "$CURRENT_FILE" ]]; then
-                        echo -e "\n${YELLOW}📄 CONTENIDO COMPLETO:${NC}"
-                        cat "$CURRENT_FILE"
-                        echo -e ""
-                    fi
-                    ;;
-                3)
-                    if [[ -f "$CURRENT_FILE" ]]; then
-                        echo -e "\n${YELLOW}🔧 PROBAR MODIFICACIÓN${NC}"
-                        
-                        CONFIG="/opt/http-custom-bot/config/config.json"
-                        SERVER_IP=$(jq -r '.bot.server_ip' "$CONFIG")
-                        PORT=$(jq -r '.bot.server_port' "$CONFIG")
-                        METHOD=$(jq -r '.bot.encryption' "$CONFIG")
-                        PASSWORD=$(jq -r '.bot.password' "$CONFIG")
-                        
-                        TEST_USER="TEST_USER"
-                        TEST_HWID="TEST123456"
-                        TEST_DAYS="30"
-                        TEST_OUTPUT="/tmp/test_modificado.hc"
-                        
-                        echo -e "Probando modificación del archivo..."
-                        
-                        OUTPUT=$(python3 /opt/http-custom-bot/modify_hc_file.py "$CURRENT_FILE" "$TEST_OUTPUT" "$TEST_USER" "$TEST_HWID" "$SERVER_IP" "$PORT" "$METHOD" "$PASSWORD" "$TEST_DAYS" 2>/dev/null)
-                        
-                        if [[ $? -eq 0 ]]; then
-                            RESULT=$(echo "$OUTPUT" | python3 -c "import sys, json; data=json.load(sys.stdin); print(f'✅ Archivo modificado: {data[\"fileName\"]}'); print(f'📏 Tamaño: {data[\"fileSize\"]} bytes')")
-                            echo -e "\n${GREEN}$RESULT${NC}"
-                            
-                            echo -e "\n${YELLOW}📄 PRIMERAS 10 LÍNEAS MODIFICADAS:${NC}"
-                            head -10 "$TEST_OUTPUT"
-                            
-                            rm -f "$TEST_OUTPUT"
-                        else
-                            echo -e "${RED}❌ Error en modificación${NC}"
-                        fi
-                    fi
-                    ;;
-            esac
-            
-            read -p "Presiona Enter..." 
-            ;;
-        11)
-            clear
-            echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
-            echo -e "${CYAN}║               ⚙️  CONFIGURACIÓN DEL SERVIDOR               ║${NC}"
-            echo -e "${CYAN}╚══════════════════════════════════════════════════════════════╝${NC}\n"
-            
-            SERVER_IP=$(get_val '.bot.server_ip')
-            SERVER_PORT=$(get_val '.bot.server_port')
-            ENCRYPTION=$(get_val '.bot.encryption')
-            PASSWORD=$(get_val '.bot.password')
-            
-            echo -e "${YELLOW}🔧 CONFIGURACIÓN ACTUAL:${NC}"
-            echo -e "  IP: ${CYAN}$SERVER_IP${NC}"
-            echo -e "  Puerto: ${CYAN}$SERVER_PORT${NC}"
-            echo -e "  Encriptación: ${CYAN}$ENCRYPTION${NC}"
-            echo -e "  Password: ${CYAN}$PASSWORD${NC}"
-            echo -e ""
-            echo -e "${YELLOW}📋 ESTOS DATOS SE INSERTAN EN LOS ARCHIVOS .HC:${NC}"
-            echo -e "  Los marcadores TU_IP_AQUI, TU_SERVIDOR_AQUI se reemplazan"
-            echo -e "  con esta configuración cuando se envía el archivo"
-            echo -e ""
-            
-            read -p "¿Modificar configuración? (s/N): " MOD
-            if [[ "$MOD" == "s" ]]; then
-                echo ""
-                read -p "Nueva IP [${SERVER_IP}]: " NEW_IP
-                read -p "Nuevo puerto [${SERVER_PORT}]: " NEW_PORT
-                read -p "Nueva encriptación [${ENCRYPTION}]: " NEW_ENC
-                read -p "Nuevo password [${PASSWORD}]: " NEW_PASS
-                
-                [[ -n "$NEW_IP" ]] && set_val '.bot.server_ip' "$NEW_IP"
-                [[ -n "$NEW_PORT" ]] && set_val '.bot.server_port' "$NEW_PORT"
-                [[ -n "$NEW_ENC" ]] && set_val '.bot.encryption' "$NEW_ENC"
-                [[ -n "$NEW_PASS" ]] && set_val '.bot.password' "$NEW_PASS"
-                
-                echo -e "\n${GREEN}✅ Configuración actualizada${NC}"
-                echo -e "${YELLOW}🔄 Los próximos archivos .hc usarán esta configuración${NC}"
-            fi
-            
-            read -p "Presiona Enter..." 
-            ;;
-        12)
-            clear
-            echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
-            echo -e "${CYAN}║                 🗑️  LIMPIAR ARCHIVOS TEMPORALES           ║${NC}"
-            echo -e "${CYAN}╚══════════════════════════════════════════════════════════════╝${NC}\n"
-            
-            echo -e "${YELLOW}🗑️  Buscando archivos temporales...${NC}"
-            TEMP_COUNT=$(find /tmp -name "hc_*.hc" -type f 2>/dev/null | wc -l)
-            echo -e "Encontrados: ${CYAN}$TEMP_COUNT${NC} archivos"
-            
-            if [[ $TEMP_COUNT -gt 0 ]]; then
-                find /tmp -name "hc_*.hc" -type f 2>/dev/null | head -5
-                echo -e ""
-                
-                read -p "¿Eliminar archivos temporales? (s/N): " CONFIRM
-                if [[ "$CONFIRM" == "s" ]]; then
-                    find /tmp -name "hc_*.hc" -type f -delete 2>/dev/null
-                    echo -e "${GREEN}✅ Archivos temporales eliminados${NC}"
-                fi
-            else
-                echo -e "${GREEN}✅ No hay archivos temporales${NC}"
-            fi
-            
-            read -p "Presiona Enter..." 
+            pm2 logs ssh-bot --lines 100
             ;;
         0)
             echo -e "\n${GREEN}👋 Hasta pronto${NC}\n"
@@ -2046,7 +1351,7 @@ while true; do
 done
 PANELEOF
 
-chmod +x /usr/local/bin/hcbot
+chmod +x /usr/local/bin/sshbot
 echo -e "${GREEN}✅ Panel de control creado${NC}"
 
 # ================================================
@@ -2055,7 +1360,7 @@ echo -e "${GREEN}✅ Panel de control creado${NC}"
 echo -e "\n${CYAN}${BOLD}🚀 INICIANDO BOT...${NC}"
 
 cd "$USER_HOME"
-pm2 start bot.js --name http-custom-bot
+pm2 start bot.js --name ssh-bot
 pm2 save
 pm2 startup systemd -u root --hp /root > /dev/null 2>&1
 
@@ -2069,43 +1374,40 @@ echo -e "${GREEN}${BOLD}"
 cat << "FINAL"
 ╔══════════════════════════════════════════════════════════════╗
 ║                                                              ║
-║       🎉 INSTALACIÓN COMPLETADA - TU ARCHIVO .HC          ║
+║       🎉 INSTALACIÓN COMPLETADA - MÚLTIPLES PLANES 🎉      ║
 ║                                                              ║
-║               HTTP CUSTOM BOT - CONFIGURADO                 ║
-║               📤 ENVÍA TU ARCHIVO .HC POR WHATSAPP         ║
-║               ⚡ MISMO ARCHIVO PARA TODOS LOS USUARIOS      ║
+║               SSH BOT PRO - CONFIGURADO                     ║
+║               💡 PLANES: 7, 15, 30, 50 DÍAS                ║
+║               🔐 CONTRASEÑA FIJA: mgvpn247                 ║
 ║               💰 MERCADOPAGO INTEGRADO                      ║
+║               📱 FLUJO NATURAL DE USUARIO                  ║
 ║                                                              ║
 ╚══════════════════════════════════════════════════════════════╝
 FINAL
 echo -e "${NC}"
 
 echo -e "${CYAN}══════════════════════════════════════════════════════════════${NC}"
-echo -e "${GREEN}✅ Sistema instalado que envía TU archivo .hc${NC}"
-echo -e "${GREEN}✅ Archivo enviado directamente por WhatsApp${NC}"
-echo -e "${GREEN}✅ Sin links externos, sin generación automática${NC}"
-echo -e "${GREEN}✅ Todos reciben TU archivo (con HWID personalizado)${NC}"
-echo -e "${GREEN}✅ Panel de control: ${CYAN}hcbot${NC}"
+echo -e "${GREEN}✅ Sistema instalado con múltiples planes${NC}"
+echo -e "${GREEN}✅ Menú: 1=Prueba, 2=Comprar, 3=Renovar, 4=APP${NC}"
+echo -e "${GREEN}✅ Planes disponibles: 7, 15, 30, 50 días${NC}"
+echo -e "${GREEN}✅ Pregunta por cupón de descuento${NC}"
+echo -e "${GREEN}✅ Generación de link MercadoPago${NC}"
+echo -e "${GREEN}✅ Test 1 hora${NC}"
+echo -e "${GREEN}✅ CONTRASEÑA FIJA: mgvpn247 para todos${NC}"
+echo -e "${GREEN}✅ Pruebas: testXXXX (ej: test1234)${NC}"
+echo -e "${GREEN}✅ Compras: userXXXX (ej: user5678)${NC}"
 echo -e "${CYAN}══════════════════════════════════════════════════════════════${NC}\n"
 
-echo -e "${YELLOW}📋 COMANDOS PRINCIPALES:${NC}\n"
-echo -e "  ${GREEN}hcbot${NC}         - Panel de control completo"
-echo -e "  ${GREEN}pm2 logs http-custom-bot${NC} - Ver logs\n"
+echo -e "${YELLOW}📋 COMANDOS DISPONIBLES:${NC}\n"
+echo -e "  ${GREEN}sshbot${NC}         - Panel de control"
+echo -e "  ${GREEN}pm2 logs ssh-bot${NC} - Ver logs"
+echo -e "  ${GREEN}pm2 restart ssh-bot${NC} - Reiniciar bot\n"
 
-echo -e "${YELLOW}🔧 PASOS IMPORTANTES:${NC}\n"
-echo -e "  1. Ejecuta: ${GREEN}hcbot${NC}"
-echo -e "  2. Opción ${PURPLE}[10]${NC} - Verificar/Configurar TU archivo .hc"
-echo -e "  3. Opción ${CYAN}[7]${NC} - Configurar MercadoPago"
-echo -e "  4. Opción ${CYAN}[11]${NC} - Verificar configuración del servidor"
-echo -e "  5. Opción ${CYAN}[3]${NC} - Escanear QR WhatsApp"
-echo -e "  6. ¡Listo! El bot enviará TU archivo .hc por WhatsApp\n"
-
-echo -e "${YELLOW}🎯 CARACTERÍSTICAS:${NC}\n"
-echo -e "  ✅ ${GREEN}Usa TU archivo .hc personal${NC} - No genera archivos"
-echo -e "  ✅ ${GREEN}Envía por WhatsApp${NC} - Sin links, sin descargas"
-echo -e "  ✅ ${GREEN}Personaliza con HWID${NC} - Reemplaza marcadores automáticamente"
-echo -e "  ✅ ${GREEN}Mismo archivo para todos${NC} - Fácil de mantener"
-echo -e "  ✅ ${GREEN}Sin problemas de extensión${NC} - WhatsApp mantiene .hc puro\n"
+echo -e "${YELLOW}🔧 CONFIGURACIÓN INICIAL:${NC}\n"
+echo -e "  1. Ejecuta: ${GREEN}sshbot${NC}"
+echo -e "  2. Opción ${CYAN}[7]${NC} - Configurar MercadoPago"
+echo -e "  3. Opción ${CYAN}[3]${NC} - Escanear QR WhatsApp"
+echo -e "  4. Opción ${CYAN}[6]${NC} - Ajustar precios\n"
 
 echo -e "${YELLOW}💰 PRECIOS POR DEFECTO:${NC}\n"
 echo -e "  7 días: ${GREEN}$1500 ARS${NC}"
@@ -2113,33 +1415,39 @@ echo -e "  15 días: ${GREEN}$2500 ARS${NC}"
 echo -e "  30 días: ${GREEN}$5500 ARS${NC}"
 echo -e "  50 días: ${GREEN}$8500 ARS${NC}\n"
 
-echo -e "${YELLOW}📊 INFO DEL SISTEMA:${NC}"
+echo -e "${YELLOW}⌨️  FLUJO PARA USUARIOS:${NC}\n"
+echo -e "  ${CYAN}1.${NC} Escribe 'menu' → Menú principal"
+echo -e "  ${CYAN}2.${NC} Escribe '1' → Prueba gratis (1 hora)"
+echo -e "  ${CYAN}3.${NC} Escribe '2' → Comprar Login SSH"
+echo -e "  ${CYAN}4.${NC} Selecciona '1' o '2' → Planes Diarios/Mensuales"
+echo -e "  ${CYAN}5.${NC} Elige un plan (1-4):"
+echo -e "     • ${GREEN}1${NC} - 7 días - $1500 ARS"
+echo -e "     • ${GREEN}2${NC} - 15 días - $2500 ARS"
+echo -e "     • ${GREEN}3${NC} - 30 días - $5500 ARS"
+echo -e "     • ${GREEN}4${NC} - 50 días - $8500 ARS"
+echo -e "  ${CYAN}6.${NC} Responde sobre cupón de descuento"
+echo -e "  ${CYAN}7.${NC} Recibe link de pago MercadoPago\n"
+
+echo -e "${YELLOW}📊 INFO:${NC}"
 echo -e "  IP: ${CYAN}$SERVER_IP${NC}"
-echo -e "  Puerto: ${CYAN}8080${NC}"
-echo -e "  Encriptación: ${CYAN}chacha20${NC}"
-echo -e "  Password: ${CYAN}123456${NC}"
-echo -e "  TU archivo: ${CYAN}$HC_FILE_NAME${NC}"
-echo -e "  Panel: ${CYAN}hcbot${NC}\n"
+echo -e "  BD: ${CYAN}/opt/ssh-bot/data/users.db${NC}"
+echo -e "  Config: ${CYAN}/opt/ssh-bot/config/config.json${NC}"
+echo -e "  Pruebas: ${GREEN}testXXXX (test1234)${NC}"
+echo -e "  Compras: ${GREEN}userXXXX (user5678)${NC}"
+echo -e "  Contraseña: ${GREEN}mgvpn247 (fija)${NC}\n"
 
 echo -e "${CYAN}══════════════════════════════════════════════════════════════${NC}\n"
 
-read -p "$(echo -e "${YELLOW}¿Abrir panel de control ahora? (s/N): ${NC}")" -n 1 -r
+read -p "$(echo -e "${YELLOW}¿Abrir panel de control? (s/N): ${NC}")" -n 1 -r
 echo
 if [[ $REPLY =~ ^[Ss]$ ]]; then
-    echo -e "\n${CYAN}Abriendo panel hcbot...${NC}\n"
+    echo -e "\n${CYAN}Abriendo panel...${NC}\n"
     sleep 2
-    /usr/local/bin/hcbot
+    /usr/local/bin/sshbot
 else
-    echo -e "\n${YELLOW}💡 Ejecuta: ${GREEN}hcbot${NC} para abrir el panel\n"
-    echo -e "${YELLOW}PASOS IMPORTANTES:${NC}"
-    echo -e "1. Abre el panel: hcbot"
-    echo -e "2. Opción 10: Verifica/Configura TU archivo .hc"
-    echo -e "3. Opción 7: Configura MercadoPago"
-    echo -e "4. Opción 3: Escanea QR de WhatsApp"
-    echo -e "5. Envía 'menu' al bot"
-    echo -e "6. ¡Listo! Los usuarios recibirán TU archivo .hc por WhatsApp\n"
+    echo -e "\n${YELLOW}💡 Ejecuta: ${GREEN}sshbot${NC} para abrir el panel\n"
 fi
 
-echo -e "${GREEN}${BOLD}¡Sistema instalado y listo para usar! 🚀${NC}\n"
+echo -e "${GREEN}${BOLD}¡Sistema instalado exitosamente con múltiples planes! 🚀${NC}\n"
 
 exit 0
