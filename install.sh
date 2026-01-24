@@ -1,7 +1,7 @@
 #!/bin/bash
 # ================================================
 # SSH BOT PRO - CON FLUJO DE CAPTURAS Y MÁS PLANES
-# Planes: 7, 15, 30, 50 días
+# Planes: 7, 15, 30, 50 días - TEST 2 HORAS
 # ================================================
 
 set -e
@@ -32,6 +32,7 @@ cat << "BANNER"
 ║                                                              ║
 ║                SSH BOT PRO - MÚLTIPLES PLANES               ║
 ║               💡 PLANES: 7, 15, 30, 50 DÍAS                 ║
+║               ⏰ TEST GRATIS: 2 HORAS                        ║
 ║               🔐 CONTRASEÑA FIJA: mgvpn247                  ║
 ║               💰 MERCADOPAGO INTEGRADO                      ║
 ║                                                              ║
@@ -41,7 +42,7 @@ echo -e "${NC}"
 
 echo -e "${GREEN}✅ FLUJO BASADO EN CAPTURAS CON MÁS PLANES:${NC}"
 echo -e "  🔴 ${RED}MENÚ PRINCIPAL:${NC}"
-echo -e "     ${GREEN}1${NC} = Crear Prueba (TEST)"
+echo -e "     ${GREEN}1${NC} = Crear Prueba (TEST) - 2 HORAS"
 echo -e "     ${GREEN}2${NC} = Comprar Login SSH"
 echo -e "     ${GREEN}3${NC} = Renovar Login SSH"
 echo -e "     ${GREEN}4${NC} = Descargar Aplicación"
@@ -78,10 +79,11 @@ echo -e "   • Sistema de estados inteligente"
 echo -e "   • Menú: 1=Prueba, 2=Comprar, 3=Renovar, 4=APP"
 echo -e "   • Submenú: Planes Diarios/Mensuales"
 echo -e "   • Planes: 7, 15, 30, 50 días"
+echo -e "   • Test gratuito: 2 horas por defecto"
 echo -e "   • Pregunta por cupón de descuento"
 echo -e "   • Generación de link MercadoPago"
-echo -e "   • Panel de control 100% funcional"
-echo -e "   • APK automático + Test 1h"
+echo -e "   • Panel de control con edición de horas de test"
+echo -e "   • APK automático + Test 2h"
 echo -e "   • Cron limpieza cada 15 minutos"
 echo -e "   • 🔐 CONTRASEÑA FIJA: mgvpn247 para todos"
 echo -e "\n${RED}⚠️  Se eliminarán instalaciones anteriores${NC}"
@@ -178,7 +180,7 @@ mkdir -p /root/.wwebjs_auth
 chmod -R 755 "$INSTALL_DIR"
 chmod -R 700 /root/.wwebjs_auth
 
-# Crear configuración CON MÚLTIPLES PLANES
+# Crear configuración CON MÚLTIPLES PLANES Y 2 HORAS DE TEST
 cat > "$CONFIG_FILE" << EOF
 {
     "bot": {
@@ -188,7 +190,7 @@ cat > "$CONFIG_FILE" << EOF
         "default_password": "mgvpn247"
     },
     "prices": {
-        "test_hours": 1,
+        "test_hours": 2,
         "price_7d_1conn": 1500.00,
         "price_15d_1conn": 2500.00,
         "price_30d_1conn": 5500.00,
@@ -404,6 +406,7 @@ moment.locale('es');
 console.log(chalk.cyan.bold('\n╔══════════════════════════════════════════════════════════════╗'));
 console.log(chalk.cyan.bold('║                🤖 SSH BOT PRO - MÚLTIPLES PLANES            ║'));
 console.log(chalk.cyan.bold('║               💡 PLANES: 7, 15, 30, 50 DÍAS                 ║'));
+console.log(chalk.cyan.bold('║               ⏰ TEST GRATIS: 2 HORAS                       ║'));
 console.log(chalk.cyan.bold('║               🔐 CONTRASEÑA FIJA: mgvpn247                  ║'));
 console.log(chalk.cyan.bold('╚══════════════════════════════════════════════════════════════╝\n'));
 console.log(chalk.yellow(`📍 IP: ${config.bot.server_ip}`));
@@ -411,7 +414,7 @@ console.log(chalk.yellow(`💳 MercadoPago: ${mpEnabled ? '✅ SDK v2.x ACTIVO' 
 console.log(chalk.green('✅ WhatsApp Web parcheado (no markedUnread error)'));
 console.log(chalk.green('✅ Sistema de estados activo'));
 console.log(chalk.green('✅ Planes: 7, 15, 30, 50 días disponibles'));
-console.log(chalk.green('✅ Test 1 hora exacta'));
+console.log(chalk.green('✅ Test: 2 horas exactas'));
 console.log(chalk.green('✅ CONTRASEÑA FIJA: mgvpn247 para todos los usuarios'));
 
 const client = new Client({
@@ -778,7 +781,7 @@ client.on('message', async (msg) => {
 
 Elija una opción:
 
-🧾 1 - CREAR PRUEBA
+🧾 1 - CREAR PRUEBA (${config.prices.test_hours} HORAS)
 💰 2 - COMPRAR USUARIO SSH
 🔄 3 - RENOVAR USUARIO SSH
 📱 4 - DESCARGAR APLICACIÓN`, { sendSeen: false });
@@ -849,7 +852,7 @@ Elija un plan:
 
 Elija una opción:
 
-🧾 1 - CREAR PRUEBA
+🧾 1 - CREAR PRUEBA (${config.prices.test_hours} HORAS)
 💰 2 - COMPRAR USUARIO SSH
 🔄 3 - RENOVAR USUARIO SSH
 📱 4 - DESCARGAR Aplicación`, { sendSeen: false });
@@ -1086,9 +1089,9 @@ BOTEOF
 echo -e "${GREEN}✅ Bot creado con múltiples planes${NC}"
 
 # ================================================
-# CREAR PANEL DE CONTROL
+# CREAR PANEL DE CONTROL CON EDICIÓN DE HORAS
 # ================================================
-echo -e "\n${CYAN}${BOLD}🎛️  CREANDO PANEL DE CONTROL...${NC}"
+echo -e "\n${CYAN}${BOLD}🎛️  CREANDO PANEL DE CONTROL CON EDICIÓN DE HORAS...${NC}"
 
 cat > /usr/local/bin/sshbot << 'PANELEOF'
 #!/bin/bash
@@ -1104,6 +1107,7 @@ show_header() {
     clear
     echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
     echo -e "${CYAN}║                🎛️  PANEL SSH BOT - MÚLTIPLES PLANES        ║${NC}"
+    echo -e "${CYAN}║               ⏰ HORAS DE TEST: $(get_val '.prices.test_hours') HORAS            ║${NC}"
     echo -e "${CYAN}╚══════════════════════════════════════════════════════════════╝${NC}\n"
 }
 
@@ -1133,11 +1137,12 @@ while true; do
     echo -e "  Usuarios: ${CYAN}$ACTIVE_USERS/$TOTAL_USERS${NC} activos/total"
     echo -e "  Pagos pendientes: ${CYAN}$PENDING_PAYMENTS${NC}"
     echo -e "  MercadoPago: $MP_STATUS"
-    echo -e "  Test: ${GREEN}1 hora${NC} | Limpieza: ${GREEN}cada 15 min${NC}"
+    echo -e "  Test: ${GREEN}$(get_val '.prices.test_hours') horas${NC} | Limpieza: ${GREEN}cada 15 min${NC}"
     echo -e "  Contraseña: ${GREEN}mgvpn247${NC} (FIJA PARA TODOS)"
     echo -e ""
     
     echo -e "${YELLOW}💰 PRECIOS ACTUALES:${NC}"
+    echo -e "  Test: ${GREEN}$(get_val '.prices.test_hours') horas${NC} (gratis)"
     echo -e "  7 días: $ $(get_val '.prices.price_7d_1conn') ARS"
     echo -e "  15 días: $ $(get_val '.prices.price_15d_1conn') ARS"
     echo -e "  30 días: $ $(get_val '.prices.price_30d_1conn') ARS"
@@ -1150,10 +1155,11 @@ while true; do
     echo -e "${CYAN}[3]${NC}  📱  Ver QR WhatsApp"
     echo -e "${CYAN}[4]${NC}  👤  Crear usuario manual"
     echo -e "${CYAN}[5]${NC}  👥  Listar usuarios"
-    echo -e "${CYAN}[6]${NC}  💰  Cambiar precios"
-    echo -e "${CYAN}[7]${NC}  🔑  Configurar MercadoPago"
-    echo -e "${CYAN}[8]${NC}  📊  Ver estadísticas"
-    echo -e "${CYAN}[9]${NC}  📝  Ver logs"
+    echo -e "${CYAN}[6]${NC}  ⏰  Cambiar horas del test"
+    echo -e "${CYAN}[7]${NC}  💰  Cambiar precios"
+    echo -e "${CYAN}[8]${NC}  🔑  Configurar MercadoPago"
+    echo -e "${CYAN}[9]${NC}  📊  Ver estadísticas"
+    echo -e "${CYAN}[10]${NC} 📝  Ver logs"
     echo -e "${CYAN}[0]${NC}  🚪  Salir"
     echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     
@@ -1200,7 +1206,7 @@ while true; do
             read -p "Teléfono (ej: 5491122334455): " PHONE
             read -p "Usuario (auto=generar): " USERNAME
             read -p "Tipo (test/premium): " TIPO
-            read -p "Días (0=test 1h, 7,15,30,50=premium): " DAYS
+            read -p "Días (0=test, 7,15,30,50=premium): " DAYS
             
             [[ -z "$DAYS" ]] && DAYS="30"
             if [[ "$USERNAME" == "auto" || -z "$USERNAME" ]]; then
@@ -1214,7 +1220,8 @@ while true; do
             
             if [[ "$TIPO" == "test" ]]; then
                 DAYS="0"
-                EXPIRE_DATE=$(date -d "+1 hour" +"%Y-%m-%d %H:%M:%S")
+                TEST_HOURS=$(get_val '.prices.test_hours')
+                EXPIRE_DATE=$(date -d "+${TEST_HOURS} hours" +"%Y-%m-%d %H:%M:%S")
                 useradd -M -s /bin/false "$USERNAME" && echo "$USERNAME:$PASSWORD" | chpasswd
             else
                 EXPIRE_DATE=$(date -d "+$DAYS days" +"%Y-%m-%d 23:59:59")
@@ -1227,7 +1234,7 @@ while true; do
                 echo -e "👤 Usuario: ${USERNAME}"
                 echo -e "🔑 Contraseña: ${PASSWORD}"
                 echo -e "⏰ Expira: ${EXPIRE_DATE}"
-                echo -e "🔌 Días: ${DAYS}"
+                echo -e "🔌 Días/Horas: ${DAYS}${TIPO:0:1}"
             else
                 echo -e "\n${RED}❌ Error creando usuario${NC}"
             fi
@@ -1244,6 +1251,36 @@ while true; do
             read -p "Presiona Enter..." 
             ;;
         6)
+            clear
+            echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
+            echo -e "${CYAN}║                  ⏰ CAMBIAR HORAS DEL TEST                   ║${NC}"
+            echo -e "${CYAN}╚══════════════════════════════════════════════════════════════╝${NC}\n"
+            
+            CURRENT_HOURS=$(get_val '.prices.test_hours')
+            echo -e "${YELLOW}⏰ HORAS ACTUALES DEL TEST: ${GREEN}${CURRENT_HOURS} HORAS${NC}\n"
+            
+            echo -e "${CYAN}📝 Recomendaciones:${NC}"
+            echo -e "  1-2 horas: ${GREEN}Ideal para pruebas rápidas${NC}"
+            echo -e "  3-6 horas: ${YELLOW}Para usuarios más exigentes${NC}"
+            echo -e "  12-24 horas: ${RED}Solo si tienes mucho ancho de banda${NC}\n"
+            
+            read -p "Nuevas horas para el test [${CURRENT_HOURS}]: " NEW_HOURS
+            
+            if [[ -n "$NEW_HOURS" ]]; then
+                if [[ $NEW_HOURS =~ ^[0-9]+$ ]] && [[ $NEW_HOURS -ge 1 ]] && [[ $NEW_HOURS -le 24 ]]; then
+                    set_val '.prices.test_hours' "$NEW_HOURS"
+                    echo -e "\n${GREEN}✅ Horas cambiadas a ${NEW_HOURS} horas${NC}"
+                    echo -e "${YELLOW}🔄 Reiniciando bot para aplicar cambios...${NC}"
+                    cd /root/ssh-bot && pm2 restart ssh-bot
+                    sleep 2
+                    echo -e "${GREEN}✅ Bot reiniciado con ${NEW_HOURS} horas de test${NC}"
+                else
+                    echo -e "${RED}❌ Error: Debe ser un número entre 1 y 24${NC}"
+                fi
+            fi
+            read -p "Presiona Enter..." 
+            ;;
+        7)
             clear
             echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
             echo -e "${CYAN}║                    💰 CAMBIAR PRECIOS                       ║${NC}"
@@ -1272,9 +1309,12 @@ while true; do
             [[ -n "$NEW_50D" ]] && set_val '.prices.price_50d_1conn' "$NEW_50D"
             
             echo -e "\n${GREEN}✅ Precios actualizados${NC}"
+            echo -e "${YELLOW}🔄 Reiniciando bot para aplicar cambios...${NC}"
+            cd /root/ssh-bot && pm2 restart ssh-bot
+            sleep 2
             read -p "Presiona Enter..." 
             ;;
-        7)
+        8)
             clear
             echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
             echo -e "${CYAN}║              🔑 CONFIGURAR MERCADOPAGO                      ║${NC}"
@@ -1315,7 +1355,7 @@ while true; do
             fi
             read -p "Presiona Enter..." 
             ;;
-        8)
+        9)
             clear
             echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
             echo -e "${CYAN}║                     📊 ESTADÍSTICAS                         ║${NC}"
@@ -1333,9 +1373,12 @@ while true; do
             echo -e "\n${YELLOW}💸 INGRESOS HOY:${NC}"
             sqlite3 "$DB" "SELECT 'Hoy: $' || printf('%.2f', SUM(CASE WHEN date(approved_at) = date('now') THEN final_amount ELSE 0 END)) FROM payments"
             
+            echo -e "\n${YELLOW}⏰ TESTS HOY:${NC}"
+            sqlite3 "$DB" "SELECT 'Tests creados hoy: ' || COUNT(*) FROM daily_tests WHERE date = date('now')"
+            
             read -p "\nPresiona Enter..." 
             ;;
-        9)
+        10)
             echo -e "\n${YELLOW}📝 Logs (Ctrl+C para salir)...${NC}\n"
             pm2 logs ssh-bot --lines 100
             ;;
@@ -1352,7 +1395,7 @@ done
 PANELEOF
 
 chmod +x /usr/local/bin/sshbot
-echo -e "${GREEN}✅ Panel de control creado${NC}"
+echo -e "${GREEN}✅ Panel de control creado con edición de horas${NC}"
 
 # ================================================
 # INICIAR BOT
@@ -1378,9 +1421,11 @@ cat << "FINAL"
 ║                                                              ║
 ║               SSH BOT PRO - CONFIGURADO                     ║
 ║               💡 PLANES: 7, 15, 30, 50 DÍAS                ║
+║               ⏰ TEST GRATIS: 2 HORAS                       ║
 ║               🔐 CONTRASEÑA FIJA: mgvpn247                 ║
 ║               💰 MERCADOPAGO INTEGRADO                      ║
 ║               📱 FLUJO NATURAL DE USUARIO                  ║
+║               ⚙️  PANEL CON EDICIÓN DE HORAS               ║
 ║                                                              ║
 ╚══════════════════════════════════════════════════════════════╝
 FINAL
@@ -1392,24 +1437,27 @@ echo -e "${GREEN}✅ Menú: 1=Prueba, 2=Comprar, 3=Renovar, 4=APP${NC}"
 echo -e "${GREEN}✅ Planes disponibles: 7, 15, 30, 50 días${NC}"
 echo -e "${GREEN}✅ Pregunta por cupón de descuento${NC}"
 echo -e "${GREEN}✅ Generación de link MercadoPago${NC}"
-echo -e "${GREEN}✅ Test 1 hora${NC}"
+echo -e "${GREEN}✅ Test: 2 horas por defecto${NC}"
 echo -e "${GREEN}✅ CONTRASEÑA FIJA: mgvpn247 para todos${NC}"
 echo -e "${GREEN}✅ Pruebas: testXXXX (ej: test1234)${NC}"
 echo -e "${GREEN}✅ Compras: userXXXX (ej: user5678)${NC}"
+echo -e "${GREEN}✅ Panel con edición de horas del test${NC}"
 echo -e "${CYAN}══════════════════════════════════════════════════════════════${NC}\n"
 
 echo -e "${YELLOW}📋 COMANDOS DISPONIBLES:${NC}\n"
-echo -e "  ${GREEN}sshbot${NC}         - Panel de control"
+echo -e "  ${GREEN}sshbot${NC}         - Panel de control completo"
 echo -e "  ${GREEN}pm2 logs ssh-bot${NC} - Ver logs"
 echo -e "  ${GREEN}pm2 restart ssh-bot${NC} - Reiniciar bot\n"
 
 echo -e "${YELLOW}🔧 CONFIGURACIÓN INICIAL:${NC}\n"
 echo -e "  1. Ejecuta: ${GREEN}sshbot${NC}"
-echo -e "  2. Opción ${CYAN}[7]${NC} - Configurar MercadoPago"
+echo -e "  2. Opción ${CYAN}[8]${NC} - Configurar MercadoPago"
 echo -e "  3. Opción ${CYAN}[3]${NC} - Escanear QR WhatsApp"
-echo -e "  4. Opción ${CYAN}[6]${NC} - Ajustar precios\n"
+echo -e "  4. Opción ${CYAN}[6]${NC} - Ajustar horas del test (opcional)"
+echo -e "  5. Opción ${CYAN}[7]${NC} - Ajustar precios\n"
 
 echo -e "${YELLOW}💰 PRECIOS POR DEFECTO:${NC}\n"
+echo -e "  Test: ${GREEN}2 horas (gratis)${NC}"
 echo -e "  7 días: ${GREEN}$1500 ARS${NC}"
 echo -e "  15 días: ${GREEN}$2500 ARS${NC}"
 echo -e "  30 días: ${GREEN}$5500 ARS${NC}"
@@ -1417,7 +1465,7 @@ echo -e "  50 días: ${GREEN}$8500 ARS${NC}\n"
 
 echo -e "${YELLOW}⌨️  FLUJO PARA USUARIOS:${NC}\n"
 echo -e "  ${CYAN}1.${NC} Escribe 'menu' → Menú principal"
-echo -e "  ${CYAN}2.${NC} Escribe '1' → Prueba gratis (1 hora)"
+echo -e "  ${CYAN}2.${NC} Escribe '1' → Prueba gratis (2 horas)"
 echo -e "  ${CYAN}3.${NC} Escribe '2' → Comprar Login SSH"
 echo -e "  ${CYAN}4.${NC} Selecciona '1' o '2' → Planes Diarios/Mensuales"
 echo -e "  ${CYAN}5.${NC} Elige un plan (1-4):"
@@ -1432,7 +1480,7 @@ echo -e "${YELLOW}📊 INFO:${NC}"
 echo -e "  IP: ${CYAN}$SERVER_IP${NC}"
 echo -e "  BD: ${CYAN}/opt/ssh-bot/data/users.db${NC}"
 echo -e "  Config: ${CYAN}/opt/ssh-bot/config/config.json${NC}"
-echo -e "  Pruebas: ${GREEN}testXXXX (test1234)${NC}"
+echo -e "  Pruebas: ${GREEN}testXXXX (test1234) - 2 horas${NC}"
 echo -e "  Compras: ${GREEN}userXXXX (user5678)${NC}"
 echo -e "  Contraseña: ${GREEN}mgvpn247 (fija)${NC}\n"
 
