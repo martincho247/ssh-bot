@@ -1253,19 +1253,8 @@ ${config.links.support}
 💬 Escribe "menu" para volver al inicio`, { sendSeen: false });
     }
     else {
-        // Comando no reconocido
-        await client.sendMessage(phone, `❌ *COMANDO NO RECONOCIDO*
-
-📋 Comandos disponibles:
-• menu - Menú principal
-• 1 - Prueba gratis (solo en menú)
-• 2 - Ver planes (solo en menú)
-• 3 - Mis cuentas (solo en menú)
-• 4 - Estado de pago (solo en menú)
-• 5 - Descargar APP (solo en menú)
-• 6 - Soporte (solo en menú)
-
-💡 *PARA COMPRAR:* Escribe "2" para ver planes, luego 1-7 para seleccionar`, { sendSeen: false });
+        // Si llega aquí, no hubo coincidencia - solo ignorar o enviar ayuda básica
+        // Opcionalmente puedes enviar un mensaje de ayuda suave
     }
 });
 
