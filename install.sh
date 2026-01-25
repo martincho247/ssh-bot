@@ -1011,8 +1011,8 @@ APP: ${config.links.app_download}`, { sendSeen: false });
         await client.sendMessage(phone, `PLANES SSH PREMIUM !
 
 Elija una opción:
-🗓 1 - PLANES SSH DIARIOS (7, 15 DÍAS)
-🗓 2 - PLANES SSH MENSUALES (30, 50 DÍAS)
+🗓 1 - PLANES SSH DIARIOS
+🗓 2 - PLANES SSH MENSUALES
 ⬅️ 0 - VOLVER`, { sendSeen: false });
     }
     // SUBMENÚ DE COMPRAS SEPARADAS
@@ -1025,7 +1025,9 @@ Elija una opción:
 
 Elija un plan:
 🗓 1 - 1 USUARIO(SSH) - 7 DÍAS - $${config.prices.price_7d_1conn}
+
 🗓 2 - 1 USUARIO(SSH) - 15 DÍAS - $${config.prices.price_15d_1conn}
+
 ⬅️ 0 - VOLVER`;
             
             await client.sendMessage(phone, plansMessage, { sendSeen: false });
@@ -1037,8 +1039,11 @@ Elija un plan:
             let plansMessage = `🗓 *PLANES SSH MENSUALES*
 
 Elija un plan:
+
 🗓 1 - 1 USUARIO(SSH) - 30 DÍAS - $${config.prices.price_30d_1conn}
+
 🗓 2 - 1 USUARIO(SSH) - 50 DÍAS - $${config.prices.price_50d_1conn}
+
 ⬅️ 0 - VOLVER`;
             
             await client.sendMessage(phone, plansMessage, { sendSeen: false });
