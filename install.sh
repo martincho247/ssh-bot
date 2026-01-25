@@ -1011,8 +1011,8 @@ APP: ${config.links.app_download}`, { sendSeen: false });
         await client.sendMessage(phone, `PLANES SSH PREMIUM !
 
 Elija una opción:
-📅 1 - PLANES SSH DIARIOS (7, 15 DÍAS)
-📅 2 - PLANES SSH MENSUALES (30, 50 DÍAS)
+🗓 1 - PLANES SSH DIARIOS (7, 15 DÍAS)
+🗓 2 - PLANES SSH MENSUALES (30, 50 DÍAS)
 ⬅️ 0 - VOLVER`, { sendSeen: false });
     }
     // SUBMENÚ DE COMPRAS SEPARADAS
@@ -1021,7 +1021,7 @@ Elija una opción:
             // PLANES DIARIOS
             await setUserState(phone, 'selecting_daily_plan');
             
-            let plansMessage = `📅 *PLANES SSH DIARIOS*
+            let plansMessage = `🗓 *PLANES SSH DIARIOS*
 
 Elija un plan:
 🗓 1 - 1 USUARIO(SSH) - 7 DÍAS - $${config.prices.price_7d_1conn}
@@ -1034,7 +1034,7 @@ Elija un plan:
             // PLANES MENSUALES
             await setUserState(phone, 'selecting_monthly_plan');
             
-            let plansMessage = `📅 *PLANES SSH MENSUALES*
+            let plansMessage = `🗓 *PLANES SSH MENSUALES*
 
 Elija un plan:
 🗓 1 - 1 USUARIO(SSH) - 30 DÍAS - $${config.prices.price_30d_1conn}
@@ -1084,8 +1084,8 @@ Responde: sí o no.`, { sendSeen: false });
             await client.sendMessage(phone, `PLANES SSH PREMIUM !
 
 Elija una opción:
-📅 1 - PLANES SSH DIARIOS (7, 15 DÍAS)
-📅 2 - PLANES SSH MENSUALES (30, 50 DÍAS)
+🗓 1 - PLANES SSH DIARIOS (7, 15 DÍAS)
+🗓 2 - PLANES SSH MENSUALES (30, 50 DÍAS)
 ⬅️ 0 - VOLVER`, { sendSeen: false });
         }
     }
@@ -1118,8 +1118,8 @@ Responde: sí o no.`, { sendSeen: false });
             await client.sendMessage(phone, `PLANES SSH PREMIUM !
 
 Elija una opción:
-📅 1 - PLANES SSH DIARIOS (7, 15 DÍAS)
-📅 2 - PLANES SSH MENSUALES (30, 50 DÍAS)
+🗓 1 - PLANES SSH DIARIOS (7, 15 DÍAS)
+🗓 2 - PLANES SSH MENSUALES (30, 50 DÍAS)
 ⬅️ 0 - VOLVER`, { sendSeen: false });
         }
     }
@@ -1189,9 +1189,9 @@ Verifica el nombre de usuario e intenta nuevamente.`, { sendSeen: false });
 
 Selecciona el tipo de plan:
 
-📅 1 - PLANES DIARIOS
-📅 2 - PLANES MENSUALES
-⬅️ 0 - CANCELAR`, { sendSeen: false });
+🗓 1 - PLANES DIARIOS
+🗓 2 - PLANES MENSUALES
+⬅️ 0 - VOLVER`, { sendSeen: false });
             });
         });
     }
@@ -1202,7 +1202,7 @@ Selecciona el tipo de plan:
             await setUserState(phone, 'renovation_selecting_daily', { username: userState.data.username });
             
             await client.sendMessage(phone, `🔄 *RENOVACIÓN: ${userState.data.username}*
-📅 *PLANES DIARIOS*
+🗓 *PLANES DIARIOS*
 
 Selecciona un plan:
 🗓 1 - 7 DÍAS - $${config.prices.price_7d_1conn}
@@ -1214,7 +1214,7 @@ Selecciona un plan:
             await setUserState(phone, 'renovation_selecting_monthly', { username: userState.data.username });
             
             await client.sendMessage(phone, `🔄 *RENOVACIÓN: ${userState.data.username}*
-📅 *PLANES MENSUALES*
+🗓 *PLANES MENSUALES*
 
 Selecciona un plan:
 🗓 1 - 30 DÍAS - $${config.prices.price_30d_1conn}
