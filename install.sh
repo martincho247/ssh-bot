@@ -452,7 +452,7 @@ async function sendAPKFile(phone) {
         });
         
         await client.sendMessage(phone, media, {
-            caption: `📱 *APLICACIÓN MGVPN*\n\n📦 *Archivo:* mgvpn-app.apk\n🔐 *Contraseña por defecto:* mgvpn247\n\n📋 *Instrucciones:*\n1. Descarga este archivo\n2. Abrir dale click en mas detalles\n3. Instalar de todas formas\n4. Una vez dentro requiere de internet para actualizar\n\n⚡ *¡Listo para usar!*`,
+            caption: `📱 *APLICACIÓN SSH BOT*\n\n📦 *Archivo:* ssh-app.apk\n🔐 *Contraseña por defecto:* mgvpn247\n\n📋 *Instrucciones:*\n1. Descarga este archivo\n2. Permite instalaciones de origen desconocido\n3. Instala la aplicación\n4. Configura con tus credenciales SSH\n\n⚡ *¡Listo para usar!*`,
             sendSeen: false
         });
         
@@ -974,7 +974,7 @@ Elija una opción:
 ${apkStatus}
 
 📢 *Sistema de notificaciones activo*
- **`, { sendSeen: false });
+🔐 *Contraseña: mgvpn247*`, { sendSeen: false });
     }
     // OPCIÓN 1: CREAR PRUEBA
     else if (text === '1' && userState.state === 'main_menu') {
@@ -1092,8 +1092,8 @@ ${apkStatus}`, { sendSeen: false });
             await client.sendMessage(phone, `PLANES SSH PREMIUM !
 
 Elija una opción:
-🗓 1 - PLANES SSH DIARIOS
-🗓 2 - PLANES SSH MENSUALES
+🗓 1 - PLANES SSH DIARIOS (7, 15 DÍAS)
+🗓 2 - PLANES SSH MENSUALES (30, 50 DÍAS)
 ⬅️ 0 - VOLVER`, { sendSeen: false });
         }
     }
