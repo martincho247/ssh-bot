@@ -2,6 +2,7 @@
 # ================================================
 # SSH BOT PRO - CON FLUJO DE CAPTURAS Y MÁS PLANES
 # Planes: Diarios (7, 15) - Mensuales (30, 50) - TEST 2 HORAS
+# CON ENVÍO DE APK POR WHATSAPP
 # ================================================
 
 set -e
@@ -37,20 +38,22 @@ cat << "BANNER"
 ║               🔐 CONTRASEÑA FIJA: mgvpn247                  ║
 ║               💰 MERCADOPAGO INTEGRADO                      ║
 ║               📢 NOTIFICACIONES AUTOMÁTICAS                 ║
+║               📱 ENVÍO DE APK POR WHATSAPP                  ║
 ║                                                              ║
 ╚══════════════════════════════════════════════════════════════╝
 BANNER
 echo -e "${NC}"
 
-echo -e "${GREEN}✅ SISTEMA MEJORADO CON NOTIFICACIONES:${NC}"
-echo -e "  📢 ${CYAN}NOTIFICACIONES ACTIVAS:${NC}"
-echo -e "     • ⚠️ Aviso por vencer (24h antes)"
-echo -e "     • 📅 Recordatorio de vencimiento"
+echo -e "${GREEN}✅ SISTEMA MEJORADO CON ENVÍO DE APK:${NC}"
+echo -e "  📱 ${CYAN}ENVÍO DE APK:${NC}"
+echo -e "     • 📲 APK enviada directamente por WhatsApp"
+echo -e "     • ⚡ Sin enlaces externos"
+echo -e "     • 📁 Archivo: /root/ssh-app.apk"
 echo -e "  🔴 ${RED}MENÚ PRINCIPAL:${NC}"
 echo -e "     ${GREEN}1${NC} = Crear Prueba (TEST) - 2 HORAS"
 echo -e "     ${GREEN}2${NC} = Comprar Login SSH"
 echo -e "     ${GREEN}3${NC} = Renovar Login SSH"
-echo -e "     ${GREEN}4${NC} = Descargar Aplicación"
+echo -e "     ${GREEN}4${NC} = Enviar Aplicación APK"
 echo -e "  🟡 ${YELLOW}SUBMENÚ COMPRAS SEPARADAS:${NC}"
 echo -e "     ${GREEN}1${NC} = Planes SSH DIARIOS (7, 15 días)"
 echo -e "     ${GREEN}2${NC} = Planes SSH MENSUALES (30, 50 días)"
@@ -91,12 +94,27 @@ else
     echo -e "${YELLOW}⚠️ Notificaciones en grupo desactivadas${NC}"
 fi
 
+# Verificar si existe APK en /root
+echo -e "\n${YELLOW}📱 VERIFICANDO ARCHIVO APK...${NC}"
+APK_PATH="/root/ssh-app.apk"
+if [[ -f "$APK_PATH" ]]; then
+    APK_SIZE=$(du -h "$APK_PATH" | cut -f1)
+    echo -e "${GREEN}✅ APK encontrada: ${CYAN}$APK_PATH${NC} (${APK_SIZE})"
+    echo -e "${YELLOW}📋 La APK se enviará automáticamente cuando los usuarios elijan la opción 4${NC}"
+else
+    echo -e "${RED}❌ NO se encontró APK en /root/ssh-app.apk${NC}"
+    echo -e "${YELLOW}⚠️ Para habilitar el envío de APK:${NC}"
+    echo -e "  1. Sube tu archivo APK a /root/ssh-app.apk"
+    echo -e "  2. Usa: scp tu-app.apk root@$SERVER_IP:/root/ssh-app.apk"
+    echo -e "  3. O usa el panel de control (Opción 13) para subir una APK"
+fi
+
 # Confirmar instalación
 echo -e "\n${YELLOW}⚠️  ESTE INSTALADOR HARÁ:${NC}"
 echo -e "   • Instalar Node.js 20.x + Chrome"
 echo -e "   • Crear SSH Bot Pro con planes separados"
 echo -e "   • Sistema de estados inteligente"
-echo -e "   • Menú: 1=Prueba, 2=Comprar, 3=Renovar, 4=APP"
+echo -e "   • Menú: 1=Prueba, 2=Comprar, 3=Renovar, 4=APK"
 echo -e "   • Submenú: Planes Diarios (7,15) / Mensuales (30,50)"
 echo -e "   • Planes DIARIOS: 7, 15 días"
 echo -e "   • Planes MENSUALES: 30, 50 días"
@@ -104,9 +122,9 @@ echo -e "   • Test gratuito: 2 horas por defecto"
 echo -e "   • 📢 Notificaciones automáticas:"
 echo -e "     - Aviso por vencer (24h antes)"
 echo -e "     - Recordatorio de vencimiento"
+echo -e "   • 📱 Envío de APK por WhatsApp"
 echo -e "   • Generación de link MercadoPago"
-echo -e "   • Panel de control con edición de horas de test"
-echo -e "   • APK automático + Test 2h"
+echo -e "   • Panel de control con gestión de APK"
 echo -e "   • Cron limpieza cada 15 minutos"
 echo -e "   • 🔐 CONTRASEÑA FIJA: mgvpn247 para todos"
 echo -e "\n${RED}⚠️  Se eliminarán instalaciones anteriores${NC}"
@@ -137,7 +155,7 @@ apt-get install -y gcc g++ make
 echo -e "${YELLOW}🌐 Instalando Chrome/Chromium...${NC}"
 apt-get install -y wget gnupg
 wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | apt-key add -
-echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list
+echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/stable main" > /etc/apt/sources.list.d/google-chrome.list
 apt-get update -y
 apt-get install -y google-chrome-stable
 
@@ -197,7 +215,7 @@ rm -rf "$INSTALL_DIR" "$USER_HOME" 2>/dev/null || true
 rm -rf /root/.wwebjs_auth /root/.wwebjs_cache 2>/dev/null || true
 
 # Crear directorios
-mkdir -p "$INSTALL_DIR"/{data,config,qr_codes,logs}
+mkdir -p "$INSTALL_DIR"/{data,config,qr_codes,logs,apk}
 mkdir -p "$USER_HOME"
 mkdir -p /root/.wwebjs_auth
 chmod -R 755 "$INSTALL_DIR"
@@ -229,15 +247,16 @@ cat > "$CONFIG_FILE" << EOF
         "access_token": "",
         "enabled": false
     },
-    "links": {
-        "tutorial": "https://youtube.com",
-        "support": "https://wa.me/543435071016",
-        "app_download": "https://www.mediafire.com/file/p8kgthxbsid7xws/MAJ/DNI_AND_FIL"
+    "apk": {
+        "path": "/root/ssh-app.apk",
+        "enabled": true,
+        "version": "1.0"
     },
     "paths": {
         "database": "$DB_FILE",
         "chromium": "/usr/bin/google-chrome",
-        "qr_codes": "$INSTALL_DIR/qr_codes"
+        "qr_codes": "$INSTALL_DIR/qr_codes",
+        "apk": "$INSTALL_DIR/apk"
     }
 }
 EOF
@@ -301,19 +320,26 @@ CREATE TABLE notifications (
     sent_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY(user_id) REFERENCES users(id)
 );
+CREATE TABLE apk_sent (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    phone TEXT,
+    sent_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
 CREATE INDEX idx_users_phone ON users(phone);
 CREATE INDEX idx_users_status ON users(status);
 CREATE INDEX idx_users_expires ON users(expires_at);
 CREATE INDEX idx_users_notification ON users(notification_sent);
 CREATE INDEX idx_payments_status ON payments(status);
+CREATE INDEX idx_apk_sent_phone ON apk_sent(phone);
+CREATE INDEX idx_apk_sent_date ON apk_sent(date(sent_at));
 SQL
 
 echo -e "${GREEN}✅ Estructura creada con sistema de notificaciones${NC}"
 
 # ================================================
-# CREAR BOT CON PLANES SEPARADOS SIN CUPONES
+# CREAR BOT CON PLANES SEPARADOS SIN CUPONES Y ENVÍO DE APK
 # ================================================
-echo -e "\n${CYAN}${BOLD}🤖 CREANDO BOT CON PLANES SEPARADOS SIN CUPONES...${NC}"
+echo -e "\n${CYAN}${BOLD}🤖 CREANDO BOT CON PLANES SEPARADOS Y ENVÍO DE APK...${NC}"
 
 cd "$USER_HOME"
 
@@ -347,8 +373,8 @@ find node_modules/whatsapp-web.js -name "Client.js" -type f -exec sed -i 's/cons
 
 echo -e "${GREEN}✅ Parche markedUnread aplicado${NC}"
 
-# Crear bot.js CON PLANES SEPARADOS SIN CUPONES
-echo -e "${YELLOW}📝 Creando bot.js con planes separados SIN CUPONES...${NC}"
+# Crear bot.js CON PLANES SEPARADOS SIN CUPONES Y ENVÍO DE APK
+echo -e "${YELLOW}📝 Creando bot.js con planes separados SIN CUPONES y ENVÍO DE APK...${NC}"
 
 cat > "bot.js" << 'BOTEOF'
 const { Client, LocalAuth, MessageMedia } = require('whatsapp-web.js');
@@ -408,6 +434,54 @@ function clearUserState(phone) {
     db.run('DELETE FROM user_state WHERE phone = ?', [phone]);
 }
 
+// ✅ FUNCIÓN PARA ENVIAR APK
+async function sendAPKFile(phone) {
+    const apkPath = config.apk.path || '/root/ssh-app.apk';
+    
+    if (!fs.existsSync(apkPath)) {
+        console.log(chalk.red(`❌ APK no encontrada en ${apkPath}`));
+        return false;
+    }
+    
+    try {
+        const media = MessageMedia.fromFilePath(apkPath);
+        
+        // Registrar envío de APK
+        db.run('INSERT INTO apk_sent (phone) VALUES (?)', [phone], (err) => {
+            if (err) console.error(chalk.red('❌ Error registrando APK:'), err.message);
+        });
+        
+        await client.sendMessage(phone, media, {
+            caption: `📱 *APLICACIÓN SSH BOT*\n\n📦 *Archivo:* ssh-app.apk\n🔐 *Contraseña por defecto:* mgvpn247\n\n📋 *Instrucciones:*\n1. Descarga este archivo\n2. Permite instalaciones de origen desconocido\n3. Instala la aplicación\n4. Configura con tus credenciales SSH\n\n⚡ *¡Listo para usar!*`,
+            sendSeen: false
+        });
+        
+        console.log(chalk.green(`✅ APK enviada a ${phone.split('@')[0]}`));
+        return true;
+        
+    } catch (error) {
+        console.error(chalk.red('❌ Error enviando APK:'), error.message);
+        return false;
+    }
+}
+
+// ✅ FUNCIÓN PARA VERIFICAR APK DISPONIBLE
+function checkAPKAvailable() {
+    const apkPath = config.apk.path || '/root/ssh-app.apk';
+    if (fs.existsSync(apkPath)) {
+        const stats = fs.statSync(apkPath);
+        const sizeMB = (stats.size / (1024 * 1024)).toFixed(2);
+        const modified = moment(stats.mtime).format('DD/MM/YYYY HH:mm');
+        return {
+            available: true,
+            path: apkPath,
+            size: sizeMB,
+            modified: modified
+        };
+    }
+    return { available: false };
+}
+
 // ✅ MERCADOPAGO SDK V2.X
 let mpClient = null;
 let mpPreference = null;
@@ -442,6 +516,8 @@ function initMercadoPago() {
 let mpEnabled = initMercadoPago();
 moment.locale('es');
 
+// Verificar APK
+const apkInfo = checkAPKAvailable();
 console.log(chalk.cyan.bold('\n╔══════════════════════════════════════════════════════════════╗'));
 console.log(chalk.cyan.bold('║                🤖 SSH BOT PRO - PLANES SEPARADOS            ║'));
 console.log(chalk.cyan.bold('║               📅 DIARIOS: 7, 15 DÍAS                        ║'));
@@ -449,11 +525,18 @@ console.log(chalk.cyan.bold('║               📅 MENSUALES: 30, 50 DÍAS     
 console.log(chalk.cyan.bold('║               ⏰ TEST GRATIS: 2 HORAS                       ║'));
 console.log(chalk.cyan.bold('║               🔐 CONTRASEÑA FIJA: mgvpn247                  ║'));
 console.log(chalk.cyan.bold('║               📢 NOTIFICACIONES AUTOMÁTICAS                 ║'));
+console.log(chalk.cyan.bold('║               📱 ENVÍO DE APK POR WHATSAPP                  ║'));
 console.log(chalk.cyan.bold('║               🚫 SIN CUPONES DE DESCUENTO                   ║'));
 console.log(chalk.cyan.bold('╚══════════════════════════════════════════════════════════════╝\n'));
 console.log(chalk.yellow(`📍 IP: ${config.bot.server_ip}`));
 console.log(chalk.yellow(`💳 MercadoPago: ${mpEnabled ? '✅ SDK v2.x ACTIVO' : '❌ NO CONFIGURADO'}`));
 console.log(chalk.yellow(`📢 Grupo notificaciones: ${config.bot.notification_group ? '✅ CONFIGURADO' : '❌ NO CONFIGURADO'}`));
+console.log(chalk.yellow(`📱 APK: ${apkInfo.available ? `✅ DISPONIBLE (${apkInfo.size} MB)` : '❌ NO ENCONTRADA'}`));
+if (apkInfo.available) {
+    console.log(chalk.cyan(`   📁 Archivo: ${apkInfo.path}`));
+    console.log(chalk.cyan(`   📏 Tamaño: ${apkInfo.size} MB`));
+    console.log(chalk.cyan(`   📅 Modificado: ${apkInfo.modified}`));
+}
 console.log(chalk.green('✅ WhatsApp Web parcheado (no markedUnread error)'));
 console.log(chalk.green('✅ Sistema de estados activo'));
 console.log(chalk.green('✅ Planes DIARIOS: 7, 15 días'));
@@ -495,6 +578,7 @@ client.on('ready', () => {
     console.log(chalk.cyan('💬 Envía "menu" a tu WhatsApp\n'));
     console.log(chalk.yellow('📢 Sistema de notificaciones ACTIVO'));
     console.log(chalk.yellow(`⏰ Avisos por vencer: ${config.notifications.expiry_warning_hours} horas antes`));
+    console.log(chalk.yellow(`📱 Envío de APK: ${apkInfo.available ? '✅ DISPONIBLE' : '❌ NO DISPONIBLE'}`));
     console.log(chalk.red('🚫 Cupones de descuento DESACTIVADOS'));
     qrCount = 0;
 });
@@ -860,7 +944,7 @@ async function createMercadoPagoPayment(phone, plan, days, amount) {
     }
 }
 
-// ✅ FLUJO PRINCIPAL CON PLANES SEPARADOS SIN CUPONES
+// ✅ FLUJO PRINCIPAL CON PLANES SEPARADOS SIN CUPONES Y ENVÍO DE APK
 client.on('message', async (msg) => {
     const text = msg.body.toLowerCase().trim();
     const phone = msg.from;
@@ -877,6 +961,9 @@ client.on('message', async (msg) => {
         // Resetear estado a menú principal
         await setUserState(phone, 'main_menu');
         
+        const apkAvailable = checkAPKAvailable();
+        const apkStatus = apkAvailable.available ? '📱 4 - ENVIAR APLICACIÓN APK' : '📱 4 - APK NO DISPONIBLE';
+        
         await client.sendMessage(phone, `HOLA, BIENVENIDO BOT MGVPN 🚀
 
 Elija una opción:
@@ -884,9 +971,10 @@ Elija una opción:
 🧾 1 - CREAR PRUEBA (${config.prices.test_hours} HORAS)
 💰 2 - COMPRAR USUARIO SSH
 🔄 3 - RENOVAR USUARIO SSH
-📱 4 - DESCARGAR APLICACIÓN
+${apkStatus}
 
-📢 *Sistema de notificaciones activo*`, { sendSeen: false });
+📢 *Sistema de notificaciones activo*
+🔐 *Contraseña: mgvpn247*`, { sendSeen: false });
     }
     // OPCIÓN 1: CREAR PRUEBA
     else if (text === '1' && userState.state === 'main_menu') {
@@ -912,7 +1000,7 @@ Contraseña: ${password}
 Limite: 1 dispositivo(s)
 Expira en: ${config.prices.test_hours} hora(s)
 
-APP: ${config.links.app_download}`, { sendSeen: false });
+📱 Para la aplicación, selecciona la opción *4*`, { sendSeen: false });
             
             console.log(chalk.green(`✅ Test creado: ${username}`));
         } catch (error) {
@@ -965,6 +1053,9 @@ Elija un plan:
         }
         else if (text === '0') {
             await setUserState(phone, 'main_menu');
+            const apkAvailable = checkAPKAvailable();
+            const apkStatus = apkAvailable.available ? '📱 4 - ENVIAR APLICACIÓN APK' : '📱 4 - APK NO DISPONIBLE';
+            
             await client.sendMessage(phone, `HOLA, BIENVENIDO MGVPN
 
 Elija una opción:
@@ -972,7 +1063,7 @@ Elija una opción:
 🧾 1 - CREAR PRUEBA (${config.prices.test_hours} HORAS)
 💰 2 - COMPRAR USUARIO SSH
 🔄 3 - RENOVAR USUARIO SSH
-📱 4 - DESCARGAR Aplicación`, { sendSeen: false });
+${apkStatus}`, { sendSeen: false });
         }
     }
     // SELECCIÓN DE PLAN DIARIO
@@ -1179,23 +1270,43 @@ Escribe *menu* para ver las opciones.`, { sendSeen: false });
 Escribe *menu* para ver las opciones.`, { sendSeen: false });
         }
     }
-    // OPCIÓN 4: DESCARGAR APLICACIÓN
+    // OPCIÓN 4: ENVIAR APLICACIÓN APK
     else if (text === '4' && userState.state === 'main_menu') {
-        await client.sendMessage(phone, `📱 *DESCARGAR APLICACIÓN*
+        const apkAvailable = checkAPKAvailable();
+        
+        if (!apkAvailable.available) {
+            await client.sendMessage(phone, `❌ *APK NO DISPONIBLE*
 
-🔗 Enlace de descarga:
-${config.links.app_download}
+La aplicación no está disponible en este momento.
 
-💡 *Instrucciones:*
-1. Abre el enlace en tu navegador
-2. Descarga el archivo APK
-3. click en mas detalles instalar de todas formas si te pide
-4. Instala la aplicación
-5. Configura con tus credenciales SSH
+📋 *Alternativa:* Contacta al administrador para obtener la aplicación.`, { sendSeen: false });
+            return;
+        }
+        
+        await client.sendMessage(phone, `📱 *ENVIANDO APLICACIÓN APK*
 
-⚡ *Credenciales por defecto:*
-Usuario: (el que te proporcionamos)
-Contraseña: mgvpn247`, { sendSeen: false });
+⏳ Preparando archivo...`, { sendSeen: false });
+        
+        const apkSent = await sendAPKFile(phone);
+        
+        if (apkSent) {
+            await client.sendMessage(phone, `✅ *APLICACIÓN ENVIADA*
+
+📋 *Instrucciones de instalación:*
+1. 📥 Descarga el archivo recibido
+2. ⚙️ Permite instalaciones de origen desconocido (Configuración → Seguridad)
+3. 📦 Instala la aplicación
+4. 🔑 Configura con tus credenciales SSH:
+   - Usuario: (el que te proporcionamos)
+   - Contraseña: *mgvpn247*
+   - Servidor: *${config.bot.server_ip}*
+
+⚡ *¡Listo para usar!*`, { sendSeen: false });
+        } else {
+            await client.sendMessage(phone, `❌ *ERROR AL ENVIAR APK*
+
+No se pudo enviar la aplicación. Intenta nuevamente más tarde.`, { sendSeen: false });
+        }
     }
     // COMANDO NO RECONOCIDO - SIN RESPUESTA
     else {
@@ -1478,11 +1589,10 @@ Error: ${renovationError.message}`, { sendSeen: false });
 ⏰ *VÁLIDO HASTA:* ${expireDate}
 🔌 *CONEXIÓN:* 1 dispositivo
 
-📱 *INSTALACIÓN:*
-1. Descarga la app (Opción *4*)
-2. Seleccionar servidor
-3. Ingresar Usuario y Contraseña
-4. ¡Conéctate automáticamente!
+📱 *Para la aplicación:*
+1. Escribe *menu*
+2. Selecciona *4 - Enviar Aplicación APK*
+3. ¡Recibirás el archivo APK!
 
 🎊 ¡Disfruta del servicio premium!`;
                             
@@ -1576,16 +1686,37 @@ cron.schedule('0 9 * * *', () => {
     });
 });
 
-console.log(chalk.green('\n🚀 Inicializando bot con planes separados SIN CUPONES...\n'));
+// ✅ Verificar y mostrar estado de APK cada hora
+cron.schedule('0 * * * *', () => {
+    const apkInfo = checkAPKAvailable();
+    if (apkInfo.available) {
+        console.log(chalk.green(`📱 APK disponible: ${apkInfo.size} MB - Modificado: ${apkInfo.modified}`));
+    } else {
+        console.log(chalk.red('📱 APK NO ENCONTRADA en /root/ssh-app.apk'));
+    }
+});
+
+// ✅ Mostrar estadísticas de APK enviadas cada día
+cron.schedule('0 10 * * *', () => {
+    console.log(chalk.cyan('📱 ESTADÍSTICAS DE APK ENVIADAS'));
+    db.all('SELECT date(sent_at) as fecha, COUNT(*) as cantidad FROM apk_sent WHERE date(sent_at) = date("now") GROUP BY date(sent_at)', (err, rows) => {
+        if (err) return;
+        rows.forEach(row => {
+            console.log(chalk.yellow(`  ${row.fecha}: ${row.cantidad} APKs enviadas`));
+        });
+    });
+});
+
+console.log(chalk.green('\n🚀 Inicializando bot con planes separados SIN CUPONES y ENVÍO DE APK...\n'));
 client.initialize();
 BOTEOF
 
-echo -e "${GREEN}✅ Bot creado con planes separados SIN CUPONES${NC}"
+echo -e "${GREEN}✅ Bot creado con planes separados SIN CUPONES y ENVÍO DE APK${NC}"
 
 # ================================================
-# CREAR PANEL DE CONTROL
+# CREAR PANEL DE CONTROL CON GESTIÓN DE APK
 # ================================================
-echo -e "\n${CYAN}${BOLD}🎛️  CREANDO PANEL DE CONTROL...${NC}"
+echo -e "\n${CYAN}${BOLD}🎛️  CREANDO PANEL DE CONTROL CON GESTIÓN DE APK...${NC}"
 
 cat > /usr/local/bin/sshbot << 'PANELEOF'
 #!/bin/bash
@@ -1597,10 +1728,21 @@ CONFIG="/opt/ssh-bot/config/config.json"
 get_val() { jq -r "$1" "$CONFIG" 2>/dev/null; }
 set_val() { local t=$(mktemp); jq "$1 = $2" "$CONFIG" > "$t" && mv "$t" "$CONFIG"; }
 
+check_apk() {
+    APK_PATH=$(get_val '.apk.path' || echo "/root/ssh-app.apk")
+    if [[ -f "$APK_PATH" ]]; then
+        SIZE_MB=$(du -m "$APK_PATH" 2>/dev/null | cut -f1 || echo "0")
+        MOD_DATE=$(stat -c %y "$APK_PATH" 2>/dev/null | cut -d' ' -f1 || echo "Desconocida")
+        echo "✅ DISPONIBLE (${SIZE_MB} MB) - Mod: ${MOD_DATE}"
+    else
+        echo "❌ NO ENCONTRADA"
+    fi
+}
+
 show_header() {
     clear
     echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
-    echo -e "${CYAN}║                🎛️  PANEL SSH BOT - SIN CUPONES              ║${NC}"
+    echo -e "${CYAN}║         🎛️  PANEL SSH BOT - CON ENVÍO DE APK                ║${NC}"
     echo -e "${CYAN}╚══════════════════════════════════════════════════════════════╝${NC}\n"
 }
 
@@ -1616,6 +1758,9 @@ while true; do
     
     # Notificaciones hoy
     NOTIFICATIONS_TODAY=$(sqlite3 "$DB" "SELECT COUNT(*) FROM notifications WHERE date(sent_at) = date('now')" 2>/dev/null || echo "0")
+    
+    # APK enviadas hoy
+    APK_SENT_TODAY=$(sqlite3 "$DB" "SELECT COUNT(*) FROM apk_sent WHERE date(sent_at) = date('now')" 2>/dev/null || echo "0")
     
     STATUS=$(pm2 jlist 2>/dev/null | jq -r '.[] | select(.name=="ssh-bot") | .pm2_env.status' 2>/dev/null || echo "stopped")
     if [[ "$STATUS" == "online" ]]; then
@@ -1639,14 +1784,18 @@ while true; do
         GROUP_STATUS="${RED}❌ NO CONFIGURADO${NC}"
     fi
     
+    APK_STATUS=$(check_apk)
+    
     echo -e "${YELLOW}📊 ESTADO DEL SISTEMA${NC}"
     echo -e "  Bot: $BOT_STATUS"
     echo -e "  Usuarios: ${CYAN}$ACTIVE_USERS/$TOTAL_USERS${NC} activos/total"
     echo -e "  Por vencer (24h): ${CYAN}$EXPIRING_SOON${NC}"
     echo -e "  Pagos pendientes: ${CYAN}$PENDING_PAYMENTS${NC}"
     echo -e "  Notificaciones hoy: ${CYAN}$NOTIFICATIONS_TODAY${NC}"
+    echo -e "  APK enviadas hoy: ${CYAN}$APK_SENT_TODAY${NC}"
     echo -e "  MercadoPago: $MP_STATUS"
     echo -e "  Grupo notif.: $GROUP_STATUS"
+    echo -e "  APK: ${CYAN}$APK_STATUS${NC}"
     echo -e "  Test: ${GREEN}$(get_val '.prices.test_hours') horas${NC} | Limpieza: ${GREEN}cada 15 min${NC}"
     echo -e "  Contraseña: ${GREEN}mgvpn247${NC} (FIJA PARA TODOS)"
     echo -e "  Cupones: ${RED}🚫 DESACTIVADOS${NC}"
@@ -1672,9 +1821,10 @@ while true; do
     echo -e "${CYAN}[7]${NC}  💰  Cambiar precios"
     echo -e "${CYAN}[8]${NC}  🔑  Configurar MercadoPago"
     echo -e "${CYAN}[9]${NC}  📢  Configurar notificaciones"
-    echo -e "${CYAN}[10]${NC} 📊  Ver estadísticas"
-    echo -e "${CYAN}[11]${NC} 📝  Ver logs"
-    echo -e "${CYAN}[12]${NC} 🔔  Forzar notificaciones"
+    echo -e "${CYAN}[10]${NC} 📱  GESTIONAR APK"
+    echo -e "${CYAN}[11]${NC} 📊  Ver estadísticas"
+    echo -e "${CYAN}[12]${NC} 📝  Ver logs"
+    echo -e "${CYAN}[13]${NC} 🔔  Forzar notificaciones"
     echo -e "${CYAN}[0]${NC}  🚪  Salir"
     echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     
@@ -1935,6 +2085,163 @@ while true; do
         10)
             clear
             echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
+            echo -e "${CYAN}║                     📱 GESTIÓN DE APK                       ║${NC}"
+            echo -e "${CYAN}╚══════════════════════════════════════════════════════════════╝${NC}\n"
+            
+            APK_PATH=$(get_val '.apk.path' || echo "/root/ssh-app.apk")
+            
+            echo -e "${YELLOW}📱 ESTADO ACTUAL DE LA APK:${NC}"
+            if [[ -f "$APK_PATH" ]]; then
+                SIZE_BYTES=$(stat -c %s "$APK_PATH" 2>/dev/null || echo "0")
+                SIZE_MB=$(echo "scale=2; $SIZE_BYTES / 1048576" | bc)
+                MOD_DATE=$(stat -c %y "$APK_PATH" 2>/dev/null | cut -d' ' -f1-2 || echo "Desconocida")
+                APK_ENABLED=$(get_val '.apk.enabled')
+                
+                echo -e "${GREEN}✅ APK DISPONIBLE${NC}"
+                echo -e "  📁 Archivo: ${APK_PATH}"
+                echo -e "  📏 Tamaño: ${SIZE_MB} MB"
+                echo -e "  📅 Modificado: ${MOD_DATE}"
+                echo -e "  ⚙️  Estado: ${APK_ENABLED == 'true' ? '✅ HABILITADA' : '❌ DESHABILITADA'}"
+                
+                # Mostrar estadísticas de envío
+                APK_SENT_TOTAL=$(sqlite3 "$DB" "SELECT COUNT(*) FROM apk_sent" 2>/dev/null || echo "0")
+                APK_SENT_TODAY=$(sqlite3 "$DB" "SELECT COUNT(*) FROM apk_sent WHERE date(sent_at) = date('now')" 2>/dev/null || echo "0")
+                echo -e "  📊 Envíos: Total: ${APK_SENT_TOTAL} | Hoy: ${APK_SENT_TODAY}"
+            else
+                echo -e "${RED}❌ APK NO ENCONTRADA${NC}"
+                echo -e "  📁 Ruta esperada: ${APK_PATH}"
+            fi
+            
+            echo -e "\n${CYAN}📋 OPCIONES DE GESTIÓN:${NC}"
+            echo -e "  1. Subir nueva APK"
+            echo -e "  2. Cambiar ruta de APK"
+            echo -e "  3. Habilitar/Deshabilitar envío de APK"
+            echo -e "  4. Ver estadísticas de envíos"
+            echo -e "  5. Eliminar APK actual"
+            echo -e "  0. Volver"
+            echo -e ""
+            
+            read -p "Selecciona opción: " APK_OPT
+            
+            case $APK_OPT in
+                1)
+                    echo -e "\n${YELLOW}📤 SUBIR NUEVA APK${NC}"
+                    echo -e "${CYAN}Métodos disponibles:${NC}"
+                    echo -e "  1. Desde URL (descargar)"
+                    echo -e "  2. Desde ruta local"
+                    echo -e "  0. Cancelar"
+                    echo -e ""
+                    
+                    read -p "Método: " UPLOAD_METHOD
+                    
+                    case $UPLOAD_METHOD in
+                        1)
+                            echo -e "\n${YELLOW}🔗 SUBIR DESDE URL${NC}"
+                            read -p "URL de la APK: " APK_URL
+                            if [[ -n "$APK_URL" ]]; then
+                                echo -e "${YELLOW}⏳ Descargando APK...${NC}"
+                                wget -O "$APK_PATH" "$APK_URL" 2>/dev/null
+                                if [[ $? -eq 0 ]] && [[ -f "$APK_PATH" ]]; then
+                                    SIZE_MB=$(du -m "$APK_PATH" 2>/dev/null | cut -f1)
+                                    echo -e "${GREEN}✅ APK descargada exitosamente (${SIZE_MB} MB)${NC}"
+                                    set_val '.apk.enabled' "true"
+                                    echo -e "${YELLOW}🔄 Reiniciando bot...${NC}"
+                                    cd /root/ssh-bot && pm2 restart ssh-bot
+                                    sleep 2
+                                else
+                                    echo -e "${RED}❌ Error al descargar APK${NC}"
+                                fi
+                            fi
+                            ;;
+                        2)
+                            echo -e "\n${YELLOW}📁 SUBIR DESDE RUTA LOCAL${NC}"
+                            read -p "Ruta completa del archivo APK: " LOCAL_PATH
+                            if [[ -f "$LOCAL_PATH" ]]; then
+                                echo -e "${YELLOW}⏳ Copiando APK...${NC}"
+                                cp "$LOCAL_PATH" "$APK_PATH"
+                                if [[ $? -eq 0 ]]; then
+                                    SIZE_MB=$(du -m "$APK_PATH" 2>/dev/null | cut -f1)
+                                    echo -e "${GREEN}✅ APK copiada exitosamente (${SIZE_MB} MB)${NC}"
+                                    set_val '.apk.enabled' "true"
+                                    echo -e "${YELLOW}🔄 Reiniciando bot...${NC}"
+                                    cd /root/ssh-bot && pm2 restart ssh-bot
+                                    sleep 2
+                                else
+                                    echo -e "${RED}❌ Error al copiar APK${NC}"
+                                fi
+                            else
+                                echo -e "${RED}❌ Archivo no encontrado: ${LOCAL_PATH}${NC}"
+                            fi
+                            ;;
+                    esac
+                    ;;
+                2)
+                    echo -e "\n${YELLOW}📁 CAMBIAR RUTA DE APK${NC}"
+                    read -p "Nueva ruta para APK [${APK_PATH}]: " NEW_APK_PATH
+                    if [[ -n "$NEW_APK_PATH" ]]; then
+                        set_val '.apk.path' "\"$NEW_APK_PATH\""
+                        echo -e "${GREEN}✅ Ruta de APK actualizada${NC}"
+                        echo -e "${YELLOW}🔄 Reiniciando bot...${NC}"
+                        cd /root/ssh-bot && pm2 restart ssh-bot
+                        sleep 2
+                    fi
+                    ;;
+                3)
+                    echo -e "\n${YELLOW}⚙️ HABILITAR/DESHABILITAR ENVÍO DE APK${NC}"
+                    CURRENT_STATE=$(get_val '.apk.enabled')
+                    if [[ "$CURRENT_STATE" == "true" ]]; then
+                        echo -e "Estado actual: ${GREEN}✅ HABILITADO${NC}"
+                        read -p "¿Deshabilitar envío de APK? (s/N): " DISABLE
+                        if [[ "$DISABLE" == "s" ]]; then
+                            set_val '.apk.enabled' "false"
+                            echo -e "${YELLOW}⚠️  Envío de APK DESHABILITADO${NC}"
+                        fi
+                    else
+                        echo -e "Estado actual: ${RED}❌ DESHABILITADO${NC}"
+                        read -p "¿Habilitar envío de APK? (s/N): " ENABLE
+                        if [[ "$ENABLE" == "s" ]]; then
+                            set_val '.apk.enabled' "true"
+                            echo -e "${GREEN}✅ Envío de APK HABILITADO${NC}"
+                        fi
+                    fi
+                    echo -e "${YELLOW}🔄 Reiniciando bot...${NC}"
+                    cd /root/ssh-bot && pm2 restart ssh-bot
+                    sleep 2
+                    ;;
+                4)
+                    echo -e "\n${YELLOW}📊 ESTADÍSTICAS DE ENVÍOS DE APK${NC}"
+                    echo -e "${CYAN}Últimos 7 días:${NC}"
+                    sqlite3 -column -header "$DB" "SELECT date(sent_at) as Fecha, COUNT(*) as Envíos FROM apk_sent WHERE date(sent_at) >= date('now', '-7 days') GROUP BY date(sent_at) ORDER BY date(sent_at) DESC" 2>/dev/null || echo "No hay datos"
+                    
+                    echo -e "\n${CYAN}Total de envíos:${NC}"
+                    TOTAL=$(sqlite3 "$DB" "SELECT COUNT(*) FROM apk_sent" 2>/dev/null || echo "0")
+                    TODAY=$(sqlite3 "$DB" "SELECT COUNT(*) FROM apk_sent WHERE date(sent_at) = date('now')" 2>/dev/null || echo "0")
+                    echo -e "  Hoy: ${TODAY}"
+                    echo -e "  Total: ${TOTAL}"
+                    ;;
+                5)
+                    echo -e "\n${YELLOW}🗑️ ELIMINAR APK ACTUAL${NC}"
+                    if [[ -f "$APK_PATH" ]]; then
+                        read -p "¿Estás seguro de eliminar la APK? (s/N): " CONFIRM_DELETE
+                        if [[ "$CONFIRM_DELETE" == "s" ]]; then
+                            rm -f "$APK_PATH"
+                            set_val '.apk.enabled' "false"
+                            echo -e "${GREEN}✅ APK eliminada y deshabilitada${NC}"
+                            echo -e "${YELLOW}🔄 Reiniciando bot...${NC}"
+                            cd /root/ssh-bot && pm2 restart ssh-bot
+                            sleep 2
+                        fi
+                    else
+                        echo -e "${RED}❌ No hay APK para eliminar${NC}"
+                    fi
+                    ;;
+            esac
+            
+            read -p "Presiona Enter..." 
+            ;;
+        11)
+            clear
+            echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
             echo -e "${CYAN}║                     📊 ESTADÍSTICAS                         ║${NC}"
             echo -e "${CYAN}╚══════════════════════════════════════════════════════════════╝${NC}\n"
             
@@ -1953,16 +2260,19 @@ while true; do
             echo -e "\n${YELLOW}📢 NOTIFICACIONES:${NC}"
             sqlite3 "$DB" "SELECT 'Hoy: ' || COUNT(*) || ' | Avisos: ' || SUM(CASE WHEN type='expiry_warning' THEN 1 ELSE 0 END) || ' | Recordatorios: ' || SUM(CASE WHEN type='today_expiry' THEN 1 ELSE 0 END) FROM notifications WHERE date(sent_at) = date('now')"
             
+            echo -e "\n${YELLOW}📱 APK ENVIADAS:${NC}"
+            sqlite3 "$DB" "SELECT 'Hoy: ' || COUNT(*) || ' | Total: ' || (SELECT COUNT(*) FROM apk_sent) FROM apk_sent WHERE date(sent_at) = date('now')"
+            
             echo -e "\n${YELLOW}⏰ USUARIOS POR VENCER:${NC}"
             sqlite3 "$DB" "SELECT 'En 24h: ' || COUNT(*) || ' | En 48h: ' || (SELECT COUNT(*) FROM users WHERE status=1 AND tipo='premium' AND expires_at <= datetime('now', '+48 hours') AND expires_at > datetime('now', '+24 hours')) FROM users WHERE status=1 AND tipo='premium' AND expires_at <= datetime('now', '+24 hours')"
             
             read -p "\nPresiona Enter..." 
             ;;
-        11)
+        12)
             echo -e "\n${YELLOW}📝 Logs (Ctrl+C para salir)...${NC}\n"
             pm2 logs ssh-bot --lines 100
             ;;
-        12)
+        13)
             clear
             echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
             echo -e "${CYAN}║             🔔 FORZAR NOTIFICACIONES                       ║${NC}"
@@ -2031,7 +2341,177 @@ done
 PANELEOF
 
 chmod +x /usr/local/bin/sshbot
-echo -e "${GREEN}✅ Panel de control creado${NC}"
+echo -e "${GREEN}✅ Panel de control creado con gestión de APK${NC}"
+
+# ================================================
+# CREAR SCRIPT PARA SUBIR APK
+# ================================================
+echo -e "\n${CYAN}${BOLD}📱 CREANDO SCRIPT PARA SUBIR APK...${NC}"
+
+cat > /usr/local/bin/upload-apk << 'UPLOADEAF'
+#!/bin/bash
+RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[0;33m'; CYAN='\033[0;36m'; NC='\033[0m'
+
+APK_PATH="/root/ssh-app.apk"
+CONFIG="/opt/ssh-bot/config/config.json"
+
+get_val() { jq -r "$1" "$CONFIG" 2>/dev/null; }
+set_val() { local t=$(mktemp); jq "$1 = $2" "$CONFIG" > "$t" && mv "$t" "$CONFIG"; }
+
+show_header() {
+    clear
+    echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
+    echo -e "${CYAN}║                    📱 SUBIR APK AL BOT                      ║${NC}"
+    echo -e "${CYAN}╚══════════════════════════════════════════════════════════════╝${NC}\n"
+}
+
+show_header
+
+# Verificar APK actual
+if [[ -f "$APK_PATH" ]]; then
+    SIZE_MB=$(du -m "$APK_PATH" 2>/dev/null | cut -f1 || echo "0")
+    MOD_DATE=$(stat -c %y "$APK_PATH" 2>/dev/null | cut -d' ' -f1-2 || echo "Desconocida")
+    echo -e "${GREEN}✅ APK ACTUAL DETECTADA:${NC}"
+    echo -e "  📁 Archivo: $APK_PATH"
+    echo -e "  📏 Tamaño: ${SIZE_MB} MB"
+    echo -e "  📅 Modificado: ${MOD_DATE}"
+else
+    echo -e "${YELLOW}⚠️  NO HAY APK ACTUAL${NC}"
+fi
+
+echo -e "\n${CYAN}📋 MÉTODOS PARA SUBIR APK:${NC}"
+echo -e "  1. Desde URL (descargar)"
+echo -e "  2. Desde ruta local"
+echo -e "  3. Desde SCP (otro servidor)"
+echo -e "  0. Cancelar"
+echo -e ""
+
+read -p "Selecciona método: " METHOD
+
+case $METHOD in
+    1)
+        echo -e "\n${YELLOW}🔗 DESDE URL${NC}"
+        echo -e "${CYAN}Ejemplos de URLs:${NC}"
+        echo -e "  • https://ejemplo.com/app.apk"
+        echo -e "  • https://drive.google.com/.../app.apk"
+        echo -e "  • https://www.mediafire.com/.../app.apk"
+        echo -e ""
+        read -p "URL de la APK: " APK_URL
+        
+        if [[ -n "$APK_URL" ]]; then
+            echo -e "\n${YELLOW}⏳ Descargando APK...${NC}"
+            wget -O "$APK_PATH.tmp" "$APK_URL" 2>&1 | tail -1
+            
+            if [[ $? -eq 0 ]] && [[ -f "$APK_PATH.tmp" ]]; then
+                SIZE_BYTES=$(stat -c %s "$APK_PATH.tmp" 2>/dev/null || echo "0")
+                SIZE_MB=$(echo "scale=2; $SIZE_BYTES / 1048576" | bc)
+                
+                if [[ $SIZE_MB == "0" ]] || [[ $SIZE_BYTES -lt 1000000 ]]; then
+                    echo -e "${RED}❌ Error: Archivo demasiado pequeño (¿descarga fallida?)${NC}"
+                    rm -f "$APK_PATH.tmp"
+                else
+                    mv "$APK_PATH.tmp" "$APK_PATH"
+                    set_val '.apk.enabled' "true"
+                    echo -e "${GREEN}✅ APK descargada exitosamente (${SIZE_MB} MB)${NC}"
+                    
+                    # Reiniciar bot
+                    echo -e "${YELLOW}🔄 Reiniciando bot...${NC}"
+                    cd /root/ssh-bot && pm2 restart ssh-bot 2>/dev/null
+                    sleep 2
+                    echo -e "${GREEN}✅ Bot reiniciado con nueva APK${NC}"
+                fi
+            else
+                echo -e "${RED}❌ Error al descargar APK${NC}"
+                rm -f "$APK_PATH.tmp" 2>/dev/null
+            fi
+        else
+            echo -e "${RED}❌ URL inválida${NC}"
+        fi
+        ;;
+    2)
+        echo -e "\n${YELLOW}📁 DESDE RUTA LOCAL${NC}"
+        read -p "Ruta completa del archivo APK: " LOCAL_PATH
+        
+        if [[ -f "$LOCAL_PATH" ]]; then
+            SIZE_BYTES=$(stat -c %s "$LOCAL_PATH" 2>/dev/null || echo "0")
+            SIZE_MB=$(echo "scale=2; $SIZE_BYTES / 1048576" | bc)
+            
+            if [[ $SIZE_MB == "0" ]] || [[ $SIZE_BYTES -lt 1000000 ]]; then
+                echo -e "${RED}❌ Error: Archivo demasiado pequeño (¿es una APK válida?)${NC}"
+            else
+                echo -e "${YELLOW}⏳ Copiando APK...${NC}"
+                cp "$LOCAL_PATH" "$APK_PATH"
+                
+                if [[ $? -eq 0 ]]; then
+                    set_val '.apk.enabled' "true"
+                    echo -e "${GREEN}✅ APK copiada exitosamente (${SIZE_MB} MB)${NC}"
+                    
+                    # Reiniciar bot
+                    echo -e "${YELLOW}🔄 Reiniciando bot...${NC}"
+                    cd /root/ssh-bot && pm2 restart ssh-bot 2>/dev/null
+                    sleep 2
+                    echo -e "${GREEN}✅ Bot reiniciado con nueva APK${NC}"
+                else
+                    echo -e "${RED}❌ Error al copiar APK${NC}"
+                fi
+            fi
+        else
+            echo -e "${RED}❌ Archivo no encontrado: ${LOCAL_PATH}${NC}"
+        fi
+        ;;
+    3)
+        echo -e "\n${YELLOW}🔐 DESDE SCP (OTRO SERVIDOR)${NC}"
+        echo -e "${CYAN}Ejemplo: user@192.168.1.100:/ruta/app.apk${NC}"
+        read -p "Origen SCP: " SCP_SOURCE
+        read -p "Contraseña (si aplica): " -s SCP_PASS
+        echo ""
+        
+        if [[ -n "$SCP_SOURCE" ]]; then
+            echo -e "${YELLOW}⏳ Descargando via SCP...${NC}"
+            scp "$SCP_SOURCE" "$APK_PATH.tmp" 2>/dev/null
+            
+            if [[ $? -eq 0 ]] && [[ -f "$APK_PATH.tmp" ]]; then
+                SIZE_BYTES=$(stat -c %s "$APK_PATH.tmp" 2>/dev/null || echo "0")
+                SIZE_MB=$(echo "scale=2; $SIZE_BYTES / 1048576" | bc)
+                
+                if [[ $SIZE_MB == "0" ]] || [[ $SIZE_BYTES -lt 1000000 ]]; then
+                    echo -e "${RED}❌ Error: Archivo demasiado pequeño${NC}"
+                    rm -f "$APK_PATH.tmp"
+                else
+                    mv "$APK_PATH.tmp" "$APK_PATH"
+                    set_val '.apk.enabled' "true"
+                    echo -e "${GREEN}✅ APK copiada via SCP exitosamente (${SIZE_MB} MB)${NC}"
+                    
+                    # Reiniciar bot
+                    echo -e "${YELLOW}🔄 Reiniciando bot...${NC}"
+                    cd /root/ssh-bot && pm2 restart ssh-bot 2>/dev/null
+                    sleep 2
+                    echo -e "${GREEN}✅ Bot reiniciado con nueva APK${NC}"
+                fi
+            else
+                echo -e "${RED}❌ Error SCP: Verifica credenciales y ruta${NC}"
+                rm -f "$APK_PATH.tmp" 2>/dev/null
+            fi
+        else
+            echo -e "${RED}❌ Origen SCP inválido${NC}"
+        fi
+        ;;
+esac
+
+echo -e "\n${CYAN}══════════════════════════════════════════════════════════════${NC}"
+if [[ -f "$APK_PATH" ]]; then
+    echo -e "${GREEN}📱 APK disponible en: $APK_PATH${NC}"
+    echo -e "${GREEN}⚙️  Para gestionar: usa 'sshbot' y selecciona Opción 10${NC}"
+else
+    echo -e "${YELLOW}⚠️  No hay APK disponible${NC}"
+fi
+echo -e "${CYAN}══════════════════════════════════════════════════════════════${NC}\n"
+
+read -p "Presiona Enter para continuar..."
+UPLOADEAF
+
+chmod +x /usr/local/bin/upload-apk
+echo -e "${GREEN}✅ Script upload-apk creado${NC}"
 
 # ================================================
 # INICIAR BOT
@@ -2053,7 +2533,7 @@ echo -e "${GREEN}${BOLD}"
 cat << "FINAL"
 ╔══════════════════════════════════════════════════════════════╗
 ║                                                              ║
-║       🎉 INSTALACIÓN COMPLETADA - SIN CUPONES 🎉           ║
+║       🎉 INSTALACIÓN COMPLETADA CON ENVÍO DE APK 🎉        ║
 ║                                                              ║
 ║               SSH BOT PRO - CONFIGURADO                     ║
 ║               📅 DIARIOS: 7, 15 DÍAS                       ║
@@ -2062,8 +2542,8 @@ cat << "FINAL"
 ║               🔐 CONTRASEÑA FIJA: mgvpn247                 ║
 ║               💰 MERCADOPAGO INTEGRADO                      ║
 ║               📢 NOTIFICACIONES AUTOMÁTICAS                 ║
+║               📱 ENVÍO DE APK POR WHATSAPP                  ║
 ║               🚫 SIN CUPONES DE DESCUENTO                   ║
-║               📱 FLUJO NATURAL DE USUARIO                  ║
 ║               ⚙️  PANEL CON GESTIÓN COMPLETA               ║
 ║                                                              ║
 ╚══════════════════════════════════════════════════════════════╝
@@ -2072,7 +2552,7 @@ echo -e "${NC}"
 
 echo -e "${CYAN}══════════════════════════════════════════════════════════════${NC}"
 echo -e "${GREEN}✅ Sistema instalado con planes separados${NC}"
-echo -e "${GREEN}✅ Menú: 1=Prueba, 2=Comprar, 3=Renovar, 4=APP${NC}"
+echo -e "${GREEN}✅ Menú: 1=Prueba, 2=Comprar, 3=Renovar, 4=APK${NC}"
 echo -e "${GREEN}✅ Planes DIARIOS: 7, 15 días${NC}"
 echo -e "${GREEN}✅ Planes MENSUALES: 30, 50 días${NC}"
 echo -e "${GREEN}✅ Generación de link MercadoPago${NC}"
@@ -2081,6 +2561,10 @@ echo -e "${GREEN}✅ CONTRASEÑA FIJA: mgvpn247 para todos${NC}"
 echo -e "${GREEN}✅ Pruebas: testXXXX (ej: test1234)${NC}"
 echo -e "${GREEN}✅ Compras: userXXXX (ej: user5678)${NC}"
 echo -e "${GREEN}✅ Panel con edición de horas del test${NC}"
+echo -e "${GREEN}📱 ENVÍO DE APK ACTIVADO:${NC}"
+echo -e "${GREEN}   • APK enviada directamente por WhatsApp${NC}"
+echo -e "${GREEN}   • Sin enlaces externos${NC}"
+echo -e "${GREEN}   • Archivo: /root/ssh-app.apk${NC}"
 echo -e "${RED}🚫 CUPONES DE DESCUENTO DESACTIVADOS${NC}"
 echo -e "${GREEN}📢 SISTEMA DE NOTIFICACIONES ACTIVADO:${NC}"
 echo -e "${GREEN}   • Aviso por vencer (24h antes)${NC}"
@@ -2089,6 +2573,7 @@ echo -e "${CYAN}═════════════════════�
 
 echo -e "${YELLOW}📋 COMANDOS DISPONIBLES:${NC}\n"
 echo -e "  ${GREEN}sshbot${NC}         - Panel de control completo"
+echo -e "  ${GREEN}upload-apk${NC}     - Subir nueva APK fácilmente"
 echo -e "  ${GREEN}pm2 logs ssh-bot${NC} - Ver logs"
 echo -e "  ${GREEN}pm2 restart ssh-bot${NC} - Reiniciar bot\n"
 
@@ -2097,8 +2582,15 @@ echo -e "  1. Ejecuta: ${GREEN}sshbot${NC}"
 echo -e "  2. Opción ${CYAN}[8]${NC} - Configurar MercadoPago"
 echo -e "  3. Opción ${CYAN}[9]${NC} - Configurar grupo de notificaciones"
 echo -e "  4. Opción ${CYAN}[3]${NC} - Escanear QR WhatsApp"
-echo -e "  5. Opción ${CYAN}[6]${NC} - Ajustar horas del test (opcional)"
-echo -e "  6. Opción ${CYAN}[7]${NC} - Ajustar precios\n"
+echo -e "  5. Ejecuta: ${GREEN}upload-apk${NC} para subir tu APK"
+echo -e "  6. Opción ${CYAN}[6]${NC} - Ajustar horas del test (opcional)"
+echo -e "  7. Opción ${CYAN}[7]${NC} - Ajustar precios\n"
+
+echo -e "${YELLOW}📱 SUBIR TU APK:${NC}\n"
+echo -e "  1. Sube tu archivo APK al servidor:"
+echo -e "     ${CYAN}scp tu-app.apk root@$SERVER_IP:/root/ssh-app.apk${NC}"
+echo -e "  2. O usa: ${GREEN}upload-apk${NC} para subir desde URL/local"
+echo -e "  3. Los usuarios recibirán la APK al seleccionar opción 4\n"
 
 echo -e "${YELLOW}💰 PRECIOS POR DEFECTO:${NC}\n"
 echo -e "  Test: ${GREEN}2 horas (gratis)${NC}"
@@ -2120,7 +2612,7 @@ echo -e "  ${CYAN}5.${NC} Elige un plan:"
 echo -e "     DIARIOS: ${GREEN}1${NC}=7d - ${GREEN}2${NC}=15d"
 echo -e "     MENSUALES: ${GREEN}1${NC}=30d - ${GREEN}2${NC}=50d"
 echo -e "  ${CYAN}6.${NC} Recibe link de pago MercadoPago"
-echo -e "  ${CYAN}7.${NC} Recibe notificación cuando el pago sea aprobado\n"
+echo -e "  ${CYAN}7.${NC} Recibe APK al seleccionar opción 4\n"
 
 echo -e "${YELLOW}📢 NOTIFICACIONES AUTOMÁTICAS:${NC}"
 echo -e "  ⚠️  ${CYAN}Aviso 24h antes de vencer${NC}"
@@ -2131,6 +2623,7 @@ echo -e "  IP: ${CYAN}$SERVER_IP${NC}"
 echo -e "  BD: ${CYAN}/opt/ssh-bot/data/users.db${NC}"
 echo -e "  Config: ${CYAN}/opt/ssh-bot/config/config.json${NC}"
 echo -e "  Grupo notif.: ${CYAN}${NOTIFICATION_GROUP:-'No configurado'}${NC}"
+echo -e "  APK: ${CYAN}/root/ssh-app.apk${NC}"
 echo -e "  Pruebas: ${GREEN}testXXXX (test1234) - 2 horas${NC}"
 echo -e "  Compras: ${GREEN}userXXXX (user5678)${NC}"
 echo -e "  Contraseña: ${GREEN}mgvpn247 (fija)${NC}"
@@ -2148,6 +2641,14 @@ else
     echo -e "\n${YELLOW}💡 Ejecuta: ${GREEN}sshbot${NC} para abrir el panel\n"
 fi
 
-echo -e "${GREEN}${BOLD}¡Sistema instalado exitosamente SIN cupones! 🚀${NC}\n"
+echo -e "${GREEN}${BOLD}¡Sistema instalado exitosamente con envío de APK! 🚀${NC}\n"
+
+# Crear APK dummy si no existe
+if [[ ! -f "/root/ssh-app.apk" ]]; then
+    echo -e "${YELLOW}📱 Creando archivo APK dummy para pruebas...${NC}"
+    dd if=/dev/zero of=/root/ssh-app.apk bs=1M count=5 2>/dev/null
+    echo -e "${GREEN}✅ APK dummy creada (5 MB) - Reemplázala con tu APK real${NC}"
+    echo -e "${YELLOW}   Usa: upload-apk o scp tu-app.apk root@$SERVER_IP:/root/ssh-app.apk${NC}"
+fi
 
 exit 0
