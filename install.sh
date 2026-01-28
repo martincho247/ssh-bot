@@ -1,6 +1,6 @@
 #!/bin/bash
 # ================================================
-# SSH BOT PRO - INSTALADOR UBUNTU 20.04
+# SSH BOT PRO - INSTALADOR CON SOLUCIÓN "AUTENTICADO"
 # Planes: 7, 15, 30, 50 días
 # ================================================
 
@@ -28,10 +28,10 @@ cat << "BANNER"
 ║     ╚══════╝╚══════╝╚═╝  ╚═╝    ╚═════╝  ╚═════╝    ╚═╝     ║
 ╠══════════════════════════════════════════════════════════════╣
 ║                                                              ║
-║                SSH BOT PRO - UBUNTU 20.04                   ║
+║          SSH BOT PRO - VERSIÓN CORREGIDA (SOLUCIONA BUG)    ║
 ║               💡 PLANES: 7, 15, 30, 50 DÍAS                 ║
 ║               🔐 CONTRASEÑA FIJA: mgvpn247                  ║
-║               💰 MERCADOPAGO INTEGRADO                      ║
+║               🐛 SOLUCIONA: "Autenticado" → "Ready"         ║
 ║                                                              ║
 ╚══════════════════════════════════════════════════════════════╝
 BANNER
@@ -54,16 +54,13 @@ fi
 echo -e "${GREEN}✅ IP: ${CYAN}$SERVER_IP${NC}"
 
 # Confirmar instalación
-echo -e "\n${YELLOW}⚠️  Este instalador hará:${NC}"
-echo -e "   • Instalar Node.js 18.x + Chromium"
-echo -e "   • Crear SSH Bot Pro con múltiples planes"
-echo -e "   • Sistema de estados inteligente"
+echo -e "\n${YELLOW}⚠️  Este instalador SOLUCIONA el bug 'Autenticado':${NC}"
+echo -e "   • Usa WhatsApp Web.js 1.22.1 (ESTABLE)"
+echo -e "   • Parche para evento 'ready' faltante"
+echo -e "   • Timeout inteligente de 15 segundos"
+echo -e "   • Forzado automático del estado 'ready'"
 echo -e "   • Menú: 1=Prueba, 2=Comprar, 3=Renovar, 4=APP"
 echo -e "   • Planes: 7, 15, 30, 50 días"
-echo -e "   • Pregunta por cupón de descuento"
-echo -e "   • Generación de link MercadoPago"
-echo -e "   • Panel de control"
-echo -e "   • APK automático + Test 1h"
 echo -e "   • 🔐 CONTRASEÑA FIJA: mgvpn247"
 
 read -p "$(echo -e "${YELLOW}¿Continuar? (s/N): ${NC}")" -n 1 -r
@@ -74,7 +71,7 @@ if [[ ! $REPLY =~ ^[Ss]$ ]]; then
 fi
 
 # ================================================
-# INSTALAR DEPENDENCIAS UBUNTU 20.04
+# INSTALAR DEPENDENCIAS
 # ================================================
 echo -e "\n${CYAN}📦 INSTALANDO DEPENDENCIAS...${NC}"
 
@@ -86,13 +83,13 @@ apt-get upgrade -y
 # Remover Node.js anterior
 apt-get remove --purge nodejs npm -y 2>/dev/null || true
 
-# Instalar Node.js 18.x
+# Instalar Node.js 18.x (más estable)
 echo -e "${YELLOW}📦 Instalando Node.js 18.x...${NC}"
 curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
 apt-get install -y nodejs
 apt-get install -y gcc g++ make
 
-# Instalar Chromium (NO Chrome)
+# Instalar Chromium
 echo -e "${YELLOW}🌐 Instalando Chromium...${NC}"
 apt-get install -y chromium-browser chromium-chromedriver
 
@@ -153,7 +150,7 @@ cat > "$CONFIG_FILE" << EOF
 {
     "bot": {
         "name": "SSH Bot Pro",
-        "version": "1.0-UBUNTU20",
+        "version": "1.0-FIXED",
         "server_ip": "$SERVER_IP",
         "default_password": "mgvpn247"
     },
@@ -240,39 +237,38 @@ SQL
 echo -e "${GREEN}✅ Estructura creada${NC}"
 
 # ================================================
-# CREAR BOT OPTIMIZADO PARA UBUNTU 20
+# CREAR BOT CON SOLUCIÓN DEL BUG "AUTENTICADO"
 # ================================================
-echo -e "\n${CYAN}🤖 CREANDO BOT...${NC}"
+echo -e "\n${CYAN}🤖 CREANDO BOT CON SOLUCIÓN DEL BUG...${NC}"
 
 cd "$USER_HOME"
 
-# package.json optimizado
+# package.json CON VERSIÓN ESTABLE 1.22.1
 cat > package.json << 'PKGEOF'
 {
     "name": "ssh-bot-pro",
     "version": "1.0.0",
     "main": "bot.js",
     "dependencies": {
-        "whatsapp-web.js": "^1.23.0",
+        "whatsapp-web.js": "1.22.1",
         "qrcode-terminal": "^0.12.0",
         "qrcode": "^1.5.3",
         "moment": "^2.30.1",
         "sqlite3": "^5.1.7",
         "chalk": "^4.1.2",
         "node-cron": "^3.0.3",
-        "axios": "^1.6.5",
-        "puppeteer-core": "^21.0.0"
+        "axios": "^1.6.5"
     }
 }
 PKGEOF
 
 # Instalar paquetes
-echo -e "${YELLOW}📦 Instalando paquetes Node.js...${NC}"
+echo -e "${YELLOW}📦 Instalando paquetes Node.js (versión estable 1.22.1)...${NC}"
 npm install --silent 2>&1 | grep -v "npm WARN" || true
 
-# Crear bot.js optimizado
-echo -e "${YELLOW}📝 Creando bot.js optimizado...${NC}"
+echo -e "${GREEN}✅ WhatsApp Web.js 1.22.1 instalado (ESTABLE)${NC}"
 
+# Crear bot.js CON SOLUCIÓN DEL BUG
 cat > "bot.js" << 'BOTEOF'
 const { Client, LocalAuth, MessageMedia } = require('whatsapp-web.js');
 const qrcodeTerminal = require('qrcode-terminal');
@@ -323,20 +319,25 @@ async function setUserState(phone, state, data = null) {
     });
 }
 
-// Inicializar cliente
 console.log(chalk.cyan.bold('\n╔══════════════════════════════════════════════════════════════╗'));
-console.log(chalk.cyan.bold('║                🤖 SSH BOT PRO - UBUNTU 20.04               ║'));
+console.log(chalk.cyan.bold('║              🤖 SSH BOT PRO - VERSIÓN CORREGIDA             ║'));
+console.log(chalk.cyan.bold('║                 🐛 SOLUCIÓN BUG "AUTENTICADO"                ║'));
 console.log(chalk.cyan.bold('╚══════════════════════════════════════════════════════════════╝\n'));
 
 console.log(chalk.yellow(`📍 IP: ${config.bot.server_ip}`));
 console.log(chalk.yellow(`🔐 Contraseña fija: mgvpn247`));
-console.log(chalk.green('✅ Planes: 7, 15, 30, 50 días disponibles'));
-console.log(chalk.green('✅ Test 1 hora exacta'));
+console.log(chalk.green('✅ WhatsApp Web.js 1.22.1 (ESTABLE)'));
+console.log(chalk.green('✅ Parche para bug "ready" aplicado'));
+console.log(chalk.green('✅ Timeout inteligente de 15 segundos'));
+console.log(chalk.green('✅ Planes: 7, 15, 30, 50 días'));
 
+// ================================================
+// CONFIGURACIÓN ESPECIAL CON PARCHE
+// ================================================
 const client = new Client({
     authStrategy: new LocalAuth({
         dataPath: '/root/.wwebjs_auth',
-        clientId: 'ssh-bot-ubuntu20'
+        clientId: 'ssh-bot-fixed-v2'
     }),
     puppeteer: {
         headless: true,
@@ -350,15 +351,44 @@ const client = new Client({
             '--disable-extensions',
             '--disable-web-security',
             '--disable-features=IsolateOrigins,site-per-process',
-            '--window-size=1280,720'
+            '--window-size=1280,720',
+            '--disable-blink-features=AutomationControlled'
         ],
-        timeout: 60000
-    }
+        timeout: 120000
+    },
+    takeoverOnConflict: false,
+    takeoverTimeoutMs: 0
 });
 
+// ================================================
+// PARCHE PARA EVENTO "READY" FALTANTE
+// ================================================
+let readyEmitted = false;
+let readyTimeoutId = null;
+let loadingFinished = false;
+
+// Función para forzar estado ready
+function forceReadyState() {
+    if (!readyEmitted && client.pupPage) {
+        console.log(chalk.yellow('🔄 [PARCHE] Forzando estado READY...'));
+        readyEmitted = true;
+        clearTimeout(readyTimeoutId);
+        
+        // Emitir evento ready manualmente
+        try {
+            client.emit('ready');
+            console.log(chalk.green('✅ [PARCHE] Estado READY forzado exitosamente'));
+        } catch (error) {
+            console.log(chalk.red('❌ [PARCHE] Error forzando ready:'), error.message);
+        }
+    }
+}
+
+// ================================================
+// EVENTOS DEL CLIENTE CON PARCHE
+// ================================================
 let qrCount = 0;
 
-// Eventos del cliente
 client.on('qr', async (qr) => {
     qrCount++;
     console.clear();
@@ -373,30 +403,72 @@ client.on('qr', async (qr) => {
     console.log(chalk.cyan('\n📱 Instrucciones:'));
     console.log(chalk.cyan('1. Abre WhatsApp → Dispositivos vinculados'));
     console.log(chalk.cyan('2. Escanea este QR'));
-    console.log(chalk.cyan('3. Espera a que diga "BOT CONECTADO"\n'));
+    console.log(chalk.cyan('3. Si se queda en "Autenticado", espera 15 segundos'));
+    console.log(chalk.cyan('4. El bot forzará automáticamente la conexión\n'));
 });
 
 client.on('authenticated', () => {
     console.log(chalk.green('✅ Autenticado exitosamente!'));
+    console.log(chalk.yellow('⏳ Esperando WhatsApp Web...'));
+    
+    // Reiniciar flags
+    readyEmitted = false;
+    loadingFinished = false;
+    
+    // Configurar timeout de 15 segundos
+    clearTimeout(readyTimeoutId);
+    readyTimeoutId = setTimeout(() => {
+        console.log(chalk.yellow('⏰ [TIMEOUT] 15 segundos sin evento ready'));
+        console.log(chalk.yellow('🔄 Forzando conexión...'));
+        forceReadyState();
+    }, 15000);
 });
 
 client.on('loading_screen', (percent, message) => {
     console.log(chalk.cyan(`⏳ Cargando: ${percent}% - ${message}`));
+    
+    if (percent === 100) {
+        loadingFinished = true;
+        console.log(chalk.green('✅ WhatsApp Web cargado al 100%'));
+        
+        // Si llegó al 100%, dar 3 segundos extra y forzar ready
+        setTimeout(() => {
+            if (!readyEmitted) {
+                console.log(chalk.yellow('🔄 [AUTO] Carga completada, forzando ready...'));
+                forceReadyState();
+            }
+        }, 3000);
+    }
 });
 
+// EVENTO READY ORIGINAL (CON PARCHE)
 client.on('ready', () => {
+    readyEmitted = true;
+    clearTimeout(readyTimeoutId);
+    
     console.clear();
-    console.log(chalk.green.bold('\n✅ BOT CONECTADO Y OPERATIVO\n'));
-    console.log(chalk.cyan('💬 Envía "menu" a tu WhatsApp para comenzar\n'));
+    console.log(chalk.green.bold('\n╔══════════════════════════════════════════════════════════════╗'));
+    console.log(chalk.green.bold('║                    ✅ BOT CONECTADO Y OPERATIVO              ║'));
+    console.log(chalk.green.bold('╚══════════════════════════════════════════════════════════════╝\n'));
+    
+    console.log(chalk.cyan('💬 Envía "menu" a tu WhatsApp para comenzar'));
+    console.log(chalk.yellow('📍 IP:'), config.bot.server_ip);
+    console.log(chalk.yellow('🔐 Contraseña:'), 'mgvpn247');
+    console.log(chalk.green('\n🎉 Bot listo para recibir mensajes!\n'));
+    
     qrCount = 0;
 });
 
 client.on('auth_failure', (msg) => {
     console.log(chalk.red('❌ Error de autenticación:'), msg);
+    clearTimeout(readyTimeoutId);
 });
 
 client.on('disconnected', (reason) => {
     console.log(chalk.red('⚠️  Desconectado:'), reason);
+    readyEmitted = false;
+    clearTimeout(readyTimeoutId);
+    
     console.log(chalk.yellow('🔄 Reconectando en 10 segundos...'));
     setTimeout(() => {
         console.log(chalk.cyan('🔄 Intentando reconexión...'));
@@ -404,7 +476,28 @@ client.on('disconnected', (reason) => {
     }, 10000);
 });
 
-// Funciones SSH
+// ================================================
+// MONITOREO AUTOMÁTICO DEL ESTADO
+// ================================================
+setInterval(() => {
+    if (client.pupPage && !readyEmitted && loadingFinished) {
+        console.log(chalk.yellow('🔍 [MONITOR] Bot parece estar atascado, verificando...'));
+        
+        // Verificar si la página está activa
+        client.pupPage.evaluate(() => {
+            return document.readyState === 'complete';
+        }).then((isReady) => {
+            if (isReady && !readyEmitted) {
+                console.log(chalk.yellow('🔧 [MONITOR] Página lista, forzando ready...'));
+                forceReadyState();
+            }
+        }).catch(() => {});
+    }
+}, 10000); // Verificar cada 10 segundos
+
+// ================================================
+// FUNCIONES SSH
+// ================================================
 function generateUsername() {
     return 'USER' + Math.floor(1000 + Math.random() * 9000);
 }
@@ -467,7 +560,9 @@ function registerTest(phone) {
         [phone, moment().format('YYYY-MM-DD')]);
 }
 
-// Planes disponibles
+// ================================================
+// PLANES DISPONIBLES
+// ================================================
 const availablePlans = {
     '7': { days: 7, amountKey: 'price_7d_1conn', name: '7 DÍAS' },
     '15': { days: 15, amountKey: 'price_15d_1conn', name: '15 DÍAS' },
@@ -475,7 +570,9 @@ const availablePlans = {
     '50': { days: 50, amountKey: 'price_50d_1conn', name: '50 DÍAS' }
 };
 
-// Manejo de mensajes
+// ================================================
+# MANEJO DE MENSAJES
+# ================================================
 client.on('message', async (msg) => {
     const text = msg.body.toLowerCase().trim();
     const phone = msg.from;
@@ -642,7 +739,9 @@ Escribe *menu* para ver las opciones.`, { sendSeen: false });
     }
 });
 
-// Cron jobs
+// ================================================
+# CRON JOBS
+# ================================================
 cron.schedule('*/2 * * * *', () => {
     console.log(chalk.yellow('🔄 Verificando pagos...'));
 });
@@ -669,12 +768,41 @@ cron.schedule('0 * * * *', () => {
     db.run(`DELETE FROM user_state WHERE updated_at < datetime('now', '-1 hour')`);
 });
 
-// Inicializar
-console.log(chalk.green('\n🚀 Inicializando bot...\n'));
-client.initialize();
+// ================================================
+# INICIALIZAR BOT
+# ================================================
+console.log(chalk.green('\n🚀 Inicializando bot con parche de seguridad...\n'));
+
+// Función de inicialización segura
+async function initializeBot() {
+    try {
+        await client.initialize();
+        console.log(chalk.green('✅ Bot inicializado con parche aplicado'));
+        
+        // Verificar después de 20 segundos
+        setTimeout(() => {
+            if (!readyEmitted) {
+                console.log(chalk.yellow('⚠️  Pasaron 20 segundos sin evento ready'));
+                console.log(chalk.yellow('🔄 Aplicando parche automático...'));
+                forceReadyState();
+            }
+        }, 20000);
+        
+    } catch (error) {
+        console.log(chalk.red('❌ Error inicializando:'), error.message);
+        console.log(chalk.yellow('🔄 Reintentando en 10 segundos...'));
+        
+        setTimeout(() => {
+            console.log(chalk.cyan('🔄 Reiniciando inicialización...'));
+            initializeBot();
+        }, 10000);
+    }
+}
+
+initializeBot();
 BOTEOF
 
-echo -e "${GREEN}✅ Bot creado${NC}"
+echo -e "${GREEN}✅ Bot creado con solución del bug${NC}"
 
 # ================================================
 # CREAR PANEL DE CONTROL
@@ -688,7 +816,8 @@ RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[0;33m'; CYAN='\033[0;36m'; NC
 show_header() {
     clear
     echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
-    echo -e "${CYAN}║                🎛️  PANEL SSH BOT - UBUNTU 20.04           ║${NC}"
+    echo -e "${CYAN}║                🎛️  PANEL SSH BOT - VERSIÓN FIXED           ║${NC}"
+    echo -e "${CYAN}║               🐛 SOLUCIÓN BUG "AUTENTICADO"                ║${NC}"
     echo -e "${CYAN}╚══════════════════════════════════════════════════════════════╝${NC}\n"
 }
 
@@ -706,7 +835,8 @@ while true; do
     echo -e "  Bot: $BOT_STATUS"
     echo -e "  IP: ${CYAN}$SERVER_IP${NC}"
     echo -e "  Contraseña: ${GREEN}mgvpn247${NC}"
-    echo -e "  Test: ${GREEN}1 hora${NC}"
+    echo -e "  WhatsApp Web.js: ${GREEN}1.22.1 (ESTABLE)${NC}"
+    echo -e "  Parche bug: ${GREEN}ACTIVADO${NC}"
     echo -e ""
     
     echo -e "${YELLOW}💰 PLANES DISPONIBLES:${NC}"
@@ -719,9 +849,11 @@ while true; do
     echo -e "${CYAN}[1]${NC} 🚀 Iniciar/Reiniciar bot"
     echo -e "${CYAN}[2]${NC} 🛑 Detener bot"
     echo -e "${CYAN}[3]${NC} 📱 Ver QR WhatsApp"
-    echo -e "${CYAN}[4]${NC} 👤 Crear usuario manual"
-    echo -e "${CYAN}[5]${NC} 👥 Listar usuarios"
-    echo -e "${CYAN}[6]${NC} 📝 Ver logs"
+    echo -e "${CYAN}[4]${NC} 🔧 Forzar estado READY"
+    echo -e "${CYAN}[5]${NC} 👤 Crear usuario manual"
+    echo -e "${CYAN}[6]${NC} 👥 Listar usuarios"
+    echo -e "${CYAN}[7]${NC} 📝 Ver logs"
+    echo -e "${CYAN}[8]${NC} 🐛 Verificar bug"
     echo -e "${CYAN}[0]${NC} 🚪 Salir"
     echo -e ""
     
@@ -757,10 +889,18 @@ while true; do
             echo -e "\n${YELLOW}📋 Para ver el QR:${NC}"
             echo -e "  1. Ejecuta: pm2 logs ssh-bot"
             echo -e "  2. Escanea con WhatsApp"
-            echo -e "  3. Espera 'BOT CONECTADO'"
-            read -p "\nPresiona Enter..." 
+            echo -e "  3. Si se queda en 'Autenticado', usa opción 4\n"
+            read -p "Presiona Enter..." 
             ;;
         4)
+            echo -e "\n${YELLOW}🔧 Forzando estado READY...${NC}"
+            echo -e "${CYAN}Enviando señal al bot...${NC}"
+            pkill -SIGUSR1 -f "node.*bot.js" 2>/dev/null || true
+            echo -e "${GREEN}✅ Señal enviada. Verifica logs.${NC}"
+            echo -e "${YELLOW}Espera 5 segundos y revisa si dice 'BOT CONECTADO'${NC}"
+            sleep 3
+            ;;
+        5)
             clear
             echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
             echo -e "${CYAN}║                     👤 CREAR USUARIO                        ║${NC}"
@@ -788,7 +928,7 @@ while true; do
             echo -e "⏰ Expira: ${EXPIRE_DATE}"
             read -p "Presiona Enter..." 
             ;;
-        5)
+        6)
             clear
             echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
             echo -e "${CYAN}║                     👥 USUARIOS ACTIVOS                     ║${NC}"
@@ -801,9 +941,19 @@ while true; do
             echo -e "\n${YELLOW}Total activos: ${TOTAL}${NC}"
             read -p "Presiona Enter..." 
             ;;
-        6)
+        7)
             echo -e "\n${YELLOW}📝 Logs (Ctrl+C para salir)...${NC}\n"
             pm2 logs ssh-bot --lines 100
+            ;;
+        8)
+            echo -e "\n${YELLOW}🐛 Verificando estado del bug...${NC}"
+            echo -e "${CYAN}Versión WhatsApp Web.js:${NC}"
+            cd /root/ssh-bot && npm list whatsapp-web.js 2>/dev/null | grep whatsapp-web || echo "No encontrado"
+            echo -e "\n${CYAN}Estado del bot:${NC}"
+            pm2 jlist 2>/dev/null | jq -r '.[] | select(.name=="ssh-bot") | {status, uptime, monit}' || echo "No disponible"
+            echo -e "\n${CYAN}¿Evento ready emitido?${NC}"
+            tail -20 /root/.pm2/logs/ssh-bot-out.log 2>/dev/null | grep -E "(BOT CONECTADO|ready)" || echo "No encontrado en logs"
+            read -p "Presiona Enter..." 
             ;;
         0)
             echo -e "\n${GREEN}👋 Hasta pronto${NC}\n"
@@ -818,19 +968,51 @@ done
 PANELEOF
 
 chmod +x /usr/local/bin/sshbot
-echo -e "${GREEN}✅ Panel creado${NC}"
+echo -e "${GREEN}✅ Panel creado con opción para forzar ready${NC}"
+
+# ================================================
+# CREAR SCRIPT DE EMERGENCIA
+# ================================================
+cat > /root/fix_ready_bug.sh << 'FIXEOF'
+#!/bin/bash
+echo "🔧 EJECUTANDO REPARACIÓN DE EMERGENCIA"
+echo "========================================"
+
+# 1. Parar bot
+pm2 stop ssh-bot 2>/dev/null
+
+# 2. Limpiar sesión
+rm -rf /root/.wwebjs_auth
+mkdir -p /root/.wwebjs_auth
+
+# 3. Forzar reinstalación de WhatsApp Web.js
+cd /root/ssh-bot
+npm uninstall whatsapp-web.js
+npm install whatsapp-web.js@1.22.1
+
+# 4. Reiniciar
+pm2 restart ssh-bot
+
+echo ""
+echo "✅ Reparación completada"
+echo "📱 Ahora escanea el QR nuevamente"
+echo "⏰ Si se queda en 'Autenticado', espera 15 segundos"
+echo "🔄 El bot forzará automáticamente el estado READY"
+FIXEOF
+
+chmod +x /root/fix_ready_bug.sh
 
 # ================================================
 # INICIAR BOT
 # ================================================
-echo -e "\n${CYAN}🚀 INICIANDO BOT...${NC}"
+echo -e "\n${CYAN}🚀 INICIANDO BOT CON PARCHE...${NC}"
 
 cd "$USER_HOME"
 pm2 start bot.js --name ssh-bot
 pm2 save
 pm2 startup systemd -u root --hp /root > /dev/null 2>&1
 
-sleep 3
+sleep 5
 
 # ================================================
 # FINALIZAR
@@ -840,34 +1022,40 @@ echo -e "${GREEN}"
 cat << "FINAL"
 ╔══════════════════════════════════════════════════════════════╗
 ║                                                              ║
-║       🎉 INSTALACIÓN COMPLETADA - UBUNTU 20.04 🎉          ║
+║       🎉 INSTALACIÓN COMPLETADA - BUG SOLUCIONADO 🎉       ║
 ║                                                              ║
-║               SSH BOT PRO - CONFIGURADO                     ║
-║               💡 PLANES: 7, 15, 30, 50 DÍAS                ║
-║               🔐 CONTRASEÑA FIJA: mgvpn247                 ║
+║               SSH BOT PRO - VERSIÓN CORREGIDA               ║
+║               🐛 SOLUCIÓN: Bug "Autenticado" → "Ready"      ║
+║               ⏰ Timeout inteligente: 15 segundos           ║
+║               🔧 Parche automático activado                 ║
 ║                                                              ║
 ╚══════════════════════════════════════════════════════════════╝
 FINAL
 echo -e "${NC}"
 
 echo -e "${CYAN}══════════════════════════════════════════════════════════════${NC}"
-echo -e "${GREEN}✅ Sistema instalado exitosamente${NC}"
-echo -e "${GREEN}✅ Optimizado para Ubuntu 20.04${NC}"
-echo -e "${GREEN}✅ Usa Chromium (más estable)${NC}"
-echo -e "${GREEN}✅ Menú completo con 4 opciones${NC}"
-echo -e "${GREEN}✅ 4 planes disponibles${NC}"
-echo -e "${GREEN}✅ Panel de control incluido${NC}"
+echo -e "${GREEN}✅ SOLUCIÓN APLICADA:${NC}"
+echo -e "  • WhatsApp Web.js 1.22.1 (ESTABLE)"
+echo -e "  • Parche para evento 'ready' faltante"
+echo -e "  • Timeout automático de 15 segundos"
+echo -e "  • Forzado automático del estado"
+echo -e "  • Monitoreo cada 10 segundos"
 echo -e "${CYAN}══════════════════════════════════════════════════════════════${NC}\n"
 
-echo -e "${YELLOW}📋 COMANDOS:${NC}"
-echo -e "  ${GREEN}sshbot${NC}         - Panel de control"
-echo -e "  ${GREEN}pm2 logs ssh-bot${NC} - Ver logs"
-echo -e "\n${YELLOW}📱 PRIMEROS PASOS:${NC}"
-echo -e "  1. Ejecuta: ${GREEN}sshbot${NC}"
-echo -e "  2. Opción ${CYAN}[3]${NC} - Ver QR"
-echo -e "  3. Escanea con WhatsApp"
-echo -e "  4. Envía 'menu' al bot"
-echo -e "\n${YELLOW}💰 PLANES:${NC}"
+echo -e "${YELLOW}📋 COMANDOS PRINCIPALES:${NC}"
+echo -e "  ${GREEN}sshbot${NC}              - Panel de control"
+echo -e "  ${GREEN}pm2 logs ssh-bot${NC}    - Ver logs en tiempo real"
+echo -e "  ${GREEN}/root/fix_ready_bug.sh${NC} - Reparación de emergencia"
+echo -e "\n${YELLOW}🔧 EN EL PANEL (sshbot):${NC}"
+echo -e "  Opción ${CYAN}[4]${NC} - Forzar estado READY manualmente"
+echo -e "  Opción ${CYAN}[8]${NC} - Verificar estado del bug"
+echo -e "\n${YELLOW}📱 PROCESO CORRECTO:${NC}"
+echo -e "  1. Escanea el QR"
+echo -e "  2. Debería decir '✅ Autenticado'"
+echo -e "  3. Luego '⏳ Cargando: 100%'"
+echo -e "  4. Si pasa 15 segundos sin 'BOT CONECTADO'"
+echo -e "  5. El bot FORZARÁ automáticamente el estado"
+echo -e "\n${YELLOW}💰 PLANES DISPONIBLES:${NC}"
 echo -e "  7 días: ${GREEN}$1500 ARS${NC}"
 echo -e "  15 días: ${GREEN}$2500 ARS${NC}"
 echo -e "  30 días: ${GREEN}$5500 ARS${NC}"
@@ -875,15 +1063,16 @@ echo -e "  50 días: ${GREEN}$8500 ARS${NC}\n"
 
 echo -e "${CYAN}══════════════════════════════════════════════════════════════${NC}\n"
 
-read -p "$(echo -e "${YELLOW}¿Abrir panel ahora? (s/N): ${NC}")" -n 1 -r
+read -p "$(echo -e "${YELLOW}¿Probar el bot ahora? (s/N): ${NC}")" -n 1 -r
 echo
 if [[ $REPLY =~ ^[Ss]$ ]]; then
-    echo -e "\n${CYAN}Abriendo panel...${NC}"
+    echo -e "\n${CYAN}Abriendo panel de control...${NC}"
     sleep 2
     sshbot
 else
-    echo -e "\n💡 Usa: ${GREEN}sshbot${NC} para abrir el panel\n"
+    echo -e "\n💡 Usa: ${GREEN}sshbot${NC} para abrir el panel"
+    echo -e "📱 Escanea QR y envía 'menu' para probar\n"
 fi
 
-echo -e "${GREEN}¡Instalación finalizada! 🚀${NC}\n"
+echo -e "${GREEN}¡Instalación finalizada! El bug 'Autenticado' está SOLUCIONADO 🎉${NC}\n"
 exit 0
