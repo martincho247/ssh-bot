@@ -681,8 +681,8 @@ async function initializeBot() {
                     
                     await client.sendText(from, `
   
-         🤖 *BOT - MGVPN*   
-╚═══════════════════════════════╝
+         🚀 *BIENVENIDOS BOT - MGVPN*   
+
 
 Elija una opción:
 
@@ -691,7 +691,7 @@ Elija una opción:
 🔄 *3* - RENOVAR USUARIO SSH
 📱 *4* - DESCARGAR APLICACIÓN
 
-🚪 *0* - MENÚ PRINCIPAL`);
+🚪 *0* - MENU PRINCIPAL`);
                 }
                 
                 // OPCIÓN 1: CREAR PRUEBA
@@ -744,7 +744,7 @@ Elija una opción:
 🗓 *1* - PLANES DIARIOS
 🗓 *2* - PLANES MENSUALES
 
-🚪 *0* - VOLVER AL MENÚ`);
+⬅️ *0* - VOLVER`);
                 }
                 
                 // SUBMENÚ DE COMPRAS
@@ -753,9 +753,9 @@ Elija una opción:
                         // PLANES DIARIOS
                         await setUserState(from, 'selecting_daily_plan');
                         
-                        await client.sendText(from, `╔═══════════════════════════════╗
-║     🌐 *PLANES DIARIOS*      ║
-╚═══════════════════════════════╝
+                        await client.sendText(from, `
+      
+    🌐 *PLANES DIARIOS*      
 
 Elija un plan:
 
@@ -770,9 +770,9 @@ Elija un plan:
                         // PLANES MENSUALES
                         await setUserState(from, 'selecting_monthly_plan');
                         
-                        await client.sendText(from, `╔═══════════════════════════════╗
-║    🌐 *PLANES MENSUALES*     ║
-╚═══════════════════════════════╝
+                        await client.sendText(from, `
+
+    🌐 *PLANES MENSUALES*   
 
 Elija un plan:
 
@@ -783,9 +783,9 @@ Elija un plan:
                     }
                     else if (text === '0') {
                         await setUserState(from, 'main_menu');
-                        await client.sendText(from, `╔═══════════════════════════════╗
-║   🤖 *SSH BOT PRO - MGVPN*   ║
-╚═══════════════════════════════╝
+                        await client.sendText(from, `
+    🚀 *BIENVENIDOS BOT - MGVPN*   
+
 
 Elija una opción:
 
@@ -794,7 +794,7 @@ Elija una opción:
 🔄 *3* - RENOVAR USUARIO SSH
 📱 *4* - DESCARGAR APLICACIÓN
 
-⬅️ *0* - MENÚ PRINCIPAL`);
+⬅️ *0* - MENU PRINCIPAL`);
                     }
                 }
                 
@@ -840,9 +840,9 @@ ${config.links.support}
                     }
                     else if (text === '0') {
                         await setUserState(from, 'buying_ssh');
-                        await client.sendText(from, `╔═══════════════════════════════╗
-║   💰 *PLANES SSH PREMIUM*    ║
-╚═══════════════════════════════╝
+                        await client.sendText(from, `
+   
+   💰 *PLANES SSH PREMIUM*    
 
 Elija una opción:
 
@@ -893,9 +893,9 @@ ${config.links.support}
                     }
                     else if (text === '0') {
                         await setUserState(from, 'buying_ssh');
-                        await client.sendText(from, `╔═══════════════════════════════╗
-║   🌐 *PLANES SSH PREMIUM*    ║
-╚═══════════════════════════════╝
+                        await client.sendText(from, `
+
+   🌐 *PLANES SSH PREMIUM*    
 
 Elija una opción:
 
