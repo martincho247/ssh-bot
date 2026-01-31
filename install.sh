@@ -44,7 +44,6 @@ echo -e "  💳 ${YELLOW}Pago automático${NC} - QR + Enlace de pago"
 echo -e "  🎛️  ${PURPLE}Panel completo${NC} - Control total del sistema"
 echo -e "  📊 ${BLUE}Estadísticas${NC} - Ventas, usuarios, ingresos"
 echo -e "  ⚡ ${GREEN}Auto-verificación${NC} - Pagos verificados cada 2 min"
-echo -e "  🔐 ${RED}Contraseña oculta${NC} - Se revela solo al crear usuario"
 echo -e "${CYAN}══════════════════════════════════════════════════════════════${NC}\n"
 
 # Verificar root
@@ -140,15 +139,17 @@ cat > "$CONFIG_FILE" << EOF
         "name": "SSH Bot Pro",
         "version": "2.0-MP-INTEGRADO",
         "server_ip": "$SERVER_IP",
-        "default_password": "mgvpn247",
-        "password_revealed": false
+        "default_password": "mgvpn247"
     },
     "prices": {
         "test_hours": 1,
+        "price_1d": 500.00,
+        "price_3d": 1200.00,
         "price_7d": 1500.00,
         "price_15d": 2500.00,
         "price_30d": 5500.00,
         "price_50d": 8500.00,
+        "price_90d": 12000.00,
         "currency": "ARS"
     },
     "mercadopago": {
@@ -361,32 +362,26 @@ function clearUserState(phone) {
     db.run('DELETE FROM user_state WHERE phone = ?', [phone]);
 }
 
-// Funciones auxiliares - MODIFICADAS
+// Funciones auxiliares
 function generateUsername() {
-    return 'test' + Math.floor(1000 + Math.random() * 9000);
+    const chars = 'abcdefghijklmnopqrstuvwxyz';
+    const randomNum = Math.floor(1000 + Math.random() * 9000);
+    const randomChar = chars.charAt(Math.floor(Math.random() * chars.length));
+    return `test${randomChar}${randomNum}`;
 }
 
-function generatePassword() {
-    return 'mgvpn247'; // CONTRASEÑA FIJA OCULTA HASTA CREACIÓN
+function generatePremiumUsername() {
+    const chars = 'abcdefghijklmnopqrstuvwxyz';
+    const randomNum = Math.floor(1000 + Math.random() * 9000);
+    const randomChar = chars.charAt(Math.floor(Math.random() * chars.length));
+    return `user${randomChar}${randomNum}`;
 }
 
-// Función para mostrar mensaje de bienvenida SIN contraseña
-async function showWelcomeMessage(phone) {
-    const welcomeMsg = `HOLA, BIENVENIDO BOT MGVPN 🚀
+const DEFAULT_PASSWORD = 'mgvpn247';
 
-Elija una opción:
-
-🧾 1 - CREAR PRUEBA (1 HORA GRATIS)
-💰 2 - COMPRAR USUARIO SSH
-🔄 3 - RENOVAR USUARIO SSH
-📱 4 - DESCARGAR APLICACIÓN
-
-⚠️ *IMPORTANTE:* La contraseña se revela automáticamente al crear la cuenta.`;
+async function createSSHUser(phone, username, days) {
+    const password = DEFAULT_PASSWORD;
     
-    await client.sendText(phone, welcomeMsg);
-}
-
-async function createSSHUser(phone, username, password, days) {
     if (days === 0) {
         // Test - 1 hora
         const expireFull = moment().add(config.prices.test_hours, 'hours').format('YYYY-MM-DD HH:mm:ss');
@@ -572,10 +567,9 @@ async function checkPendingPayments() {
                     if (mpPayment.status === 'approved') {
                         console.log(chalk.green(`✅ PAGO APROBADO: ${payment.payment_id}`));
                         
-                        // Crear usuario SSH - CON PASSWORD FIJO OCULTO HASTA AHORA
-                        const username = generateUsername();
-                        const password = generatePassword();
-                        const result = await createSSHUser(payment.phone, username, password, payment.days);
+                        // Crear usuario SSH
+                        const username = generatePremiumUsername();
+                        const result = await createSSHUser(payment.phone, username, payment.days);
                         
                         if (result.success) {
                             db.run(`UPDATE payments SET status = 'approved', approved_at = CURRENT_TIMESTAMP WHERE payment_id = ?`, [payment.payment_id]);
@@ -586,9 +580,9 @@ async function checkPendingPayments() {
 
 🎉 Tu compra ha sido aprobada
 
-📋 *DATOS DE ACCESO REVELADOS:*
+📋 *DATOS DE ACCESO:*
 👤 Usuario: *${username}*
-🔑 Contraseña: *${password}*
+🔑 Contraseña: *${DEFAULT_PASSWORD}*
 
 ⏰ *VÁLIDO HASTA:* ${expireDate}
 🔌 *CONEXIÓN:* 1 dispositivo
@@ -682,13 +676,21 @@ async function initializeBot() {
                 
                 const userState = await getUserState(from);
                 
-                // MENÚ PRINCIPAL - SIN CONTRASEÑA
+                // MENÚ PRINCIPAL
                 if (['menu', 'hola', 'start', 'hi', 'volver', '0'].includes(text)) {
                     await setUserState(from, 'main_menu');
-                    await showWelcomeMessage(from);
+                    
+                    await client.sendText(from, `HOLA, BIENVENIDO BOT MGVPN 🚀
+
+Elija una opción:
+
+🧾 1 - CREAR PRUEBA
+💰 2 - COMPRAR USUARIO SSH
+🔄 3 - RENOVAR USUARIO SSH
+📱 4 - DESCARGAR APLICACIÓN`);
                 }
                 
-                // OPCIÓN 1: CREAR PRUEBA - CONTRASEÑA SE REVELA AQUÍ
+                // OPCIÓN 1: CREAR PRUEBA
                 else if (text === '1' && userState.state === 'main_menu') {
                     if (!(await canCreateTest(from))) {
                         await client.sendText(from, `⚠️ *YA USASTE TU PRUEBA HOY*
@@ -697,33 +699,24 @@ async function initializeBot() {
                         return;
                     }
                     
-                    await client.sendText(from, '⏳ *Creando cuenta de prueba...*');
+                    await client.sendText(from, '⏳ Creando cuenta de prueba...');
                     
                     try {
                         const username = generateUsername();
-                        const password = generatePassword();
-                        const result = await createSSHUser(from, username, password, 0);
+                        const result = await createSSHUser(from, username, 0);
                         
                         if (result.success) {
                             registerTest(from);
                             
-                            const msgPrueba = `✅ *PRUEBA CREADA CON ÉXITO*
+                            await client.sendText(from, `PRUEBA CREADA CON ÉXITO !
 
-🔐 *DATOS DE ACCESO REVELADOS:*
-👤 Usuario: *${username}*
-🔑 Contraseña: *${password}*
+Usuario: ${username}
+Contraseña: ${DEFAULT_PASSWORD}
+Limite: 1 dispositivo(s)
+Expira en: ${config.prices.test_hours} hora(s)
 
-📶 Límite: 1 dispositivo
-⏰ Expira en: 1 hora
-
-⚠️ *IMPORTANTE:*
-• Guarda esta contraseña
-• Es válida por 1 hora
-• Solo funciona en 1 dispositivo
-
-📥 *APP:* ${config.links.app_download}`;
+APP: ${config.links.app_download}`);
                             
-                            await client.sendText(from, msgPrueba);
                             console.log(chalk.green(`✅ Test creado: ${username}`));
                         } else {
                             await client.sendText(from, `❌ Error: ${result.error}`);
@@ -737,52 +730,68 @@ async function initializeBot() {
                 else if (text === '2' && userState.state === 'main_menu') {
                     await setUserState(from, 'buying_ssh');
                     
-                    const msgComprar = `*PLANES SSH PREMIUM !*
+                    await client.sendText(from, `PLANES SSH PREMIUM !
 
-Elija el tipo de plan:
-🗓️  1 - PLANES DIARIOS (7, 15 días)
-📅  2 - PLANES MENSUALES (30, 50 días)
-⬅️  0 - VOLVER AL MENÚ PRINCIPAL
-
-💡 *Nota:* La contraseña se revelará automáticamente después del pago exitoso.`;
-                    
-                    await client.sendText(from, msgComprar);
+Elija una opción:
+🗓 1 - PLANES DIARIOS
+🗓 2 - PLANES MENSUALES
+⬅️ 0 - VOLVER`);
                 }
                 
                 // SUBMENÚ DE COMPRAS
                 else if (userState.state === 'buying_ssh') {
                     if (text === '1') {
+                        // PLANES DIARIOS
                         await setUserState(from, 'selecting_daily_plan');
                         
-                        await client.sendText(from, `*PLANES DIARIOS SSH PREMIUM*
+                        await client.sendText(from, `📅 *PLANES DIARIOS SSH*
 
 Elija un plan:
-🗓️  1 - 7 DÍAS - $${config.prices.price_7d} ARS
-🗓️  2 - 15 DÍAS - $${config.prices.price_15d} ARS
-⬅️  0 - VOLVER`);
+📌 1 - 1 DÍA - $${config.prices.price_1d}
+📌 2 - 3 DÍAS - $${config.prices.price_3d}
+📌 3 - 7 DÍAS - $${config.prices.price_7d}
+📌 4 - 15 DÍAS - $${config.prices.price_15d}
+⬅️ 0 - VOLVER`);
                     }
                     else if (text === '2') {
+                        // PLANES MENSUALES
                         await setUserState(from, 'selecting_monthly_plan');
                         
-                        await client.sendText(from, `*PLANES MENSUALES SSH PREMIUM*
+                        await client.sendText(from, `📅 *PLANES MENSUALES SSH*
 
 Elija un plan:
-📅  1 - 30 DÍAS - $${config.prices.price_30d} ARS
-📅  2 - 50 DÍAS - $${config.prices.price_50d} ARS
-⬅️  0 - VOLVER`);
+📌 1 - 30 DÍAS - $${config.prices.price_30d}
+📌 2 - 50 DÍAS - $${config.prices.price_50d}
+📌 3 - 90 DÍAS - $${config.prices.price_90d}
+⬅️ 0 - VOLVER`);
                     }
                     else if (text === '0') {
                         await setUserState(from, 'main_menu');
-                        await showWelcomeMessage(from);
+                        await client.sendText(from, `HOLA, BIENVENIDO MGVPN
+
+Elija una opción:
+
+🧾 1 - CREAR PRUEBA
+💰 2 - COMPRAR USUARIO SSH
+🔄 3 - RENOVAR USUARIO SSH
+📱 4 - DESCARGAR Aplicación`);
                     }
                 }
                 
                 // SELECCIÓN DE PLAN DIARIO
                 else if (userState.state === 'selecting_daily_plan') {
-                    if (text === '1') {
-                        const plan = { days: 7, price: config.prices.price_7d, name: '7 DÍAS' };
+                    if (['1', '2', '3', '4'].includes(text)) {
+                        const planMap = {
+                            '1': { days: 1, price: config.prices.price_1d, name: '1 DÍA' },
+                            '2': { days: 3, price: config.prices.price_3d, name: '3 DÍAS' },
+                            '3': { days: 7, price: config.prices.price_7d, name: '7 DÍAS' },
+                            '4': { days: 15, price: config.prices.price_15d, name: '15 DÍAS' }
+                        };
+                        
+                        const plan = planMap[text];
                         
                         if (mpEnabled) {
+                            // CON MERCADOPAGO - PREGUNTAR POR DESCUENTO
                             await setUserState(from, 'asking_discount', { 
                                 plan: plan,
                                 days: plan.days,
@@ -791,71 +800,48 @@ Elija un plan:
                             });
                             
                             await client.sendText(from, `**¿Tienes un cupón de descuento?**
-Responde: *sí* o *no*.`);
+Responde: sí o no.`);
                             
                         } else {
-                            const msgSinMP = `*PLAN SELECCIONADO: ${plan.name}*
+                            // SIN MERCADOPAGO
+                            await client.sendText(from, `PLAN SELECCIONADO: ${plan.name}
 
-Precio: *$${plan.price} ARS*
-Duración: *${plan.days} días*
-Límite: *1 dispositivo*
+Precio: $${plan.price} ARS
+Duración: ${plan.days} días
+Contraseña: ${DEFAULT_PASSWORD}
 
 Para continuar con la compra, contacta al administrador:
 ${config.links.support}
 
-🔒 *Nota:* La contraseña se entregará después del pago.`;
+O envía el monto por transferencia bancaria.`);
                             
-                            await client.sendText(from, msgSinMP);
-                            await setUserState(from, 'main_menu');
-                        }
-                    }
-                    else if (text === '2') {
-                        const plan = { days: 15, price: config.prices.price_15d, name: '15 DÍAS' };
-                        
-                        if (mpEnabled) {
-                            await setUserState(from, 'asking_discount', { 
-                                plan: plan,
-                                days: plan.days,
-                                amount: plan.price,
-                                planName: plan.name
-                            });
-                            
-                            await client.sendText(from, `**¿Tienes un cupón de descuento?**
-Responde: *sí* o *no*.`);
-                            
-                        } else {
-                            const msgSinMP = `*PLAN SELECCIONADO: ${plan.name}*
-
-Precio: *$${plan.price} ARS*
-Duración: *${plan.days} días*
-Límite: *1 dispositivo*
-
-Para continuar con la compra, contacta al administrador:
-${config.links.support}
-
-🔒 *Nota:* La contraseña se entregará después del pago.`;
-                            
-                            await client.sendText(from, msgSinMP);
                             await setUserState(from, 'main_menu');
                         }
                     }
                     else if (text === '0') {
                         await setUserState(from, 'buying_ssh');
-                        await client.sendText(from, `*PLANES SSH PREMIUM !*
+                        await client.sendText(from, `PLANES SSH PREMIUM !
 
-Elija el tipo de plan:
-🗓️  1 - PLANES DIARIOS (7, 15 días)
-📅  2 - PLANES MENSUALES (30, 50 días)
-⬅️  0 - VOLVER AL MENÚ PRINCIPAL`);
+Elija una opción:
+🗓 1 - PLANES DIARIOS
+🗓 2 - PLANES MENSUALES
+⬅️ 0 - VOLVER`);
                     }
                 }
                 
                 // SELECCIÓN DE PLAN MENSUAL
                 else if (userState.state === 'selecting_monthly_plan') {
-                    if (text === '1') {
-                        const plan = { days: 30, price: config.prices.price_30d, name: '30 DÍAS' };
+                    if (['1', '2', '3'].includes(text)) {
+                        const planMap = {
+                            '1': { days: 30, price: config.prices.price_30d, name: '30 DÍAS' },
+                            '2': { days: 50, price: config.prices.price_50d, name: '50 DÍAS' },
+                            '3': { days: 90, price: config.prices.price_90d, name: '90 DÍAS' }
+                        };
+                        
+                        const plan = planMap[text];
                         
                         if (mpEnabled) {
+                            // CON MERCADOPAGO - PREGUNTAR POR DESCUENTO
                             await setUserState(from, 'asking_discount', { 
                                 plan: plan,
                                 days: plan.days,
@@ -864,62 +850,32 @@ Elija el tipo de plan:
                             });
                             
                             await client.sendText(from, `**¿Tienes un cupón de descuento?**
-Responde: *sí* o *no*.`);
+Responde: sí o no.`);
                             
                         } else {
-                            const msgSinMP = `*PLAN SELECCIONADO: ${plan.name}*
+                            // SIN MERCADOPAGO
+                            await client.sendText(from, `PLAN SELECCIONADO: ${plan.name}
 
-Precio: *$${plan.price} ARS*
-Duración: *${plan.days} días*
-Límite: *1 dispositivo*
+Precio: $${plan.price} ARS
+Duración: ${plan.days} días
+Contraseña: ${DEFAULT_PASSWORD}
 
 Para continuar con la compra, contacta al administrador:
 ${config.links.support}
 
-🔒 *Nota:* La contraseña se entregará después del pago.`;
+O envía el monto por transferencia bancaria.`);
                             
-                            await client.sendText(from, msgSinMP);
-                            await setUserState(from, 'main_menu');
-                        }
-                    }
-                    else if (text === '2') {
-                        const plan = { days: 50, price: config.prices.price_50d, name: '50 DÍAS' };
-                        
-                        if (mpEnabled) {
-                            await setUserState(from, 'asking_discount', { 
-                                plan: plan,
-                                days: plan.days,
-                                amount: plan.price,
-                                planName: plan.name
-                            });
-                            
-                            await client.sendText(from, `**¿Tienes un cupón de descuento?**
-Responde: *sí* o *no*.`);
-                            
-                        } else {
-                            const msgSinMP = `*PLAN SELECCIONADO: ${plan.name}*
-
-Precio: *$${plan.price} ARS*
-Duración: *${plan.days} días*
-Límite: *1 dispositivo*
-
-Para continuar con la compra, contacta al administrador:
-${config.links.support}
-
-🔒 *Nota:* La contraseña se entregará después del pago.`;
-                            
-                            await client.sendText(from, msgSinMP);
                             await setUserState(from, 'main_menu');
                         }
                     }
                     else if (text === '0') {
                         await setUserState(from, 'buying_ssh');
-                        await client.sendText(from, `*PLANES SSH PREMIUM !*
+                        await client.sendText(from, `PLANES SSH PREMIUM !
 
-Elija el tipo de plan:
-🗓️  1 - PLANES DIARIOS (7, 15 días)
-📅  2 - PLANES MENSUALES (30, 50 días)
-⬅️  0 - VOLVER AL MENÚ PRINCIPAL`);
+Elija una opción:
+🗓 1 - PLANES DIARIOS
+🗓 2 - PLANES MENSUALES
+⬅️ 0 - VOLVER`);
                     }
                 }
                 
@@ -927,11 +883,11 @@ Elija el tipo de plan:
                 else if (userState.state === 'asking_discount') {
                     const stateData = userState.data || {};
                     
-                    if (text === 'sí' || text === 'si' || text === 'sí.' || text === 'si.' || text === 's') {
+                    if (text === 'sí' || text === 'si' || text === 'sí.' || text === 'si.') {
                         await setUserState(from, 'entering_discount', stateData);
-                        await client.sendText(from, '📝 Por favor, escribe tu *código de descuento*:');
+                        await client.sendText(from, '📝 Por favor, escribe tu código de descuento:');
                     }
-                    else if (text === 'no' || text === 'no.' || text === 'no gracias' || text === 'n') {
+                    else if (text === 'no' || text === 'no.' || text === 'no gracias') {
                         // Procesar pago sin descuento
                         await processPayment(from, stateData, null);
                     }
@@ -958,11 +914,11 @@ ${config.links.support}
 O envía tu nombre de usuario actual.`);
                 }
                 
-                // OPCIÓN 4: DESCARGAR APP - SIN CONTRASEÑA
+                // OPCIÓN 4: DESCARGAR APP
                 else if (text === '4' && userState.state === 'main_menu') {
-                    const msgApp = `📱 *DESCARGAR APLICACIÓN*
+                    await client.sendText(from, `📱 *DESCARGAR APLICACIÓN*
 
-🔗 *Enlace de descarga:*
+🔗 Enlace de descarga:
 ${config.links.app_download}
 
 💡 *Instrucciones:*
@@ -971,12 +927,9 @@ ${config.links.app_download}
 3. Instala la aplicación
 4. Configura con tus credenciales SSH
 
-🔒 *IMPORTANTE:*
-• La contraseña se revela al crear la cuenta
-• No compartas tu contraseña con nadie
-• Contacta soporte si tienes problemas`;
-                    
-                    await client.sendText(from, msgApp);
+⚡ *Credenciales por defecto:*
+Usuario: (el que te proporcionamos)
+Contraseña: ${DEFAULT_PASSWORD}`);
                 }
                 
                 // COMANDO NO RECONOCIDO
@@ -1033,7 +986,7 @@ Escribe *menu* para ver las opciones disponibles.`);
 // ✅ FUNCIÓN PARA PROCESAR PAGO
 async function processPayment(phone, planData, discountCode) {
     try {
-        await client.sendText(phone, '⏳ *Procesando tu compra...*');
+        await client.sendText(phone, '⏳ Procesando tu compra...');
         
         const payment = await createMercadoPagoPayment(
             phone, 
@@ -1049,22 +1002,22 @@ async function processPayment(phone, planData, discountCode) {
                 amountText = `$${payment.originalAmount} → $${payment.amount} (${payment.discountPercentage}% descuento)`;
             }
             
-            const message = `### *USUARIO SSH* 📋
+            const message = `### USUARIO SSH
 
 - **Plan:** ${planData.planName}
 - **Precio:** ${amountText}
+- **Contraseña:** ${DEFAULT_PASSWORD}
 - **Límite:** 1 dispositivo(s)
 - **Duración:** ${planData.days} días
 
 ---
 
-**📲 LINK DE PAGO**
+**LINK DE PAGO**
 
 ${payment.paymentUrl}
 
 ⏰ *Este enlace expira en 24 horas*
-💳 *Pago seguro con MercadoPago*
-🔐 *Contraseña se revelará después del pago exitoso*`;
+💳 *Pago seguro con MercadoPago*`;
             
             await client.sendText(phone, message);
             
@@ -1084,8 +1037,7 @@ ${payment.paymentUrl}
 
 ${payment.error}
 
-Contacta al administrador para otras opciones de pago:
-${config.links.support}`);
+Contacta al administrador para otras opciones de pago.`);
         }
         
     } catch (error) {
@@ -1094,8 +1046,7 @@ ${config.links.support}`);
 
 ${error.message}
 
-Contacta al administrador para asistencia:
-${config.links.support}`);
+Contacta al administrador para asistencia.`);
     }
     
     await setUserState(phone, 'main_menu');
@@ -1190,14 +1141,19 @@ while true; do
     echo -e "  Pagos: ${CYAN}$PENDING_PAYMENTS${NC} pendientes | ${GREEN}$APPROVED_PAYMENTS${NC} aprobados"
     echo -e "  MercadoPago: $MP_STATUS"
     echo -e "  IP: $(get_val '.bot.server_ip')"
-    echo -e "  Contraseña: ${GREEN}mgvpn247${NC} (OCULTA HASTA CREACIÓN)"
+    echo -e "  Contraseña: ${GREEN}mgvpn247${NC} (FIJA)"
     echo -e ""
     
     echo -e "${YELLOW}💰 PRECIOS ACTUALES:${NC}"
-    echo -e "  7 días: $ $(get_val '.prices.price_7d') ARS"
-    echo -e "  15 días: $ $(get_val '.prices.price_15d') ARS"
-    echo -e "  30 días: $ $(get_val '.prices.price_30d') ARS"
-    echo -e "  50 días: $ $(get_val '.prices.price_50d') ARS"
+    echo -e "  ${CYAN}DIARIOS:${NC}"
+    echo -e "    1 día: $ $(get_val '.prices.price_1d') ARS"
+    echo -e "    3 días: $ $(get_val '.prices.price_3d') ARS"
+    echo -e "    7 días: $ $(get_val '.prices.price_7d') ARS"
+    echo -e "    15 días: $ $(get_val '.prices.price_15d') ARS"
+    echo -e "  ${CYAN}MENSUALES:${NC}"
+    echo -e "    30 días: $ $(get_val '.prices.price_30d') ARS"
+    echo -e "    50 días: $ $(get_val '.prices.price_50d') ARS"
+    echo -e "    90 días: $ $(get_val '.prices.price_90d') ARS"
     echo -e ""
     
     echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
@@ -1243,13 +1199,22 @@ while true; do
             echo -e "${CYAN}👤 CREAR USUARIO${NC}\n"
             
             read -p "Teléfono (ej: 5491122334455): " PHONE
-            read -p "Usuario (auto=generar): " USERNAME
+            read -p "Usuario (minúsculas, auto=generar): " USERNAME
             read -p "Tipo (test/premium): " TIPO
-            read -p "Días (0=test 1h, 7,15,30,50=premium): " DAYS
+            read -p "Días (0=test 1h, 1,3,7,15,30,50,90=premium): " DAYS
             
             [[ -z "$DAYS" ]] && DAYS="30"
-            [[ "$USERNAME" == "auto" || -z "$USERNAME" ]] && USERNAME="test$(shuf -i 1000-9999 -n 1)"
-            PASSWORD="mgvpn247" # CONTRASEÑA FIJA OCULTA
+            if [[ "$USERNAME" == "auto" || -z "$USERNAME" ]]; then
+                if [[ "$TIPO" == "test" ]]; then
+                    USERNAME="test$(shuf -i 1000-9999 -n 1)"
+                else
+                    USERNAME="user$(shuf -i 1000-9999 -n 1)"
+                fi
+            fi
+            
+            # Asegurar minúsculas
+            USERNAME=$(echo "$USERNAME" | tr '[:upper:]' '[:lower:]')
+            PASSWORD="mgvpn247"
             
             if [[ "$TIPO" == "test" ]]; then
                 DAYS="0"
@@ -1263,11 +1228,11 @@ while true; do
             if [[ $? -eq 0 ]]; then
                 sqlite3 "$DB" "INSERT INTO users (phone, username, password, tipo, expires_at, status) VALUES ('$PHONE', '$USERNAME', '$PASSWORD', '$TIPO', '$EXPIRE_DATE', 1)"
                 echo -e "\n${GREEN}✅ USUARIO CREADO${NC}"
+                echo -e "📱 Teléfono: ${PHONE}"
                 echo -e "👤 Usuario: ${USERNAME}"
-                echo -e "🔑 Contraseña: ${PASSWORD} (OCULTA PARA CLIENTES)"
+                echo -e "🔑 Contraseña: ${PASSWORD}"
                 echo -e "⏰ Expira: ${EXPIRE_DATE}"
                 echo -e "🔌 Días: ${DAYS}"
-                echo -e "${YELLOW}⚠️ La contraseña se revela automáticamente al cliente${NC}"
             else
                 echo -e "\n${RED}❌ Error${NC}"
             fi
@@ -1277,37 +1242,49 @@ while true; do
             clear
             echo -e "${CYAN}👥 USUARIOS ACTIVOS${NC}\n"
             
-            echo -e "${YELLOW}Usuario - Tipo - Expiración${NC}"
-            sqlite3 -column -header "$DB" "SELECT username, tipo, expires_at FROM users WHERE status = 1 ORDER BY expires_at DESC LIMIT 20"
+            sqlite3 -column -header "$DB" "SELECT username, password, tipo, expires_at FROM users WHERE status = 1 ORDER BY expires_at DESC LIMIT 20"
             echo -e "\n${YELLOW}Total: ${ACTIVE_USERS} activos${NC}"
-            echo -e "${CYAN}⚠️ Las contraseñas están ocultas (se revelan al crear usuario)${NC}"
             read -p "Presiona Enter..."
             ;;
         6)
             clear
             echo -e "${CYAN}💰 CAMBIAR PRECIOS${NC}\n"
             
+            CURRENT_1D=$(get_val '.prices.price_1d')
+            CURRENT_3D=$(get_val '.prices.price_3d')
             CURRENT_7D=$(get_val '.prices.price_7d')
             CURRENT_15D=$(get_val '.prices.price_15d')
             CURRENT_30D=$(get_val '.prices.price_30d')
             CURRENT_50D=$(get_val '.prices.price_50d')
+            CURRENT_90D=$(get_val '.prices.price_90d')
             
             echo -e "${YELLOW}Precios actuales:${NC}"
-            echo -e "  1. 7 días: $${CURRENT_7D} ARS"
-            echo -e "  2. 15 días: $${CURRENT_15D} ARS"
-            echo -e "  3. 30 días: $${CURRENT_30D} ARS"
-            echo -e "  4. 50 días: $${CURRENT_50D} ARS\n"
+            echo -e "  ${CYAN}DIARIOS:${NC}"
+            echo -e "  1. 1 día: $${CURRENT_1D} ARS"
+            echo -e "  2. 3 días: $${CURRENT_3D} ARS"
+            echo -e "  3. 7 días: $${CURRENT_7D} ARS"
+            echo -e "  4. 15 días: $${CURRENT_15D} ARS"
+            echo -e "  ${CYAN}MENSUALES:${NC}"
+            echo -e "  5. 30 días: $${CURRENT_30D} ARS"
+            echo -e "  6. 50 días: $${CURRENT_50D} ARS"
+            echo -e "  7. 90 días: $${CURRENT_90D} ARS\n"
             
             echo -e "${CYAN}Modificar precios:${NC}"
+            read -p "Nuevo precio 1d [${CURRENT_1D}]: " NEW_1D
+            read -p "Nuevo precio 3d [${CURRENT_3D}]: " NEW_3D
             read -p "Nuevo precio 7d [${CURRENT_7D}]: " NEW_7D
             read -p "Nuevo precio 15d [${CURRENT_15D}]: " NEW_15D
             read -p "Nuevo precio 30d [${CURRENT_30D}]: " NEW_30D
             read -p "Nuevo precio 50d [${CURRENT_50D}]: " NEW_50D
+            read -p "Nuevo precio 90d [${CURRENT_90D}]: " NEW_90D
             
+            [[ -n "$NEW_1D" ]] && set_val '.prices.price_1d' "$NEW_1D"
+            [[ -n "$NEW_3D" ]] && set_val '.prices.price_3d' "$NEW_3D"
             [[ -n "$NEW_7D" ]] && set_val '.prices.price_7d' "$NEW_7D"
             [[ -n "$NEW_15D" ]] && set_val '.prices.price_15d' "$NEW_15D"
             [[ -n "$NEW_30D" ]] && set_val '.prices.price_30d' "$NEW_30D"
             [[ -n "$NEW_50D" ]] && set_val '.prices.price_50d' "$NEW_50D"
+            [[ -n "$NEW_90D" ]] && set_val '.prices.price_90d' "$NEW_90D"
             
             echo -e "\n${GREEN}✅ Precios actualizados${NC}"
             read -p "Presiona Enter..."
@@ -1378,7 +1355,7 @@ while true; do
             sqlite3 "$DB" "SELECT 'Pendientes: ' || SUM(CASE WHEN status='pending' THEN 1 ELSE 0 END) || ' | Aprobados: ' || SUM(CASE WHEN status='approved' THEN 1 ELSE 0 END) || ' | Total: $' || printf('%.2f', SUM(CASE WHEN status='approved' THEN final_amount ELSE 0 END)) FROM payments"
             
             echo -e "\n${YELLOW}📅 DISTRIBUCIÓN:${NC}"
-            sqlite3 "$DB" "SELECT '7 días: ' || SUM(CASE WHEN plan='7d' THEN 1 ELSE 0 END) || ' | 15 días: ' || SUM(CASE WHEN plan='15d' THEN 1 ELSE 0 END) || ' | 30 días: ' || SUM(CASE WHEN plan='30d' THEN 1 ELSE 0 END) || ' | 50 días: ' || SUM(CASE WHEN plan='50d' THEN 1 ELSE 0 END) FROM payments WHERE status='approved'"
+            sqlite3 "$DB" "SELECT '1 día: ' || SUM(CASE WHEN plan='1d' THEN 1 ELSE 0 END) || ' | 3 días: ' || SUM(CASE WHEN plan='3d' THEN 1 ELSE 0 END) || ' | 7 días: ' || SUM(CASE WHEN plan='7d' THEN 1 ELSE 0 END) || ' | 15 días: ' || SUM(CASE WHEN plan='15d' THEN 1 ELSE 0 END) || ' | 30 días: ' || SUM(CASE WHEN plan='30d' THEN 1 ELSE 0 END) || ' | 50 días: ' || SUM(CASE WHEN plan='50d' THEN 1 ELSE 0 END) || ' | 90 días: ' || SUM(CASE WHEN plan='90d' THEN 1 ELSE 0 END) FROM payments WHERE status='approved'"
             
             echo -e "\n${YELLOW}💸 INGRESOS HOY:${NC}"
             sqlite3 "$DB" "SELECT 'Hoy: $' || printf('%.2f', SUM(CASE WHEN date(created_at) = date('now') THEN final_amount ELSE 0 END)) FROM payments WHERE status='approved'"
@@ -1412,13 +1389,18 @@ while true; do
             echo -e "${YELLOW}🤖 BOT:${NC}"
             echo -e "  IP: $(get_val '.bot.server_ip')"
             echo -e "  Versión: $(get_val '.bot.version')"
-            echo -e "  API: WPPConnect"
+            echo -e "  Contraseña fija: mgvpn247"
             
             echo -e "\n${YELLOW}💰 PRECIOS:${NC}"
+            echo -e "  ${CYAN}DIARIOS:${NC}"
+            echo -e "  1d: $(get_val '.prices.price_1d') ARS"
+            echo -e "  3d: $(get_val '.prices.price_3d') ARS"
             echo -e "  7d: $(get_val '.prices.price_7d') ARS"
             echo -e "  15d: $(get_val '.prices.price_15d') ARS"
+            echo -e "  ${CYAN}MENSUALES:${NC}"
             echo -e "  30d: $(get_val '.prices.price_30d') ARS"
             echo -e "  50d: $(get_val '.prices.price_50d') ARS"
+            echo -e "  90d: $(get_val '.prices.price_90d') ARS"
             echo -e "  Test: 1 hora"
             
             echo -e "\n${YELLOW}💳 MERCADOPAGO:${NC}"
@@ -1429,11 +1411,10 @@ while true; do
                 echo -e "  Estado: ${RED}NO CONFIGURADO${NC}"
             fi
             
-            echo -e "\n${YELLOW}🔐 SEGURIDAD:${NC}"
-            echo -e "  Contraseña: ${GREEN}mgvpn247${NC} (OCULTA HASTA CREACIÓN)"
+            echo -e "\n${YELLOW}⚡ AJUSTES:${NC}"
             echo -e "  Limpieza: cada 15 minutos"
             echo -e "  Test: 1 hora exacta"
-            echo -e "  Usuarios: testXXXX en minúsculas"
+            echo -e "  Contraseña: mgvpn247 (fija)"
             
             read -p "\nPresiona Enter..."
             ;;
@@ -1478,7 +1459,6 @@ cat << "FINAL"
 ║       📱 WhatsApp API FUNCIONANDO                         ║
 ║       💰 MercadoPago SDK v2.x COMPLETO                    ║
 ║       💳 Pago automático con QR                           ║
-║       🔐 Contraseña oculta hasta creación                 ║
 ║       🎛️  Panel completo con control                      ║
 ║                                                              ║
 ╚══════════════════════════════════════════════════════════════╝
@@ -1493,9 +1473,8 @@ echo -e "${GREEN}✅ Panel de control completo${NC}"
 echo -e "${GREEN}✅ Pago automático con QR${NC}"
 echo -e "${GREEN}✅ Verificación automática de pagos${NC}"
 echo -e "${GREEN}✅ Estadísticas completas${NC}"
-echo -e "${GREEN}✅ Planes organizados correctamente${NC}"
-echo -e "${GREEN}✅ Usuario test: testXXXX en minúsculas${NC}"
-echo -e "${RED}🔐 Contraseña oculta hasta creación de cuenta${NC}"
+echo -e "${GREEN}✅ Planes: Diarios (1,3,7,15 días) y Mensuales (30,50,90 días)${NC}"
+echo -e "${GREEN}✅ Contraseña fija: mgvpn247${NC}"
 echo -e "${CYAN}══════════════════════════════════════════════════════════════${NC}\n"
 
 echo -e "${YELLOW}📋 COMANDOS PRINCIPALES:${NC}\n"
@@ -1504,12 +1483,13 @@ echo -e "  ${GREEN}pm2 logs sshbot-pro${NC} - Ver logs y QR"
 echo -e "  ${GREEN}pm2 restart sshbot-pro${NC} - Reiniciar bot"
 echo -e "\n"
 
-echo -e "${YELLOW}🔐 SISTEMA DE CONTRASEÑAS OCULTAS:${NC}\n"
-echo -e "  ✅ La contraseña NO aparece en menús"
-echo -e "  ✅ Se revela SOLO al crear prueba (Opción 1)"
-echo -e "  ✅ Se revela SOLO después de pago exitoso"
-echo -e "  ✅ No se muestra en opción de descarga"
-echo -e "  ✅ Protección contra distribución no autorizada"
+echo -e "${YELLOW}🚀 PRIMEROS PASOS:${NC}\n"
+echo -e "  1. Ver logs: ${GREEN}pm2 logs sshbot-pro${NC}"
+echo -e "  2. Escanear QR cuando aparezca"
+echo -e "  3. Configurar MercadoPago en el panel: ${GREEN}sshbot${NC}"
+echo -e "  4. Opción [7] - Configurar token de MercadoPago"
+echo -e "  5. Opción [8] - Testear conexión"
+echo -e "  6. Enviar 'menu' al bot en WhatsApp"
 echo -e "\n"
 
 echo -e "${YELLOW}💰 CONFIGURAR MERCADOPAGO:${NC}\n"
@@ -1521,13 +1501,16 @@ echo -e "  5. En el panel: Opción 7 → Pegar token"
 echo -e "  6. Testear con opción 8"
 echo -e "\n"
 
-echo -e "${YELLOW}📊 PLANES ORGANIZADOS:${NC}\n"
-echo -e "  📋 Opción 2 → COMPRAR USUARIO SSH"
-echo -e "    🗓️  1 - PLANES DIARIOS (7, 15 días)"
-echo -e "    📅  2 - PLANES MENSUALES (30, 50 días)"
+echo -e "${YELLOW}📊 PANEL DISPONIBLE:${NC}\n"
+echo -e "  • Control del bot"
+echo -e "  • Gestión de usuarios"
+echo -e "  • Configuración de precios"
+echo -e "  • MercadoPago completo"
+echo -e "  • Estadísticas de ventas"
+echo -e "  • Verificación de pagos"
 echo -e "\n"
 
-echo -e "${GREEN}${BOLD}¡Sistema listo! La contraseña está oculta y se revela solo al crear usuario 🚀${NC}\n"
+echo -e "${GREEN}${BOLD}¡Sistema listo! Escanea el QR, configura MercadoPago y empieza a vender 🚀${NC}\n"
 
 # Ver logs automáticamente
 read -p "$(echo -e "${YELLOW}¿Ver logs ahora? (s/N): ${NC}")" -n 1 -r
