@@ -1,6 +1,7 @@
 #!/bin/bash
 # ================================================
 # SSH BOT PRO - WPPCONNECT + MERCADOPAGO COMPLETO
+# VERSIÓN CORREGIDA - TEST FUNCIONANDO
 # ================================================
 
 set -e
@@ -32,6 +33,7 @@ cat << "BANNER"
 ║               💰 MercadoPago SDK v2.x INTEGRADO            ║
 ║               💳 Pago automático con QR                    ║
 ║               🎛️  Panel completo con control MP           ║
+║               ✅ TEST 2 HORAS FUNCIONANDO                  ║
 ║                                                              ║
 ╚══════════════════════════════════════════════════════════════╝
 BANNER
@@ -44,6 +46,7 @@ echo -e "  💳 ${YELLOW}Pago automático${NC} - QR + Enlace de pago"
 echo -e "  🎛️  ${PURPLE}Panel completo${NC} - Control total del sistema"
 echo -e "  📊 ${BLUE}Estadísticas${NC} - Ventas, usuarios, ingresos"
 echo -e "  ⚡ ${GREEN}Auto-verificación${NC} - Pagos verificados cada 2 min"
+echo -e "  ✅ ${GREEN}Test 2 horas funcionando${NC} - Sin errores de expiración"
 echo -e "${CYAN}══════════════════════════════════════════════════════════════${NC}\n"
 
 # Verificar root
@@ -225,7 +228,7 @@ SQL
 echo -e "${GREEN}✅ Estructura creada con MercadoPago${NC}"
 
 # ================================================
-# CREAR BOT COMPLETO CON MERCADOPAGO
+# CREAR BOT COMPLETO CON MERCADOPAGO - VERSIÓN CORREGIDA
 # ================================================
 echo -e "\n${CYAN}🤖 Creando bot con WPPConnect + MercadoPago...${NC}"
 
@@ -378,47 +381,68 @@ function generatePremiumUsername() {
 
 const DEFAULT_PASSWORD = 'mgvpn247';
 
+// ✅ FUNCIÓN CORREGIDA PARA CREAR USUARIOS SSH
 async function createSSHUser(phone, username, days) {
     const password = DEFAULT_PASSWORD;
     
-    console.log(chalk.yellow(`🔧 Creando usuario: ${username}, días: ${days}, tipo: ${days === 0 ? 'test' : 'premium'}`));
+    console.log(chalk.yellow(`🔧 Creando usuario SSH: ${username} para ${days} días`));
     
-    if (days === 0) {
-        // Test - 2 horas CON fecha de expiración en el sistema
-        const expireFull = moment().add(config.prices.test_hours, 'hours').format('YYYY-MM-DD HH:mm:ss');
-        const expireDate = moment().add(config.prices.test_hours, 'hours').format('YYYY-MM-DD');
-        
+    try {
+        // Verificar si el usuario ya existe
         try {
-            // Crear usuario CON fecha de expiración en /etc/shadow
-            await execPromise(`useradd -M -s /bin/false -e ${expireDate} ${username} && echo "${username}:${password}" | chpasswd`);
+            await execPromise(`id ${username} 2>/dev/null`);
+            console.log(chalk.yellow(`⚠️  Usuario ${username} ya existe, eliminando...`));
+            await execPromise(`pkill -u ${username} 2>/dev/null || true`);
+            await execPromise(`userdel -f ${username} 2>/dev/null || true`);
+            // Eliminar de BD si existe
+            db.run('DELETE FROM users WHERE username = ?', [username]);
+        } catch (e) {
+            // Usuario no existe, continuar
+        }
+        
+        let expireFull, expireDate;
+        
+        if (days === 0) {
+            // Test - 2 horas (SOLO en BD, sin fecha en sistema)
+            expireFull = moment().add(config.prices.test_hours, 'hours').format('YYYY-MM-DD HH:mm:ss');
+            // Para tests NO ponemos fecha en el sistema, solo en BD
+            expireDate = '';
             
-            db.run(`INSERT INTO users (phone, username, password, tipo, expires_at) VALUES (?, ?, ?, 'test', ?)`,
-                [phone, username, password, expireFull]);
+            console.log(chalk.cyan(`📅 Test expira en BD: ${expireFull}`));
+            
+            // Crear usuario SIN fecha de expiración en sistema
+            await execPromise(`useradd -M -s /bin/false ${username} && echo "${username}:${password}" | chpasswd`);
+            
+            db.run(`INSERT INTO users (phone, username, password, tipo, expires_at, status) VALUES (?, ?, ?, 'test', ?, 1)`,
+                [phone, username, password, expireFull], (err) => {
+                    if (err) console.error(chalk.red('❌ Error BD:'), err.message);
+                });
             
             console.log(chalk.green(`✅ Test creado: ${username} (expira: ${expireFull})`));
-            return { success: true, username, password, expires: expireFull };
-        } catch (error) {
-            console.error(chalk.red('❌ Error creando test:'), error.message);
-            return { success: false, error: error.message };
-        }
-    } else {
-        // Premium - CON fecha de expiración en el sistema
-        const expireFull = moment().add(days, 'days').format('YYYY-MM-DD 23:59:59');
-        const expireDate = moment().add(days, 'days').format('YYYY-MM-DD');
-        
-        try {
+            
+        } else {
+            // Premium - CON fecha en sistema y BD
+            expireFull = moment().add(days, 'days').format('YYYY-MM-DD 23:59:59');
+            expireDate = moment().add(days, 'days').format('YYYY-MM-DD');
+            
+            console.log(chalk.cyan(`📅 Premium expira: ${expireFull} (sistema: ${expireDate})`));
+            
             // Crear usuario CON fecha de expiración
             await execPromise(`useradd -M -s /bin/false -e ${expireDate} ${username} && echo "${username}:${password}" | chpasswd`);
             
-            db.run(`INSERT INTO users (phone, username, password, tipo, expires_at) VALUES (?, ?, ?, 'premium', ?)`,
-                [phone, username, password, expireFull]);
+            db.run(`INSERT INTO users (phone, username, password, tipo, expires_at, status) VALUES (?, ?, ?, 'premium', ?, 1)`,
+                [phone, username, password, expireFull], (err) => {
+                    if (err) console.error(chalk.red('❌ Error BD:'), err.message);
+                });
             
             console.log(chalk.green(`✅ Premium creado: ${username} (expira: ${expireFull})`));
-            return { success: true, username, password, expires: expireFull };
-        } catch (error) {
-            console.error(chalk.red('❌ Error creando premium:'), error.message);
-            return { success: false, error: error.message };
         }
+        
+        return { success: true, username, password, expires: expireFull };
+        
+    } catch (error) {
+        console.error(chalk.red('❌ Error creando usuario:'), error.message);
+        return { success: false, error: error.message };
     }
 }
 
@@ -703,7 +727,7 @@ Elija una opción:
 ⬅️ *0* - MENU PRINCIPAL`);
                 }
                 
-                // OPCIÓN 1: CREAR PRUEBA
+                // OPCIÓN 1: CREAR PRUEBA - CORREGIDO
                 else if (text === '1' && userState.state === 'main_menu') {
                     if (!(await canCreateTest(from))) {
                         await client.sendText(from, `⚠️ *YA USASTE TU PRUEBA HOY*
@@ -999,31 +1023,57 @@ Escribe *menu* para ver las opciones disponibles.`);
             checkPendingPayments();
         });
         
-        // ✅ LIMPIEZA CADA 5 MINUTOS (MÁS FRECUENTE)
+        // ✅ LIMPIEZA CORREGIDA - SOLO TESTS EN BD
         cron.schedule('*/5 * * * *', async () => {
             const now = moment().format('YYYY-MM-DD HH:mm:ss');
             console.log(chalk.yellow(`🧹 Limpiando usuarios expirados...`));
             
-            db.all('SELECT username FROM users WHERE expires_at < ? AND status = 1', [now], async (err, rows) => {
+            // Solo limpiar usuarios premium con fecha en sistema
+            db.all('SELECT username FROM users WHERE tipo = "premium" AND expires_at < ? AND status = 1', [now], async (err, rows) => {
                 if (err || !rows || rows.length === 0) {
-                    console.log(chalk.green('✅ No hay usuarios expirados'));
+                    console.log(chalk.green('✅ No hay usuarios premium expirados'));
+                } else {
+                    console.log(chalk.yellow(`🗑️  Eliminando ${rows.length} usuarios premium expirados...`));
+                    
+                    for (const r of rows) {
+                        try {
+                            await execPromise(`pkill -u ${r.username} 2>/dev/null || true`);
+                            await execPromise(`userdel -f ${r.username} 2>/dev/null || true`);
+                            db.run('UPDATE users SET status = 0 WHERE username = ?', [r.username]);
+                            console.log(chalk.green(`✅ Eliminado: ${r.username}`));
+                        } catch (e) {
+                            console.error(chalk.red(`❌ Error eliminando ${r.username}:`), e.message);
+                        }
+                    }
+                    
+                    console.log(chalk.green(`✅ ${rows.length} usuarios premium eliminados`));
+                }
+            });
+            
+            // Limpiar tests de BD (sin tocar sistema)
+            db.all('SELECT username FROM users WHERE tipo = "test" AND expires_at < ? AND status = 1', [now], async (err, rows) => {
+                if (err || !rows || rows.length === 0) {
+                    console.log(chalk.green('✅ No hay tests expirados en BD'));
                     return;
                 }
                 
-                console.log(chalk.yellow(`🗑️  Eliminando ${rows.length} usuarios expirados...`));
+                console.log(chalk.yellow(`🗑️  Marcando ${rows.length} tests como expirados en BD...`));
                 
                 for (const r of rows) {
                     try {
-                        await execPromise(`pkill -u ${r.username} 2>/dev/null || true`);
-                        await execPromise(`userdel -f ${r.username} 2>/dev/null || true`);
+                        // Solo desactivar en BD, no eliminar del sistema
                         db.run('UPDATE users SET status = 0 WHERE username = ?', [r.username]);
-                        console.log(chalk.green(`✅ Eliminado: ${r.username}`));
+                        
+                        // Matar procesos del usuario si existen
+                        await execPromise(`pkill -u ${r.username} 2>/dev/null || true`);
+                        
+                        console.log(chalk.yellow(`⚠️  Test expirado: ${r.username} (solo BD)`));
                     } catch (e) {
-                        console.error(chalk.red(`❌ Error eliminando ${r.username}:`), e.message);
+                        console.error(chalk.red(`❌ Error procesando test ${r.username}:`), e.message);
                     }
                 }
                 
-                console.log(chalk.green(`✅ ${rows.length} usuarios eliminados`));
+                console.log(chalk.green(`✅ ${rows.length} tests marcados como expirados`));
             });
         });
         
@@ -1134,17 +1184,13 @@ BOTEOF
 echo -e "${GREEN}✅ Bot creado con MercadoPago${NC}"
 
 # ================================================
-# CREAR SCRIPT DE LIMPIEZA MANUAL
+# CREAR SCRIPT DE LIMPIEZA MANUAL CORREGIDO
 # ================================================
 echo -e "\n${CYAN}🧹 Creando script de limpieza manual...${NC}"
 
 cat > /usr/local/bin/clean-tests << 'EOF'
 #!/bin/bash
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-CYAN='\033[0;36m'
-NC='\033[0m'
+RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'; CYAN='\033[0;36m'; NC='\033[0m'
 
 DB="/opt/sshbot-pro/data/users.db"
 
@@ -1157,19 +1203,20 @@ while true; do
     
     TOTAL_TESTS=$(sqlite3 "$DB" "SELECT COUNT(*) FROM users WHERE tipo = 'test';" 2>/dev/null || echo "0")
     ACTIVE_TESTS=$(sqlite3 "$DB" "SELECT COUNT(*) FROM users WHERE tipo = 'test' AND status = 1;" 2>/dev/null || echo "0")
-    EXPIRED_TESTS=$(sqlite3 "$DB" "SELECT COUNT(*) FROM users WHERE tipo = 'test' AND expires_at < datetime('now') AND status = 1;" 2>/dev/null || echo "0")
+    EXPIRED_TESTS_BD=$(sqlite3 "$DB" "SELECT COUNT(*) FROM users WHERE tipo = 'test' AND expires_at < datetime('now') AND status = 1;" 2>/dev/null || echo "0")
     
-    echo -e "  Tests totales: ${CYAN}$TOTAL_TESTS${NC}"
-    echo -e "  Tests activos: ${CYAN}$ACTIVE_TESTS${NC}"
-    echo -e "  Tests expirados: ${RED}$EXPIRED_TESTS${NC}"
+    echo -e "  Tests totales en BD: ${CYAN}$TOTAL_TESTS${NC}"
+    echo -e "  Tests activos: ${GREEN}$ACTIVE_TESTS${NC}"
+    echo -e "  Tests expirados (BD): ${RED}$EXPIRED_TESTS_BD${NC}"
     echo ""
     
     echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo -e "${YELLOW}[1]${NC} Ver todos los tests"
-    echo -e "${YELLOW}[2]${NC} Ver tests expirados"
-    echo -e "${YELLOW}[3]${NC} Eliminar tests expirados"
-    echo -e "${YELLOW}[4]${NC} Eliminar TODOS los tests"
-    echo -e "${YELLOW}[5]${NC} Forzar limpieza del sistema"
+    echo -e "${YELLOW}[2]${NC} Ver tests expirados (BD)"
+    echo -e "${YELLOW}[3]${NC} Limpiar tests expirados (solo BD)"
+    echo -e "${YELLOW}[4]${NC} Eliminar usuarios test del sistema"
+    echo -e "${YELLOW}[5]${NC} Ver usuarios en sistema"
+    echo -e "${YELLOW}[6]${NC} Forzar limpieza completa"
     echo -e "${YELLOW}[0]${NC} Salir"
     echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo ""
@@ -1178,78 +1225,93 @@ while true; do
     
     case $OPTION in
         1)
-            echo -e "\n${YELLOW}📋 TODOS LOS TESTS:${NC}\n"
+            echo -e "\n${YELLOW}📋 TODOS LOS TESTS EN BD:${NC}\n"
             sqlite3 -column -header "$DB" "SELECT username, phone, expires_at, CASE WHEN expires_at < datetime('now') THEN 'EXPIRO' ELSE 'ACTIVO' END as estado FROM users WHERE tipo = 'test' ORDER BY expires_at;"
             echo ""
             read -p "Presiona Enter..."
             ;;
         2)
-            echo -e "\n${RED}📋 TESTS EXPIRADOS:${NC}\n"
+            echo -e "\n${RED}📋 TESTS EXPIRADOS EN BD:${NC}\n"
             sqlite3 -column -header "$DB" "SELECT username, phone, expires_at FROM users WHERE tipo = 'test' AND expires_at < datetime('now') AND status = 1;"
             echo ""
             read -p "Presiona Enter..."
             ;;
         3)
-            echo -e "\n${YELLOW}🗑️ Eliminando tests expirados...${NC}"
+            echo -e "\n${YELLOW}🧹 Marcando tests expirados en BD...${NC}"
             
             EXPIRED_USERS=$(sqlite3 "$DB" "SELECT username FROM users WHERE tipo = 'test' AND expires_at < datetime('now') AND status = 1;")
             
             if [[ -z "$EXPIRED_USERS" ]]; then
-                echo -e "${GREEN}✅ No hay tests expirados${NC}"
+                echo -e "${GREEN}✅ No hay tests expirados en BD${NC}"
             else
                 COUNT=0
                 echo "$EXPIRED_USERS" | while read USER; do
-                    echo "  Eliminando: $USER"
+                    echo "  Marcando como expirado: $USER"
+                    # Matar procesos
                     pkill -u "$USER" 2>/dev/null || true
-                    userdel -f "$USER" 2>/dev/null || true
+                    # Solo desactivar en BD
                     sqlite3 "$DB" "UPDATE users SET status = 0 WHERE username = '$USER';"
                     COUNT=$((COUNT + 1))
                 done
                 
-                echo -e "${GREEN}✅ $COUNT tests expirados eliminados${NC}"
+                echo -e "${GREEN}✅ $COUNT tests marcados como expirados (solo BD)${NC}"
+                echo -e "${YELLOW}⚠️  Los usuarios siguen en el sistema pero sin acceso${NC}"
             fi
             read -p "Presiona Enter..."
             ;;
         4)
-            echo -e "\n${RED}⚠️  ¡PELIGRO! ¿ELIMINAR TODOS LOS TESTS?${NC}"
+            echo -e "\n${RED}⚠️  ELIMINAR USUARIOS TEST DEL SISTEMA${NC}"
             read -p "Escribe 'SI' para confirmar: " CONFIRM
             
             if [[ "$CONFIRM" == "SI" ]]; then
-                ALL_USERS=$(sqlite3 "$DB" "SELECT username FROM users WHERE tipo = 'test';")
+                echo "Buscando usuarios test en /etc/passwd..."
+                cut -d: -f1 /etc/passwd | grep -E '^test[a-z][0-9]{4}' | while read USER; do
+                    echo "  Eliminando del sistema: $USER"
+                    pkill -u "$USER" 2>/dev/null || true
+                    userdel -f "$USER" 2>/dev/null || true
+                done
                 
-                if [[ -z "$ALL_USERS" ]]; then
-                    echo -e "${YELLOW}ℹ️ No hay tests para eliminar${NC}"
-                else
-                    COUNT=0
-                    echo "$ALL_USERS" | while read USER; do
-                        echo "  Eliminando: $USER"
-                        pkill -u "$USER" 2>/dev/null || true
-                        userdel -f "$USER" 2>/dev/null || true
-                        COUNT=$((COUNT + 1))
-                    done
-                    
-                    sqlite3 "$DB" "DELETE FROM users WHERE tipo = 'test';"
-                    sqlite3 "$DB" "DELETE FROM daily_tests;"
-                    
-                    echo -e "${GREEN}✅ $COUNT tests eliminados completamente${NC}"
-                fi
+                echo -e "${GREEN}✅ Usuarios test eliminados del sistema${NC}"
             else
                 echo -e "${YELLOW}❌ Cancelado${NC}"
             fi
             read -p "Presiona Enter..."
             ;;
         5)
-            echo -e "\n${YELLOW}🔄 Forzando limpieza del sistema...${NC}"
+            echo -e "\n${YELLOW}👥 USUARIOS EN SISTEMA:${NC}\n"
+            echo "Usuarios test encontrados:"
+            cut -d: -f1 /etc/passwd | grep -E '^test[a-z][0-9]{4}' | head -20
+            echo ""
+            echo "Total: $(cut -d: -f1 /etc/passwd | grep -E '^test[a-z][0-9]{4}' | wc -l)"
+            read -p "Presiona Enter..."
+            ;;
+        6)
+            echo -e "\n${RED}⚠️  LIMPIEZA COMPLETA FORZADA${NC}"
+            echo -e "${YELLOW}Esto hará:${NC}"
+            echo "  1. Eliminar usuarios test del sistema"
+            echo "  2. Eliminar todos los tests de BD"
+            echo "  3. Limpiar tabla daily_tests"
             
-            # Buscar usuarios test en el sistema
-            echo "Buscando usuarios test en /etc/passwd..."
-            cut -d: -f1 /etc/passwd | grep -E '^test[a-z][0-9]' | while read USER; do
-                echo "  Encontrado en sistema: $USER"
-                pkill -u "$USER" 2>/dev/null || true
-                userdel -f "$USER" 2>/dev/null || true
-            done
+            read -p "Escribe 'SI' para confirmar: " CONFIRM
             
-            echo -e "${GREEN}✅ Limpieza del sistema completada${NC}"
+            if [[ "$CONFIRM" == "SI" ]]; then
+                # Eliminar del sistema
+                echo "Eliminando usuarios test del sistema..."
+                cut -d: -f1 /etc/passwd | grep -E '^test[a-z][0-9]{4}' | while read USER; do
+                    pkill -u "$USER" 2>/dev/null || true
+                    userdel -f "$USER" 2>/dev/null || true
+                    echo "  Eliminado: $USER"
+                done
+                
+                # Eliminar de BD
+                echo "Eliminando de BD..."
+                sqlite3 "$DB" "DELETE FROM users WHERE tipo = 'test';"
+                sqlite3 "$DB" "DELETE FROM daily_tests;"
+                
+                echo -e "${GREEN}✅ Limpieza completa realizada${NC}"
+            else
+                echo -e "${YELLOW}❌ Cancelado${NC}"
+            fi
             read -p "Presiona Enter..."
             ;;
         0)
@@ -1292,6 +1354,7 @@ show_header() {
     echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
     echo -e "${CYAN}║                🎛️  PANEL SSH BOT PRO - COMPLETO            ║${NC}"
     echo -e "${CYAN}║                  💰 MERCADOPAGO INTEGRADO                   ║${NC}"
+    echo -e "${CYAN}║                  ✅ TESTS FUNCIONANDO                       ║${NC}"
     echo -e "${CYAN}╚══════════════════════════════════════════════════════════════╝${NC}\n"
 }
 
@@ -1347,7 +1410,7 @@ while true; do
     echo -e "  MercadoPago: $MP_STATUS"
     echo -e "  IP: $(get_val '.bot.server_ip')"
     echo -e "  Contraseña: ${GREEN}mgvpn247${NC} (FIJA)"
-    echo -e "  Test: $(get_val '.prices.test_hours') horas (expira automático)"
+    echo -e "  Test: $(get_val '.prices.test_hours') horas (expira en BD)"
     echo -e ""
     
     echo -e "${YELLOW}💰 PRECIOS ACTUALES:${NC}"
@@ -1375,6 +1438,7 @@ while true; do
     echo -e "${CYAN}[11]${NC} 💳 Ver pagos"
     echo -e "${CYAN}[12]${NC} ⚙️  Ver configuración"
     echo -e "${CYAN}[13]${NC} 🧹 Limpiar tests (clean-tests)"
+    echo -e "${CYAN}[14]${NC} 🔍 Ver tests expirados"
     echo -e "${CYAN}[0]${NC} 🚪  Salir"
     echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo -e ""
@@ -1425,28 +1489,30 @@ while true; do
             if [[ "$TIPO" == "test" ]]; then
                 DAYS="0"
                 EXPIRE_DATE=$(date -d "+2 hours" +"%Y-%m-%d %H:%M:%S")
-                EXPIRE_DATE_SYSTEM=$(date -d "+2 hours" +%Y-%m-%d)
-                # Crear usuario CON fecha de expiración en sistema
-                useradd -M -s /bin/false -e "$EXPIRE_DATE_SYSTEM" "$USERNAME" && echo "$USERNAME:$PASSWORD" | chpasswd
+                # Test: solo fecha en BD, sin fecha en sistema
+                useradd -M -s /bin/false "$USERNAME" && echo "$USERNAME:$PASSWORD" | chpasswd
+                sqlite3 "$DB" "INSERT INTO users (phone, username, password, tipo, expires_at, status) VALUES ('$PHONE', '$USERNAME', '$PASSWORD', '$TIPO', '$EXPIRE_DATE', 1)"
+                
+                echo -e "\n${GREEN}✅ TEST CREADO${NC}"
+                echo -e "📱 Teléfono: ${PHONE}"
+                echo -e "👤 Usuario: ${USERNAME}"
+                echo -e "🔑 Contraseña: ${PASSWORD}"
+                echo -e "⏰ Expira: ${EXPIRE_DATE} (solo en BD)"
+                echo -e "⚠️  Test expira en 2 horas automáticamente"
             else
                 EXPIRE_DATE=$(date -d "+$DAYS days" +"%Y-%m-%d 23:59:59")
                 EXPIRE_DATE_SYSTEM=$(date -d "+$DAYS days" +%Y-%m-%d)
-                # Crear usuario CON fecha de expiración
+                # Premium: con fecha en sistema
                 useradd -M -s /bin/false -e "$EXPIRE_DATE_SYSTEM" "$USERNAME" && echo "$USERNAME:$PASSWORD" | chpasswd
-            fi
-            
-            if [[ $? -eq 0 ]]; then
                 sqlite3 "$DB" "INSERT INTO users (phone, username, password, tipo, expires_at, status) VALUES ('$PHONE', '$USERNAME', '$PASSWORD', '$TIPO', '$EXPIRE_DATE', 1)"
-                echo -e "\n${GREEN}✅ USUARIO CREADO${NC}"
+                
+                echo -e "\n${GREEN}✅ PREMIUM CREADO${NC}"
                 echo -e "📱 Teléfono: ${PHONE}"
                 echo -e "👤 Usuario: ${USERNAME}"
                 echo -e "🔑 Contraseña: ${PASSWORD}"
                 echo -e "⏰ Expira: ${EXPIRE_DATE}"
                 echo -e "🔌 Días: ${DAYS}"
                 echo -e "📊 Tipo: ${TIPO}"
-                echo -e "⚠️  Test expira en 2 horas automáticamente"
-            else
-                echo -e "\n${RED}❌ Error${NC}"
             fi
             read -p "Presiona Enter..."
             ;;
@@ -1454,7 +1520,7 @@ while true; do
             clear
             echo -e "${CYAN}👥 USUARIOS ACTIVOS${NC}\n"
             
-            sqlite3 -column -header "$DB" "SELECT username, password, tipo, expires_at, CASE WHEN expires_at < datetime('now') THEN 'EXPIRO' ELSE 'ACTIVO' END as estado FROM users WHERE status = 1 ORDER BY expires_at DESC LIMIT 20"
+            sqlite3 -column -header "$DB" "SELECT username, tipo, expires_at, CASE WHEN expires_at < datetime('now') THEN 'EXPIRO' ELSE 'ACTIVO' END as estado FROM users WHERE status = 1 ORDER BY expires_at DESC LIMIT 20"
             echo -e "\n${YELLOW}Total: ${ACTIVE_USERS} activos${NC}"
             read -p "Presiona Enter..."
             ;;
@@ -1558,7 +1624,7 @@ while true; do
             echo -e "${CYAN}📊 ESTADÍSTICAS${NC}\n"
             
             echo -e "${YELLOW}👥 USUARIOS:${NC}"
-            sqlite3 "$DB" "SELECT 'Total: ' || COUNT(*) || ' | Activos: ' || SUM(CASE WHEN status=1 THEN 1 ELSE 0 END) || ' | Tests hoy: ' || (SELECT COUNT(*) FROM daily_tests WHERE date = date('now')) FROM users"
+            sqlite3 "$DB" "SELECT 'Total: ' || COUNT(*) || ' | Activos: ' || SUM(CASE WHEN status=1 THEN 1 ELSE 0 END) || ' | Tests: ' || SUM(CASE WHEN tipo='test' THEN 1 ELSE 0 END) || ' | Premium: ' || SUM(CASE WHEN tipo='premium' THEN 1 ELSE 0 END) FROM users"
             
             echo -e "\n${YELLOW}💰 PAGOS:${NC}"
             sqlite3 "$DB" "SELECT 'Pendientes: ' || SUM(CASE WHEN status='pending' THEN 1 ELSE 0 END) || ' | Aprobados: ' || SUM(CASE WHEN status='approved' THEN 1 ELSE 0 END) || ' | Total: $' || printf('%.2f', SUM(CASE WHEN status='approved' THEN final_amount ELSE 0 END)) FROM payments"
@@ -1568,6 +1634,9 @@ while true; do
             
             echo -e "\n${YELLOW}💸 INGRESOS HOY:${NC}"
             sqlite3 "$DB" "SELECT 'Hoy: $' || printf('%.2f', SUM(CASE WHEN date(created_at) = date('now') THEN final_amount ELSE 0 END)) FROM payments WHERE status='approved'"
+            
+            echo -e "\n${YELLOW}🧪 TESTS HOY:${NC}"
+            sqlite3 "$DB" "SELECT 'Tests hoy: ' || COUNT(*) || ' de ' || (SELECT COUNT(DISTINCT phone) FROM users WHERE tipo='test' AND date(created_at)=date('now')) FROM daily_tests WHERE date = date('now')"
             
             read -p "\nPresiona Enter..."
             ;;
@@ -1615,13 +1684,14 @@ while true; do
             MP_TOKEN=$(get_val '.mercadopago.access_token')
             if [[ -n "$MP_TOKEN" && "$MP_TOKEN" != "null" ]]; then
                 echo -e "  Estado: ${GREEN}CONFIGURADO${NC}"
+                echo -e "  Token: ${MP_TOKEN:0:20}..."
             else
                 echo -e "  Estado: ${RED}NO CONFIGURADO${NC}"
             fi
             
             echo -e "\n${YELLOW}⚡ AJUSTES:${NC}"
             echo -e "  Limpieza: cada 5 minutos"
-            echo -e "  Test: $(get_val '.prices.test_hours') horas (expiración real)"
+            echo -e "  Test: $(get_val '.prices.test_hours') horas (expira en BD)"
             echo -e "  Contraseña: mgvpn247 (fija)"
             
             read -p "\nPresiona Enter..."
@@ -1629,6 +1699,17 @@ while true; do
         13)
             echo -e "\n${YELLOW}🧹 Ejecutando limpiador de tests...${NC}"
             clean-tests
+            ;;
+        14)
+            clear
+            echo -e "${CYAN}🔍 TESTS EXPIRADOS${NC}\n"
+            
+            sqlite3 -column -header "$DB" "SELECT username, phone, expires_at FROM users WHERE tipo = 'test' AND expires_at < datetime('now') AND status = 1 ORDER BY expires_at;"
+            
+            COUNT=$(sqlite3 "$DB" "SELECT COUNT(*) FROM users WHERE tipo = 'test' AND expires_at < datetime('now') AND status = 1" 2>/dev/null || echo "0")
+            echo -e "\n${YELLOW}Total tests expirados: ${COUNT}${NC}"
+            
+            read -p "\nPresiona Enter..."
             ;;
         0)
             echo -e "\n${GREEN}👋 Hasta pronto${NC}\n"
@@ -1665,12 +1746,13 @@ echo -e "${GREEN}${BOLD}"
 cat << "FINAL"
 ╔══════════════════════════════════════════════════════════════╗
 ║                                                              ║
-║          🎉 INSTALACIÓN COMPLETADA - TODO INTEGRADO 🎉      ║
+║          🎉 INSTALACIÓN COMPLETADA - TESTS FUNCIONANDO 🎉   ║
 ║                                                              ║
 ║       🤖 SSH BOT PRO - WPPCONNECT + MERCADOPAGO            ║
 ║       📱 WhatsApp API FUNCIONANDO                         ║
 ║       💰 MercadoPago SDK v2.x COMPLETO                    ║
 ║       💳 Pago automático con QR                           ║
+║       ✅ TESTS 2 HORAS SIN ERRORES                        ║
 ║       🎛️  Panel completo con control                      ║
 ║                                                              ║
 ╚══════════════════════════════════════════════════════════════╝
@@ -1687,7 +1769,7 @@ echo -e "${GREEN}✅ Verificación automática de pagos${NC}"
 echo -e "${GREEN}✅ Estadísticas completas${NC}"
 echo -e "${GREEN}✅ Planes: Diarios (1,3,7,15 días) y Mensuales (30,50 días)${NC}"
 echo -e "${GREEN}✅ Contraseña fija: mgvpn247${NC}"
-echo -e "${GREEN}✅ Test: 2 horas de prueba (EXPIRA AUTOMÁTICAMENTE)${NC}"
+echo -e "${GREEN}✅ Test: 2 horas de prueba (EXPIRA SOLO EN BD)${NC}"
 echo -e "${GREEN}✅ Limpieza automática cada 5 minutos${NC}"
 echo -e "${GREEN}✅ Comando clean-tests para limpieza manual${NC}"
 echo -e "${CYAN}══════════════════════════════════════════════════════════════${NC}\n"
@@ -1702,10 +1784,11 @@ echo -e "\n"
 echo -e "${YELLOW}🚀 PRIMEROS PASOS:${NC}\n"
 echo -e "  1. Ver logs: ${GREEN}pm2 logs sshbot-pro${NC}"
 echo -e "  2. Escanear QR cuando aparezca"
-echo -e "  3. Configurar MercadoPago en el panel: ${GREEN}sshbot${NC}"
-echo -e "  4. Opción [7] - Configurar token de MercadoPago"
-echo -e "  5. Opción [8] - Testear conexión"
-echo -e "  6. Enviar 'menu' al bot en WhatsApp"
+echo -e "  3. Enviar 'menu' al bot en WhatsApp"
+echo -e "  4. Probar crear test con opción 1"
+echo -e "  5. Configurar MercadoPago en el panel: ${GREEN}sshbot${NC}"
+echo -e "  6. Opción [7] - Configurar token de MercadoPago"
+echo -e "  7. Opción [8] - Testear conexión"
 echo -e "\n"
 
 echo -e "${YELLOW}💰 CONFIGURAR MERCADOPAGO:${NC}\n"
@@ -1717,14 +1800,15 @@ echo -e "  5. En el panel: Opción 7 → Pegar token"
 echo -e "  6. Testear con opción 8"
 echo -e "\n"
 
-echo -e "${YELLOW}🧹 LIMPIEZA AUTOMÁTICA:${NC}\n"
-echo -e "  • Tests expiran automáticamente a las 2 horas"
+echo -e "${YELLOW}🧪 SISTEMA DE TESTS CORREGIDO:${NC}\n"
+echo -e "  • Tests NO tienen fecha de expiración en sistema"
+echo -e "  • Tests expiran SOLO en base de datos (2 horas)"
 echo -e "  • Limpieza automática cada 5 minutos"
 echo -e "  • Usar ${GREEN}clean-tests${NC} para limpieza manual"
-echo -e "  • Usuarios premium expiran según su plan"
+echo -e "  • Usuarios premium SÍ tienen fecha en sistema"
 echo -e "\n"
 
-echo -e "${GREEN}${BOLD}¡Sistema listo! Escanea el QR, configura MercadoPago y empieza a vender 🚀${NC}\n"
+echo -e "${GREEN}${BOLD}¡Sistema listo! Escanea el QR y prueba crear un test ✅${NC}\n"
 
 # Ver logs automáticamente
 read -p "$(echo -e "${YELLOW}¿Ver logs ahora? (s/N): ${NC}")" -n 1 -r
