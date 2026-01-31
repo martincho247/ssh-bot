@@ -44,6 +44,7 @@ echo -e "  💳 ${YELLOW}Pago automático${NC} - QR + Enlace de pago"
 echo -e "  🎛️  ${PURPLE}Panel completo${NC} - Control total del sistema"
 echo -e "  📊 ${BLUE}Estadísticas${NC} - Ventas, usuarios, ingresos"
 echo -e "  ⚡ ${GREEN}Auto-verificación${NC} - Pagos verificados cada 2 min"
+echo -e "  🔐 ${RED}Contraseña oculta${NC} - Se revela solo al crear usuario"
 echo -e "${CYAN}══════════════════════════════════════════════════════════════${NC}\n"
 
 # Verificar root
@@ -139,7 +140,8 @@ cat > "$CONFIG_FILE" << EOF
         "name": "SSH Bot Pro",
         "version": "2.0-MP-INTEGRADO",
         "server_ip": "$SERVER_IP",
-        "default_password": "mgvpn247"
+        "default_password": "mgvpn247",
+        "password_revealed": false
     },
     "prices": {
         "test_hours": 1,
@@ -365,7 +367,23 @@ function generateUsername() {
 }
 
 function generatePassword() {
-    return 'mgvpn247'; // CONTRASEÑA FIJA
+    return 'mgvpn247'; // CONTRASEÑA FIJA OCULTA HASTA CREACIÓN
+}
+
+// Función para mostrar mensaje de bienvenida SIN contraseña
+async function showWelcomeMessage(phone) {
+    const welcomeMsg = `HOLA, BIENVENIDO BOT MGVPN 🚀
+
+Elija una opción:
+
+🧾 1 - CREAR PRUEBA (1 HORA GRATIS)
+💰 2 - COMPRAR USUARIO SSH
+🔄 3 - RENOVAR USUARIO SSH
+📱 4 - DESCARGAR APLICACIÓN
+
+⚠️ *IMPORTANTE:* La contraseña se revela automáticamente al crear la cuenta.`;
+    
+    await client.sendText(phone, welcomeMsg);
 }
 
 async function createSSHUser(phone, username, password, days) {
@@ -554,9 +572,9 @@ async function checkPendingPayments() {
                     if (mpPayment.status === 'approved') {
                         console.log(chalk.green(`✅ PAGO APROBADO: ${payment.payment_id}`));
                         
-                        // Crear usuario SSH - CON PASSWORD FIJO
-                        const username = generateUsername(); // Esto generará 'testXXXX'
-                        const password = generatePassword(); // Esto siempre devolverá 'mgvpn247'
+                        // Crear usuario SSH - CON PASSWORD FIJO OCULTO HASTA AHORA
+                        const username = generateUsername();
+                        const password = generatePassword();
                         const result = await createSSHUser(payment.phone, username, password, payment.days);
                         
                         if (result.success) {
@@ -568,7 +586,7 @@ async function checkPendingPayments() {
 
 🎉 Tu compra ha sido aprobada
 
-📋 *DATOS DE ACCESO:*
+📋 *DATOS DE ACCESO REVELADOS:*
 👤 Usuario: *${username}*
 🔑 Contraseña: *${password}*
 
@@ -664,21 +682,13 @@ async function initializeBot() {
                 
                 const userState = await getUserState(from);
                 
-                // MENÚ PRINCIPAL
+                // MENÚ PRINCIPAL - SIN CONTRASEÑA
                 if (['menu', 'hola', 'start', 'hi', 'volver', '0'].includes(text)) {
                     await setUserState(from, 'main_menu');
-                    
-                    await client.sendText(from, `HOLA, BIENVENIDO BOT MGVPN 🚀
-
-Elija una opción:
-
-🧾 1 - CREAR PRUEBA
-💰 2 - COMPRAR USUARIO SSH
-🔄 3 - RENOVAR USUARIO SSH
-📱 4 - DESCARGAR APLICACIÓN`);
+                    await showWelcomeMessage(from);
                 }
                 
-                // OPCIÓN 1: CREAR PRUEBA - MODIFICADO
+                // OPCIÓN 1: CREAR PRUEBA - CONTRASEÑA SE REVELA AQUÍ
                 else if (text === '1' && userState.state === 'main_menu') {
                     if (!(await canCreateTest(from))) {
                         await client.sendText(from, `⚠️ *YA USASTE TU PRUEBA HOY*
@@ -687,27 +697,33 @@ Elija una opción:
                         return;
                     }
                     
-                    await client.sendText(from, '⏳ Creando cuenta de prueba...');
+                    await client.sendText(from, '⏳ *Creando cuenta de prueba...*');
                     
                     try {
-                        const username = generateUsername(); // Ahora genera 'testXXXX' en minúsculas
-                        const password = generatePassword(); // Siempre 'mgvpn247'
+                        const username = generateUsername();
+                        const password = generatePassword();
                         const result = await createSSHUser(from, username, password, 0);
                         
                         if (result.success) {
                             registerTest(from);
                             
-                            await client.sendText(from, `*PRUEBA CREADA CON ÉXITO !*
+                            const msgPrueba = `✅ *PRUEBA CREADA CON ÉXITO*
 
-👤 *Usuario:* \`${username}\`
-🔑 *Contraseña:* \`${password}\`
-📶 *Límite:* 1 dispositivo(s)
-⏰ *Expira en:* ${config.prices.test_hours} hora(s)
+🔐 *DATOS DE ACCESO REVELADOS:*
+👤 Usuario: *${username}*
+🔑 Contraseña: *${password}*
 
-📥 *APP:* ${config.links.app_download}
+📶 Límite: 1 dispositivo
+⏰ Expira en: 1 hora
 
+⚠️ *IMPORTANTE:*
+• Guarda esta contraseña
+• Es válida por 1 hora
+• Solo funciona en 1 dispositivo
 
+📥 *APP:* ${config.links.app_download}`;
                             
+                            await client.sendText(from, msgPrueba);
                             console.log(chalk.green(`✅ Test creado: ${username}`));
                         } else {
                             await client.sendText(from, `❌ Error: ${result.error}`);
@@ -717,21 +733,23 @@ Elija una opción:
                     }
                 }
                 
-                // OPCIÓN 2: COMPRAR USUARIO SSH - CORREGIDO
+                // OPCIÓN 2: COMPRAR USUARIO SSH
                 else if (text === '2' && userState.state === 'main_menu') {
                     await setUserState(from, 'buying_ssh');
                     
-                    await client.sendText(from, `*PLANES SSH PREMIUM !*
+                    const msgComprar = `*PLANES SSH PREMIUM !*
 
 Elija el tipo de plan:
 🗓️  1 - PLANES DIARIOS (7, 15 días)
+📅  2 - PLANES MENSUALES (30, 50 días)
+⬅️  0 - VOLVER AL MENÚ PRINCIPAL
 
-🗓  2 - PLANES MENSUALES (30, 50 días)
-
-⬅️  0 - VOLVER AL MENÚ PRINCIPAL`);
+💡 *Nota:* La contraseña se revelará automáticamente después del pago exitoso.`;
+                    
+                    await client.sendText(from, msgComprar);
                 }
                 
-                // SUBMENÚ DE COMPRAS - CORREGIDO
+                // SUBMENÚ DE COMPRAS
                 else if (userState.state === 'buying_ssh') {
                     if (text === '1') {
                         await setUserState(from, 'selecting_daily_plan');
@@ -740,9 +758,7 @@ Elija el tipo de plan:
 
 Elija un plan:
 🗓️  1 - 7 DÍAS - $${config.prices.price_7d} ARS
-
 🗓️  2 - 15 DÍAS - $${config.prices.price_15d} ARS
-
 ⬅️  0 - VOLVER`);
                     }
                     else if (text === '2') {
@@ -751,22 +767,13 @@ Elija un plan:
                         await client.sendText(from, `*PLANES MENSUALES SSH PREMIUM*
 
 Elija un plan:
-🗓  1 - 30 DÍAS - $${config.prices.price_30d} ARS
-
-🗓  2 - 50 DÍAS - $${config.prices.price_50d} ARS
-
+📅  1 - 30 DÍAS - $${config.prices.price_30d} ARS
+📅  2 - 50 DÍAS - $${config.prices.price_50d} ARS
 ⬅️  0 - VOLVER`);
                     }
                     else if (text === '0') {
                         await setUserState(from, 'main_menu');
-                        await client.sendText(from, `HOLA, BIENVENIDO BOT MGVPN 🚀
-
-Elija una opción:
-
-🧾 1 - CREAR PRUEBA
-💰 2 - COMPRAR USUARIO SSH
-🔄 3 - RENOVAR USUARIO SSH
-📱 4 - DESCARGAR APLICACIÓN`);
+                        await showWelcomeMessage(from);
                     }
                 }
                 
@@ -783,11 +790,11 @@ Elija una opción:
                                 planName: plan.name
                             });
                             
-                            await client.sendText(from, `🎫¿Tienes un cupón de descuento?
-Responde: *si* o *no*.`);
+                            await client.sendText(from, `**¿Tienes un cupón de descuento?**
+Responde: *sí* o *no*.`);
                             
                         } else {
-                            await client.sendText(from, `*PLAN SELECCIONADO: ${plan.name}*
+                            const msgSinMP = `*PLAN SELECCIONADO: ${plan.name}*
 
 Precio: *$${plan.price} ARS*
 Duración: *${plan.days} días*
@@ -796,8 +803,9 @@ Límite: *1 dispositivo*
 Para continuar con la compra, contacta al administrador:
 ${config.links.support}
 
-O envía el monto por transferencia bancaria.`);
+🔒 *Nota:* La contraseña se entregará después del pago.`;
                             
+                            await client.sendText(from, msgSinMP);
                             await setUserState(from, 'main_menu');
                         }
                     }
@@ -816,7 +824,7 @@ O envía el monto por transferencia bancaria.`);
 Responde: *sí* o *no*.`);
                             
                         } else {
-                            await client.sendText(from, `*PLAN SELECCIONADO: ${plan.name}*
+                            const msgSinMP = `*PLAN SELECCIONADO: ${plan.name}*
 
 Precio: *$${plan.price} ARS*
 Duración: *${plan.days} días*
@@ -825,8 +833,9 @@ Límite: *1 dispositivo*
 Para continuar con la compra, contacta al administrador:
 ${config.links.support}
 
-O envía el monto por transferencia bancaria.`);
+🔒 *Nota:* La contraseña se entregará después del pago.`;
                             
+                            await client.sendText(from, msgSinMP);
                             await setUserState(from, 'main_menu');
                         }
                     }
@@ -836,9 +845,7 @@ O envía el monto por transferencia bancaria.`);
 
 Elija el tipo de plan:
 🗓️  1 - PLANES DIARIOS (7, 15 días)
-
-🗓  2 - PLANES MENSUALES (30, 50 días)
-
+📅  2 - PLANES MENSUALES (30, 50 días)
 ⬅️  0 - VOLVER AL MENÚ PRINCIPAL`);
                     }
                 }
@@ -860,7 +867,7 @@ Elija el tipo de plan:
 Responde: *sí* o *no*.`);
                             
                         } else {
-                            await client.sendText(from, `*PLAN SELECCIONADO: ${plan.name}*
+                            const msgSinMP = `*PLAN SELECCIONADO: ${plan.name}*
 
 Precio: *$${plan.price} ARS*
 Duración: *${plan.days} días*
@@ -869,8 +876,9 @@ Límite: *1 dispositivo*
 Para continuar con la compra, contacta al administrador:
 ${config.links.support}
 
-O envía el monto por transferencia bancaria.`);
+🔒 *Nota:* La contraseña se entregará después del pago.`;
                             
+                            await client.sendText(from, msgSinMP);
                             await setUserState(from, 'main_menu');
                         }
                     }
@@ -889,7 +897,7 @@ O envía el monto por transferencia bancaria.`);
 Responde: *sí* o *no*.`);
                             
                         } else {
-                            await client.sendText(from, `*PLAN SELECCIONADO: ${plan.name}*
+                            const msgSinMP = `*PLAN SELECCIONADO: ${plan.name}*
 
 Precio: *$${plan.price} ARS*
 Duración: *${plan.days} días*
@@ -898,8 +906,9 @@ Límite: *1 dispositivo*
 Para continuar con la compra, contacta al administrador:
 ${config.links.support}
 
-O envía el monto por transferencia bancaria.`);
+🔒 *Nota:* La contraseña se entregará después del pago.`;
                             
+                            await client.sendText(from, msgSinMP);
                             await setUserState(from, 'main_menu');
                         }
                     }
@@ -909,9 +918,7 @@ O envía el monto por transferencia bancaria.`);
 
 Elija el tipo de plan:
 🗓️  1 - PLANES DIARIOS (7, 15 días)
-
-🗓  2 - PLANES MENSUALES (30, 50 días)
-
+📅  2 - PLANES MENSUALES (30, 50 días)
 ⬅️  0 - VOLVER AL MENÚ PRINCIPAL`);
                     }
                 }
@@ -951,9 +958,9 @@ ${config.links.support}
 O envía tu nombre de usuario actual.`);
                 }
                 
-                // OPCIÓN 4: DESCARGAR APP
+                // OPCIÓN 4: DESCARGAR APP - SIN CONTRASEÑA
                 else if (text === '4' && userState.state === 'main_menu') {
-                    await client.sendText(from, `📱 *DESCARGAR APLICACIÓN*
+                    const msgApp = `📱 *DESCARGAR APLICACIÓN*
 
 🔗 *Enlace de descarga:*
 ${config.links.app_download}
@@ -961,10 +968,15 @@ ${config.links.app_download}
 💡 *Instrucciones:*
 1. Abre el enlace en tu navegador
 2. Descarga el archivo APK
-3. Instala la aplicación click mas detalles click instalar todas formas
+3. Instala la aplicación
 4. Configura con tus credenciales SSH
 
-
+🔒 *IMPORTANTE:*
+• La contraseña se revela al crear la cuenta
+• No compartas tu contraseña con nadie
+• Contacta soporte si tienes problemas`;
+                    
+                    await client.sendText(from, msgApp);
                 }
                 
                 // COMANDO NO RECONOCIDO
@@ -1037,7 +1049,7 @@ async function processPayment(phone, planData, discountCode) {
                 amountText = `$${payment.originalAmount} → $${payment.amount} (${payment.discountPercentage}% descuento)`;
             }
             
-            const message = `👤 *USUARIO SSH* 📋
+            const message = `### *USUARIO SSH* 📋
 
 - **Plan:** ${planData.planName}
 - **Precio:** ${amountText}
@@ -1052,7 +1064,7 @@ ${payment.paymentUrl}
 
 ⏰ *Este enlace expira en 24 horas*
 💳 *Pago seguro con MercadoPago*
-
+🔐 *Contraseña se revelará después del pago exitoso*`;
             
             await client.sendText(phone, message);
             
@@ -1178,7 +1190,7 @@ while true; do
     echo -e "  Pagos: ${CYAN}$PENDING_PAYMENTS${NC} pendientes | ${GREEN}$APPROVED_PAYMENTS${NC} aprobados"
     echo -e "  MercadoPago: $MP_STATUS"
     echo -e "  IP: $(get_val '.bot.server_ip')"
-    echo -e "  Contraseña: ${GREEN}mgvpn247${NC} (FIJA)"
+    echo -e "  Contraseña: ${GREEN}mgvpn247${NC} (OCULTA HASTA CREACIÓN)"
     echo -e ""
     
     echo -e "${YELLOW}💰 PRECIOS ACTUALES:${NC}"
@@ -1237,7 +1249,7 @@ while true; do
             
             [[ -z "$DAYS" ]] && DAYS="30"
             [[ "$USERNAME" == "auto" || -z "$USERNAME" ]] && USERNAME="test$(shuf -i 1000-9999 -n 1)"
-            PASSWORD="mgvpn247" # CONTRASEÑA FIJA
+            PASSWORD="mgvpn247" # CONTRASEÑA FIJA OCULTA
             
             if [[ "$TIPO" == "test" ]]; then
                 DAYS="0"
@@ -1252,9 +1264,10 @@ while true; do
                 sqlite3 "$DB" "INSERT INTO users (phone, username, password, tipo, expires_at, status) VALUES ('$PHONE', '$USERNAME', '$PASSWORD', '$TIPO', '$EXPIRE_DATE', 1)"
                 echo -e "\n${GREEN}✅ USUARIO CREADO${NC}"
                 echo -e "👤 Usuario: ${USERNAME}"
-                echo -e "🔑 Contraseña: ${PASSWORD}"
+                echo -e "🔑 Contraseña: ${PASSWORD} (OCULTA PARA CLIENTES)"
                 echo -e "⏰ Expira: ${EXPIRE_DATE}"
                 echo -e "🔌 Días: ${DAYS}"
+                echo -e "${YELLOW}⚠️ La contraseña se revela automáticamente al cliente${NC}"
             else
                 echo -e "\n${RED}❌ Error${NC}"
             fi
@@ -1264,8 +1277,10 @@ while true; do
             clear
             echo -e "${CYAN}👥 USUARIOS ACTIVOS${NC}\n"
             
-            sqlite3 -column -header "$DB" "SELECT username, password, tipo, expires_at FROM users WHERE status = 1 ORDER BY expires_at DESC LIMIT 20"
+            echo -e "${YELLOW}Usuario - Tipo - Expiración${NC}"
+            sqlite3 -column -header "$DB" "SELECT username, tipo, expires_at FROM users WHERE status = 1 ORDER BY expires_at DESC LIMIT 20"
             echo -e "\n${YELLOW}Total: ${ACTIVE_USERS} activos${NC}"
+            echo -e "${CYAN}⚠️ Las contraseñas están ocultas (se revelan al crear usuario)${NC}"
             read -p "Presiona Enter..."
             ;;
         6)
@@ -1414,10 +1429,11 @@ while true; do
                 echo -e "  Estado: ${RED}NO CONFIGURADO${NC}"
             fi
             
-            echo -e "\n${YELLOW}⚡ AJUSTES:${NC}"
+            echo -e "\n${YELLOW}🔐 SEGURIDAD:${NC}"
+            echo -e "  Contraseña: ${GREEN}mgvpn247${NC} (OCULTA HASTA CREACIÓN)"
             echo -e "  Limpieza: cada 15 minutos"
             echo -e "  Test: 1 hora exacta"
-            echo -e "  Contraseña: mgvpn247 (fija)"
+            echo -e "  Usuarios: testXXXX en minúsculas"
             
             read -p "\nPresiona Enter..."
             ;;
@@ -1462,6 +1478,7 @@ cat << "FINAL"
 ║       📱 WhatsApp API FUNCIONANDO                         ║
 ║       💰 MercadoPago SDK v2.x COMPLETO                    ║
 ║       💳 Pago automático con QR                           ║
+║       🔐 Contraseña oculta hasta creación                 ║
 ║       🎛️  Panel completo con control                      ║
 ║                                                              ║
 ╚══════════════════════════════════════════════════════════════╝
@@ -1478,7 +1495,7 @@ echo -e "${GREEN}✅ Verificación automática de pagos${NC}"
 echo -e "${GREEN}✅ Estadísticas completas${NC}"
 echo -e "${GREEN}✅ Planes organizados correctamente${NC}"
 echo -e "${GREEN}✅ Usuario test: testXXXX en minúsculas${NC}"
-echo -e "${GREEN}✅ Contraseña fija: mgvpn247${NC}"
+echo -e "${RED}🔐 Contraseña oculta hasta creación de cuenta${NC}"
 echo -e "${CYAN}══════════════════════════════════════════════════════════════${NC}\n"
 
 echo -e "${YELLOW}📋 COMANDOS PRINCIPALES:${NC}\n"
@@ -1487,13 +1504,12 @@ echo -e "  ${GREEN}pm2 logs sshbot-pro${NC} - Ver logs y QR"
 echo -e "  ${GREEN}pm2 restart sshbot-pro${NC} - Reiniciar bot"
 echo -e "\n"
 
-echo -e "${YELLOW}🔄 CAMBIOS REALIZADOS:${NC}\n"
-echo -e "  ✅ Planes separados: Diarios (7,15 días) y Mensuales (30,50 días)"
-echo -e "  ✅ Usuarios test: ahora se generan como 'testXXXX' (minúsculas)"
-echo -e "  ✅ Contraseña única: 'mgvpn247' para todos los usuarios"
-echo -e "  ✅ Menús organizados correctamente"
-echo -e "  ✅ QR de pago funcional con MercadoPago"
-echo -e "  ✅ Verificación automática cada 2 minutos"
+echo -e "${YELLOW}🔐 SISTEMA DE CONTRASEÑAS OCULTAS:${NC}\n"
+echo -e "  ✅ La contraseña NO aparece en menús"
+echo -e "  ✅ Se revela SOLO al crear prueba (Opción 1)"
+echo -e "  ✅ Se revela SOLO después de pago exitoso"
+echo -e "  ✅ No se muestra en opción de descarga"
+echo -e "  ✅ Protección contra distribución no autorizada"
 echo -e "\n"
 
 echo -e "${YELLOW}💰 CONFIGURAR MERCADOPAGO:${NC}\n"
@@ -1511,7 +1527,7 @@ echo -e "    🗓️  1 - PLANES DIARIOS (7, 15 días)"
 echo -e "    📅  2 - PLANES MENSUALES (30, 50 días)"
 echo -e "\n"
 
-echo -e "${GREEN}${BOLD}¡Sistema listo! Escanea el QR, configura MercadoPago y empieza a vender 🚀${NC}\n"
+echo -e "${GREEN}${BOLD}¡Sistema listo! La contraseña está oculta y se revela solo al crear usuario 🚀${NC}\n"
 
 # Ver logs automáticamente
 read -p "$(echo -e "${YELLOW}¿Ver logs ahora? (s/N): ${NC}")" -n 1 -r
