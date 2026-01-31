@@ -142,7 +142,7 @@ cat > "$CONFIG_FILE" << EOF
         "default_password": "mgvpn247"
     },
     "prices": {
-        "test_hours": 1,
+        "test_hours": 2,
         "price_1d": 500.00,
         "price_3d": 1200.00,
         "price_7d": 1500.00,
@@ -734,7 +734,9 @@ APP: ${config.links.app_download}`);
 
 Elija una opción:
 🗓 1 - PLANES DIARIOS
+
 🗓 2 - PLANES MENSUALES
+
 ⬅️ 0 - VOLVER`);
                 }
                 
@@ -744,25 +746,30 @@ Elija una opción:
                         // PLANES DIARIOS
                         await setUserState(from, 'selecting_daily_plan');
                         
-                        await client.sendText(from, `📅 *PLANES DIARIOS SSH*
+                        await client.sendText(from, `🗓 *PLANES DIARIOS SSH*
 
 Elija un plan:
-📌 1 - 1 DÍA - $${config.prices.price_1d}
-📌 2 - 3 DÍAS - $${config.prices.price_3d}
-📌 3 - 7 DÍAS - $${config.prices.price_7d}
-📌 4 - 15 DÍAS - $${config.prices.price_15d}
+🗓 1 - 1 DÍA - $${config.prices.price_1d}
+
+🗓 2 - 3 DÍAS - $${config.prices.price_3d}
+
+🗓 3 - 7 DÍAS - $${config.prices.price_7d}
+
+🗓 4 - 15 DÍAS - $${config.prices.price_15d}
+
 ⬅️ 0 - VOLVER`);
                     }
                     else if (text === '2') {
                         // PLANES MENSUALES
                         await setUserState(from, 'selecting_monthly_plan');
                         
-                        await client.sendText(from, `📅 *PLANES MENSUALES SSH*
+                        await client.sendText(from, `🗓 *PLANES MENSUALES SSH*
 
 Elija un plan:
-📌 1 - 30 DÍAS - $${config.prices.price_30d}
-📌 2 - 50 DÍAS - $${config.prices.price_50d}
-📌 3 - 90 DÍAS - $${config.prices.price_90d}
+🗓 1 - 30 DÍAS - $${config.prices.price_30d}
+
+🗓 2 - 50 DÍAS - $${config.prices.price_50d}
+
 ⬅️ 0 - VOLVER`);
                     }
                     else if (text === '0') {
@@ -824,7 +831,9 @@ O envía el monto por transferencia bancaria.`);
 
 Elija una opción:
 🗓 1 - PLANES DIARIOS
+
 🗓 2 - PLANES MENSUALES
+
 ⬅️ 0 - VOLVER`);
                     }
                 }
@@ -874,7 +883,9 @@ O envía el monto por transferencia bancaria.`);
 
 Elija una opción:
 🗓 1 - PLANES DIARIOS
+
 🗓 2 - PLANES MENSUALES
+
 ⬅️ 0 - VOLVER`);
                     }
                 }
@@ -924,7 +935,7 @@ ${config.links.app_download}
 💡 *Instrucciones:*
 1. Abre el enlace en tu navegador
 2. Descarga el archivo APK
-3. Instala la aplicación
+3. Instala la aplicación click en mas detalles click instalar de todas formas
 4. Configura con tus credenciales SSH
 
 ⚡ *Credenciales por defecto:*
