@@ -144,11 +144,11 @@ cat > "$CONFIG_FILE" << EOF
     "prices": {
         "test_hours": 2,
         "price_1d": 500.00,
-        "price_3d": 1200.00,
-        "price_7d": 1500.00,
-        "price_15d": 2500.00,
-        "price_30d": 5500.00,
-        "price_50d": 8500.00,
+        "price_3d": 1500.00,
+        "price_7d": 3000.00,
+        "price_15d": 4000.00,
+        "price_30d": 7000.00,
+        "price_50d": 9500.00,
         "currency": "ARS"
     },
     "mercadopago": {
@@ -679,8 +679,9 @@ async function initializeBot() {
                 if (['menu', 'hola', 'start', 'hi', 'volver', '0'].includes(text.toLowerCase())) {
                     await setUserState(from, 'main_menu');
                     
-                    await client.sendText(from, `╔═══════════════════════════════╗
-║   🤖 *SSH BOT PRO - MGVPN*   ║
+                    await client.sendText(from, `
+  
+         🤖 *BOT - MGVPN*   
 ╚═══════════════════════════════╝
 
 Elija una opción:
@@ -690,7 +691,7 @@ Elija una opción:
 🔄 *3* - RENOVAR USUARIO SSH
 📱 *4* - DESCARGAR APLICACIÓN
 
-📌 *0* - MENÚ PRINCIPAL`);
+🚪 *0* - MENÚ PRINCIPAL`);
                 }
                 
                 // OPCIÓN 1: CREAR PRUEBA
@@ -733,8 +734,9 @@ Elija una opción:
                 else if (text === '2' && userState.state === 'main_menu') {
                     await setUserState(from, 'buying_ssh');
                     
-                    await client.sendText(from, `╔═══════════════════════════════╗
-║   💰 *PLANES SSH PREMIUM*    ║
+                    await client.sendText(from, `
+
+    🌐 *PLANES SSH PREMIUM*    
 ╚═══════════════════════════════╝
 
 Elija una opción:
@@ -742,7 +744,7 @@ Elija una opción:
 🗓 *1* - PLANES DIARIOS
 🗓 *2* - PLANES MENSUALES
 
-📌 *0* - VOLVER AL MENÚ`);
+🚪 *0* - VOLVER AL MENÚ`);
                 }
                 
                 // SUBMENÚ DE COMPRAS
@@ -752,7 +754,7 @@ Elija una opción:
                         await setUserState(from, 'selecting_daily_plan');
                         
                         await client.sendText(from, `╔═══════════════════════════════╗
-║     📅 *PLANES DIARIOS*      ║
+║     🌐 *PLANES DIARIOS*      ║
 ╚═══════════════════════════════╝
 
 Elija un plan:
@@ -762,14 +764,14 @@ Elija un plan:
 🗓 *3* - 7 DÍAS - $${config.prices.price_7d}
 🗓 *4* - 15 DÍAS - $${config.prices.price_15d}
 
-📌 *0* - VOLVER`);
+⬅️ *0* - VOLVER`);
                     }
                     else if (text === '2') {
                         // PLANES MENSUALES
                         await setUserState(from, 'selecting_monthly_plan');
                         
                         await client.sendText(from, `╔═══════════════════════════════╗
-║    📅 *PLANES MENSUALES*     ║
+║    🌐 *PLANES MENSUALES*     ║
 ╚═══════════════════════════════╝
 
 Elija un plan:
@@ -777,7 +779,7 @@ Elija un plan:
 🗓 *1* - 30 DÍAS - $${config.prices.price_30d}
 🗓 *2* - 50 DÍAS - $${config.prices.price_50d}
 
-📌 *0* - VOLVER`);
+⬅️ *0* - VOLVER`);
                     }
                     else if (text === '0') {
                         await setUserState(from, 'main_menu');
@@ -792,7 +794,7 @@ Elija una opción:
 🔄 *3* - RENOVAR USUARIO SSH
 📱 *4* - DESCARGAR APLICACIÓN
 
-📌 *0* - MENÚ PRINCIPAL`);
+⬅️ *0* - MENÚ PRINCIPAL`);
                     }
                 }
                 
@@ -847,7 +849,7 @@ Elija una opción:
 🗓 *1* - PLANES DIARIOS
 🗓 *2* - PLANES MENSUALES
 
-📌 *0* - VOLVER AL MENÚ`);
+⬅️ *0* - VOLVER`);
                     }
                 }
                 
@@ -892,7 +894,7 @@ ${config.links.support}
                     else if (text === '0') {
                         await setUserState(from, 'buying_ssh');
                         await client.sendText(from, `╔═══════════════════════════════╗
-║   💰 *PLANES SSH PREMIUM*    ║
+║   🌐 *PLANES SSH PREMIUM*    ║
 ╚═══════════════════════════════╝
 
 Elija una opción:
@@ -900,7 +902,7 @@ Elija una opción:
 🗓 *1* - PLANES DIARIOS
 🗓 *2* - PLANES MENSUALES
 
-📌 *0* - VOLVER AL MENÚ`);
+⬅️ *0* - VOLVER`);
                     }
                 }
                 
