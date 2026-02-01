@@ -34,7 +34,6 @@ cat << "BANNER"
 ║               💳 Pago automático con QR                    ║
 ║               🎛️  Panel completo con control MP           ║
 ║               ✅ TEST 2 HORAS EN APP (CORREGIDO)           ║
-║               📋 PLANES: 7, 15, 30, 50 DÍAS               ║
 ║                                                              ║
 ╚══════════════════════════════════════════════════════════════╝
 BANNER
@@ -48,7 +47,6 @@ echo -e "  🎛️  ${PURPLE}Panel completo${NC} - Control total del sistema"
 echo -e "  📊 ${BLUE}Estadísticas${NC} - Ventas, usuarios, ingresos"
 echo -e "  ⚡ ${GREEN}Auto-verificación${NC} - Pagos verificados cada 2 min"
 echo -e "  ✅ ${GREEN}Test 2 horas funcionando en APP${NC} - Corrección aplicada"
-echo -e "  📋 ${GREEN}Planes disponibles:${NC} 7, 15, 30, 50 días"
 echo -e "${CYAN}══════════════════════════════════════════════════════════════${NC}\n"
 
 # Verificar root
@@ -260,8 +258,8 @@ PKGEOF
 echo -e "${YELLOW}📦 Instalando dependencias...${NC}"
 npm install --silent 2>&1 | grep -v "npm WARN" || true
 
-# Crear bot.js CON LAS MODIFICACIONES
-echo -e "${YELLOW}📝 Creando bot.js modificado...${NC}"
+# Crear bot.js CON LA CORRECCIÓN CRÍTICA
+echo -e "${YELLOW}📝 Creando bot.js con corrección...${NC}"
 
 cat > "bot.js" << 'BOTEOF'
 const wppconnect = require('@wppconnect-team/wppconnect');
@@ -406,7 +404,13 @@ async function createSSHUser(phone, username, days) {
         
         if (days === 0) {
             // ✅ CORRECCIÓN CRÍTICA: Para que la app muestre 2h
+            // Guardamos 2 horas PERO con un cálculo que la app entienda
+            // La app calcula: días restantes = (expires_at - ahora) / 86400
+            // Si expires_at está en menos de 24h, muestra horas
+            
             const horasTest = config.prices.test_hours || 2;
+            
+            // Para que la app muestre 0 días y horas, ponemos fecha en 2h
             expireFull = moment().add(horasTest, 'hours').format('YYYY-MM-DD HH:mm:ss');
             
             console.log(chalk.cyan(`📅 Test expira: ${expireFull} (${horasTest} horas)`));
@@ -787,7 +791,7 @@ Elija una opción:
                 // SUBMENÚ DE COMPRAS
                 else if (userState.state === 'buying_ssh') {
                     if (text === '1') {
-                        // PLANES DIARIOS - SOLO 7 y 15 DÍAS
+                        // PLANES DIARIOS
                         await setUserState(from, 'selecting_daily_plan');
                         
                         await client.sendText(from, `
@@ -798,8 +802,10 @@ Elija una opción:
 
 Elija un plan:
 
-🗓 *1* - 7 DÍAS - $${config.prices.price_7d}
-🗓 *2* - 15 DÍAS - $${config.prices.price_15d}
+🗓 *1* - 1 DÍA - $${config.prices.price_1d}
+🗓 *2* - 3 DÍAS - $${config.prices.price_3d}
+🗓 *3* - 7 DÍAS - $${config.prices.price_7d}
+🗓 *4* - 15 DÍAS - $${config.prices.price_15d}
 
 ⬅️ *0* - VOLVER`);
                     }
@@ -839,12 +845,14 @@ Elija una opción:
                     }
                 }
                 
-                // SELECCIÓN DE PLAN DIARIO (SOLO 7 y 15 DÍAS)
+                // SELECCIÓN DE PLAN DIARIO
                 else if (userState.state === 'selecting_daily_plan') {
-                    if (['1', '2'].includes(text)) {
+                    if (['1', '2', '3', '4'].includes(text)) {
                         const planMap = {
-                            '1': { days: 7, price: config.prices.price_7d, name: '7 DÍAS' },
-                            '2': { days: 15, price: config.prices.price_15d, name: '15 DÍAS' }
+                            '1': { days: 1, price: config.prices.price_1d, name: '1 DÍA' },
+                            '2': { days: 3, price: config.prices.price_3d, name: '3 DÍAS' },
+                            '3': { days: 7, price: config.prices.price_7d, name: '7 DÍAS' },
+                            '4': { days: 15, price: config.prices.price_15d, name: '15 DÍAS' }
                         };
                         
                         const plan = planMap[text];
@@ -1004,10 +1012,11 @@ ${config.links.app_download}
 🔑 Contraseña: ${DEFAULT_PASSWORD}`);
                 }
                 
-                // COMANDO NO RECONOCIDO - SIN RESPUESTA
+                // COMANDO NO RECONOCIDO
                 else {
-                    // No respondemos a comandos no reconocidos para evitar spam
-                    console.log(chalk.yellow(`⚠️ Comando no reconocido de ${from}: ${text}`));
+                    await client.sendText(from, `❌ *Comando no reconocido.*
+
+Escribe *menu* para ver las opciones disponibles.`);
                 }
                 
             } catch (error) {
@@ -1157,6 +1166,7 @@ process.on('SIGINT', async () => {
 });
 
 // ✅ FUNCIÓN EXTRA: API PARA LA APP (OPCIONAL)
+// Para que la app muestre correctamente 2h
 const express = require('express');
 const appApi = express();
 const portApi = 8080;
@@ -1178,6 +1188,7 @@ appApi.get('/check-user/:username', (req, res) => {
         const expires = moment(row.expires_at);
         
         if (row.tipo === 'test') {
+            // Para tests: calcular horas restantes
             const horasRestantes = Math.max(0, expires.diff(now, 'hours'));
             const minutosRestantes = Math.max(0, expires.diff(now, 'minutes') % 60);
             
@@ -1186,12 +1197,13 @@ appApi.get('/check-user/:username', (req, res) => {
                 username: row.username,
                 tipo: row.tipo,
                 expires_at: row.expires_at,
-                dias_restantes: 0,
+                dias_restantes: 0,  // ✅ Forzar 0 días
                 horas_restantes: horasRestantes,
                 minutos_restantes: minutosRestantes,
                 mensaje: `Test activo por ${horasRestantes} horas, ${minutosRestantes} minutos`
             });
         } else {
+            // Para premium: calcular días
             const diasRestantes = Math.max(0, expires.diff(now, 'days'));
             return res.json({
                 status: 'success',
@@ -1211,7 +1223,7 @@ appApi.listen(portApi, () => {
 });
 BOTEOF
 
-echo -e "${GREEN}✅ Bot creado con modificaciones${NC}"
+echo -e "${GREEN}✅ Bot creado con corrección para app${NC}"
 
 # ================================================
 # CREAR SCRIPT DE REPARACIÓN PARA APLICACIÓN
@@ -1250,7 +1262,9 @@ while true; do
         2)
             echo -e "\n${YELLOW}🔧 Reparando tests...${NC}"
             
+            # Para cada test, recalcular fecha a 2 horas desde ahora
             sqlite3 "$DB" "SELECT username FROM users WHERE tipo='test' AND status=1" | while read USER; do
+                # Nueva fecha: 2 horas desde ahora
                 NEW_EXPIRE=$(date -d "2 hours" "+%Y-%m-%d %H:%M:%S")
                 sqlite3 "$DB" "UPDATE users SET expires_at='$NEW_EXPIRE' WHERE username='$USER'"
                 echo -e "  ${GREEN}✅${NC} $USER -> 2 horas"
@@ -1304,7 +1318,6 @@ show_header() {
     echo -e "${CYAN}║                🎛️  PANEL SSH BOT PRO - COMPLETO            ║${NC}"
     echo -e "${CYAN}║                  💰 MERCADOPAGO INTEGRADO                   ║${NC}"
     echo -e "${CYAN}║                  ✅ TEST 2H EN APP (CORREGIDO)              ║${NC}"
-    echo -e "${CYAN}║                  📋 PLANES: 7, 15, 30, 50 DÍAS            ║${NC}"
     echo -e "${CYAN}╚══════════════════════════════════════════════════════════════╝${NC}\n"
 }
 
@@ -1338,11 +1351,12 @@ while true; do
     echo -e "  IP: $(get_val '.bot.server_ip')"
     echo -e "  Contraseña: ${GREEN}mgvpn247${NC} (FIJA)"
     echo -e "  Test: ${GREEN}2 horas exactas${NC} (corregido para app)"
-    echo -e "  Planes: ${CYAN}7, 15, 30, 50 días${NC}"
     echo -e ""
     
     echo -e "${YELLOW}💰 PRECIOS ACTUALES:${NC}"
     echo -e "  ${CYAN}DIARIOS:${NC}"
+    echo -e "    1 día: $ $(get_val '.prices.price_1d') ARS"
+    echo -e "    3 días: $ $(get_val '.prices.price_3d') ARS"
     echo -e "    7 días: $ $(get_val '.prices.price_7d') ARS"
     echo -e "    15 días: $ $(get_val '.prices.price_15d') ARS"
     echo -e "  ${CYAN}MENSUALES:${NC}"
@@ -1397,7 +1411,7 @@ while true; do
             read -p "Teléfono (ej: 5491122334455): " PHONE
             read -p "Usuario (minúsculas, auto=generar): " USERNAME
             read -p "Tipo (test/premium): " TIPO
-            read -p "Días (0=test 2h, 7,15,30,50=premium): " DAYS
+            read -p "Días (0=test 2h, 1,3,7,15,30,50=premium): " DAYS
             
             [[ -z "$DAYS" ]] && DAYS="30"
             if [[ "$USERNAME" == "auto" || -z "$USERNAME" ]]; then
@@ -1408,12 +1422,14 @@ while true; do
                 fi
             fi
             
+            # Asegurar minúsculas
             USERNAME=$(echo "$USERNAME" | tr '[:upper:]' '[:lower:]')
             PASSWORD="mgvpn247"
             
             if [[ "$TIPO" == "test" ]]; then
                 DAYS="0"
                 EXPIRE_DATE=$(date -d "+2 hours" +"%Y-%m-%d %H:%M:%S")
+                # Test: sin fecha en sistema, solo en BD
                 useradd -M -s /bin/false "$USERNAME" && echo "$USERNAME:$PASSWORD" | chpasswd
                 sqlite3 "$DB" "INSERT INTO users (phone, username, password, tipo, expires_at, status) VALUES ('$PHONE', '$USERNAME', '$PASSWORD', '$TIPO', '$EXPIRE_DATE', 1)"
                 
@@ -1426,6 +1442,7 @@ while true; do
             else
                 EXPIRE_DATE=$(date -d "+$DAYS days" +"%Y-%m-%d 23:59:59")
                 EXPIRE_DATE_SYSTEM=$(date -d "+$DAYS days" +%Y-%m-%d)
+                # Premium: con fecha en sistema
                 useradd -M -s /bin/false -e "$EXPIRE_DATE_SYSTEM" "$USERNAME" && echo "$USERNAME:$PASSWORD" | chpasswd
                 sqlite3 "$DB" "INSERT INTO users (phone, username, password, tipo, expires_at, status) VALUES ('$PHONE', '$USERNAME', '$PASSWORD', '$TIPO', '$EXPIRE_DATE', 1)"
                 
@@ -1450,6 +1467,8 @@ while true; do
             clear
             echo -e "${CYAN}💰 CAMBIAR PRECIOS${NC}\n"
             
+            CURRENT_1D=$(get_val '.prices.price_1d')
+            CURRENT_3D=$(get_val '.prices.price_3d')
             CURRENT_7D=$(get_val '.prices.price_7d')
             CURRENT_15D=$(get_val '.prices.price_15d')
             CURRENT_30D=$(get_val '.prices.price_30d')
@@ -1457,19 +1476,25 @@ while true; do
             
             echo -e "${YELLOW}Precios actuales:${NC}"
             echo -e "  ${CYAN}DIARIOS:${NC}"
-            echo -e "  1. 7 días: $${CURRENT_7D} ARS"
-            echo -e "  2. 15 días: $${CURRENT_15D} ARS"
+            echo -e "  1. 1 día: $${CURRENT_1D} ARS"
+            echo -e "  2. 3 días: $${CURRENT_3D} ARS"
+            echo -e "  3. 7 días: $${CURRENT_7D} ARS"
+            echo -e "  4. 15 días: $${CURRENT_15D} ARS"
             echo -e "  ${CYAN}MENSUALES:${NC}"
-            echo -e "  3. 30 días: $${CURRENT_30D} ARS"
-            echo -e "  4. 50 días: $${CURRENT_50D} ARS"
+            echo -e "  5. 30 días: $${CURRENT_30D} ARS"
+            echo -e "  6. 50 días: $${CURRENT_50D} ARS"
             echo -e ""
             
             echo -e "${CYAN}Modificar precios:${NC}"
+            read -p "Nuevo precio 1d [${CURRENT_1D}]: " NEW_1D
+            read -p "Nuevo precio 3d [${CURRENT_3D}]: " NEW_3D
             read -p "Nuevo precio 7d [${CURRENT_7D}]: " NEW_7D
             read -p "Nuevo precio 15d [${CURRENT_15D}]: " NEW_15D
             read -p "Nuevo precio 30d [${CURRENT_30D}]: " NEW_30D
             read -p "Nuevo precio 50d [${CURRENT_50D}]: " NEW_50D
             
+            [[ -n "$NEW_1D" ]] && set_val '.prices.price_1d' "$NEW_1D"
+            [[ -n "$NEW_3D" ]] && set_val '.prices.price_3d' "$NEW_3D"
             [[ -n "$NEW_7D" ]] && set_val '.prices.price_7d' "$NEW_7D"
             [[ -n "$NEW_15D" ]] && set_val '.prices.price_15d' "$NEW_15D"
             [[ -n "$NEW_30D" ]] && set_val '.prices.price_30d' "$NEW_30D"
@@ -1559,7 +1584,7 @@ while true; do
             sqlite3 "$DB" "SELECT 'Pendientes: ' || SUM(CASE WHEN status='pending' THEN 1 ELSE 0 END) || ' | Aprobados: ' || SUM(CASE WHEN status='approved' THEN 1 ELSE 0 END) || ' | Total: $' || printf('%.2f', SUM(CASE WHEN status='approved' THEN final_amount ELSE 0 END)) FROM payments"
             
             echo -e "\n${YELLOW}📅 DISTRIBUCIÓN:${NC}"
-            sqlite3 "$DB" "SELECT '7 días: ' || SUM(CASE WHEN plan='7d' THEN 1 ELSE 0 END) || ' | 15 días: ' || SUM(CASE WHEN plan='15d' THEN 1 ELSE 0 END) || ' | 30 días: ' || SUM(CASE WHEN plan='30d' THEN 1 ELSE 0 END) || ' | 50 días: ' || SUM(CASE WHEN plan='50d' THEN 1 ELSE 0 END) FROM payments WHERE status='approved'"
+            sqlite3 "$DB" "SELECT '1 día: ' || SUM(CASE WHEN plan='1d' THEN 1 ELSE 0 END) || ' | 3 días: ' || SUM(CASE WHEN plan='3d' THEN 1 ELSE 0 END) || ' | 7 días: ' || SUM(CASE WHEN plan='7d' THEN 1 ELSE 0 END) || ' | 15 días: ' || SUM(CASE WHEN plan='15d' THEN 1 ELSE 0 END) || ' | 30 días: ' || SUM(CASE WHEN plan='30d' THEN 1 ELSE 0 END) || ' | 50 días: ' || SUM(CASE WHEN plan='50d' THEN 1 ELSE 0 END) FROM payments WHERE status='approved'"
             
             echo -e "\n${YELLOW}💸 INGRESOS HOY:${NC}"
             sqlite3 "$DB" "SELECT 'Hoy: $' || printf('%.2f', SUM(CASE WHEN date(created_at) = date('now') THEN final_amount ELSE 0 END)) FROM payments WHERE status='approved'"
@@ -1600,6 +1625,8 @@ while true; do
             
             echo -e "\n${YELLOW}💰 PRECIOS:${NC}"
             echo -e "  ${CYAN}DIARIOS:${NC}"
+            echo -e "  1d: $(get_val '.prices.price_1d') ARS"
+            echo -e "  3d: $(get_val '.prices.price_3d') ARS"
             echo -e "  7d: $(get_val '.prices.price_7d') ARS"
             echo -e "  15d: $(get_val '.prices.price_15d') ARS"
             echo -e "  ${CYAN}MENSUALES:${NC}"
@@ -1620,7 +1647,6 @@ while true; do
             echo -e "  Limpieza: cada 5 minutos"
             echo -e "  Test: 2 horas (corregido para app)"
             echo -e "  Contraseña: mgvpn247 (fija)"
-            echo -e "  Planes disponibles: 7, 15, 30, 50 días"
             
             read -p "\nPresiona Enter..."
             ;;
@@ -1645,7 +1671,7 @@ done
 PANELEOF
 
 chmod +x /usr/local/bin/sshbot
-echo -e "${GREEN}✅ Panel creado con modificaciones${NC}"
+echo -e "${GREEN}✅ Panel creado con opción de reparación${NC}"
 
 # ================================================
 # INICIAR BOT
@@ -1667,15 +1693,14 @@ echo -e "${GREEN}${BOLD}"
 cat << "FINAL"
 ╔══════════════════════════════════════════════════════════════╗
 ║                                                              ║
-║          🎉 INSTALACIÓN COMPLETADA - MODIFICACIONES APLICADAS║
+║          🎉 INSTALACIÓN COMPLETADA - CORRECCIÓN APLICADA   ║
 ║                                                              ║
 ║       🤖 SSH BOT PRO - WPPCONNECT + MERCADOPAGO            ║
 ║       📱 WhatsApp API FUNCIONANDO                         ║
 ║       💰 MercadoPago SDK v2.x COMPLETO                    ║
 ║       💳 Pago automático con QR                           ║
 ║       ✅ TEST 2 HORAS EN APP (CORREGIDO)                  ║
-║       📋 PLANES: 7, 15, 30, 50 DÍAS                     ║
-║       🔇 SIN mensaje "Comando no reconocido"              ║
+║       🔧 Reparador incluido para tests existentes         ║
 ║                                                              ║
 ╚══════════════════════════════════════════════════════════════╝
 FINAL
@@ -1689,10 +1714,10 @@ echo -e "${GREEN}✅ Panel de control completo${NC}"
 echo -e "${GREEN}✅ Pago automático con QR${NC}"
 echo -e "${GREEN}✅ Verificación automática de pagos${NC}"
 echo -e "${GREEN}✅ Estadísticas completas${NC}"
-echo -e "${GREEN}✅ Planes disponibles: 7, 15, 30, 50 días${NC}"
+echo -e "${GREEN}✅ Planes: Diarios (1,3,7,15 días) y Mensuales (30,50 días)${NC}"
 echo -e "${GREEN}✅ Contraseña fija: mgvpn247${NC}"
 echo -e "${GREEN}✅ Test: 2 horas de prueba (CORREGIDO PARA APP)${NC}"
-echo -e "${GREEN}✅ Sin mensaje "Comando no reconocido" (evita spam)${NC}"
+echo -e "${GREEN}✅ Comando fix-test-app para reparar tests existentes${NC}"
 echo -e "${CYAN}══════════════════════════════════════════════════════════════${NC}\n"
 
 echo -e "${YELLOW}📋 COMANDOS PRINCIPALES:${NC}\n"
@@ -1700,6 +1725,13 @@ echo -e "  ${GREEN}sshbot${NC}           - Panel de control completo"
 echo -e "  ${GREEN}fix-test-app${NC}     - Reparar tests para mostrar 2h en app"
 echo -e "  ${GREEN}clean-tests${NC}      - Limpiador de usuarios test"
 echo -e "  ${GREEN}pm2 logs sshbot-pro${NC} - Ver logs y QR"
+echo -e "\n"
+
+echo -e "${YELLOW}🔧 REPARAR TESTS EXISTENTES:${NC}\n"
+echo -e "  Si ya tienes tests creados que muestran 30 días en la app:"
+echo -e "  1. Ejecuta: ${GREEN}fix-test-app${NC}"
+echo -e "  2. Selecciona opción ${CYAN}2${NC}"
+echo -e "  3. Todos los tests se convertirán a 2 horas"
 echo -e "\n"
 
 echo -e "${YELLOW}🚀 PRIMEROS PASOS:${NC}\n"
@@ -1710,8 +1742,7 @@ echo -e "  4. Probar crear test con opción 1"
 echo -e "  5. Configurar MercadoPago en el panel: ${GREEN}sshbot${NC}"
 echo -e "\n"
 
-echo -e "${GREEN}${BOLD}¡Sistema listo! Los planes ahora son: 7, 15, 30, 50 días ✅${NC}\n"
-echo -e "${YELLOW}Nota: El bot NO responderá a comandos no reconocidos (evita spam)${NC}\n"
+echo -e "${GREEN}${BOLD}¡Sistema listo! Los tests ahora mostrarán 2 horas correctamente ✅${NC}\n"
 
 # Ver logs automáticamente
 read -p "$(echo -e "${YELLOW}¿Ver logs ahora? (s/N): ${NC}")" -n 1 -r
