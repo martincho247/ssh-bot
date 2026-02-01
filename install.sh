@@ -727,7 +727,7 @@ APP: ${config.links.app_download}`);
                 else if (text === '2' && userState.state === 'main_menu') {
                     await setUserState(from, 'buying_ssh');
                     
-                    await client.sendText(from, `PLANES SSH PREMIUM !
+                    await client.sendText(from, `🌐 PLANES SSH PREMIUM !
 
 Elija una opción:
 🗓 1 - PLANES DIARIOS
@@ -741,7 +741,7 @@ Elija una opción:
                         // PLANES DIARIOS MODIFICADOS: Solo 7 y 15 días
                         await setUserState(from, 'selecting_daily_plan');
                         
-                        await client.sendText(from, `📅 *PLANES DIARIOS SSH*
+                        await client.sendText(from, `🌐 *PLANES DIARIOS SSH*
 
 Elija un plan:
 📌 1 - 7 DÍAS - $${config.prices.price_7d}
@@ -752,16 +752,16 @@ Elija un plan:
                         // PLANES MENSUALES MODIFICADOS: Solo 30 y 50 días
                         await setUserState(from, 'selecting_monthly_plan');
                         
-                        await client.sendText(from, `📅 *PLANES MENSUALES SSH*
+                        await client.sendText(from, `🌐 *PLANES MENSUALES SSH*
 
 Elija un plan:
-📌 1 - 30 DÍAS - $${config.prices.price_30d}
-📌 2 - 50 DÍAS - $${config.prices.price_50d}
+🗓 1 - 30 DÍAS - $${config.prices.price_30d}
+🗓 2 - 50 DÍAS - $${config.prices.price_50d}
 ⬅️ 0 - VOLVER`);
                     }
                     else if (text === '0') {
                         await setUserState(from, 'main_menu');
-                        await client.sendText(from, `HOLA, BIENVENIDO MGVPN
+                        await client.sendText(from, `🚀 HOLA, BIENVENIDO MGVPN
 
 Elija una opción:
 
@@ -812,7 +812,7 @@ O envía el monto por transferencia bancaria.`);
                     }
                     else if (text === '0') {
                         await setUserState(from, 'buying_ssh');
-                        await client.sendText(from, `PLANES SSH PREMIUM !
+                        await client.sendText(from, `🌐 PLANES SSH PREMIUM !
 
 Elija una opción:
 🗓 1 - PLANES DIARIOS
@@ -861,7 +861,7 @@ O envía el monto por transferencia bancaria.`);
                     }
                     else if (text === '0') {
                         await setUserState(from, 'buying_ssh');
-                        await client.sendText(from, `PLANES SSH PREMIUM !
+                        await client.sendText(from, `🌐 PLANES SSH PREMIUM !
 
 Elija una opción:
 🗓 1 - PLANES DIARIOS
@@ -915,7 +915,7 @@ ${config.links.app_download}
 💡 *Instrucciones:*
 1. Abre el enlace en tu navegador
 2. Descarga el archivo APK
-3. Instala la aplicación
+3. Instala la aplicación click en mas detalles - click en instalar todas formas
 4. Configura con tus credenciales SSH
 
 ⚡ *Credenciales por defecto:*
