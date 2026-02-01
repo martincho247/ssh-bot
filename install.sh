@@ -705,14 +705,14 @@ Elija una opción:
                         if (result.success) {
                             registerTest(from);
                             
-                            await client.sendText(from, `PRUEBA CREADA CON ÉXITO !
+                            await client.sendText(from, `✅️ PRUEBA CREADA CON EXITO !
 
-Usuario: ${username}
-Contraseña: ${DEFAULT_PASSWORD}
-Limite: 1 dispositivo(s)
-Expira en: ${config.prices.test_hours} hora(s)
+👤 Usuario: ${username}
+🔐 Contraseña: ${DEFAULT_PASSWORD}
+🔌 Limite: 1 dispositivo(s)
+⌛️ Expira en: ${config.prices.test_hours} hora(s)
 
-APP: ${config.links.app_download}`);
+📱APP: ${config.links.app_download}`);
                             
                             console.log(chalk.green(`✅ Test creado: ${username}`));
                         } else {
@@ -744,8 +744,8 @@ Elija una opción:
                         await client.sendText(from, `🌐 *PLANES DIARIOS SSH*
 
 Elija un plan:
-📌 1 - 7 DÍAS - $${config.prices.price_7d}
-📌 2 - 15 DÍAS - $${config.prices.price_15d}
+🗓 1 - 7 DÍAS - $${config.prices.price_7d}
+🗓 2 - 15 DÍAS - $${config.prices.price_15d}
 ⬅️ 0 - VOLVER`);
                     }
                     else if (text === '2') {
@@ -849,7 +849,7 @@ Responde: sí o no.`);
 
 Precio: $${plan.price} ARS
 Duración: ${plan.days} días
-Contraseña: ${DEFAULT_PASSWORD}
+
 
 Para continuar con la compra, contacta al administrador:
 ${config.links.support}
@@ -989,13 +989,12 @@ async function processPayment(phone, planData, discountCode) {
                 amountText = `$${payment.originalAmount} → $${payment.amount} (${payment.discountPercentage}% descuento)`;
             }
             
-            const message = `### USUARIO SSH
+            const message = `👤 USUARIO SSH
 
-- **Plan:** ${planData.planName}
-- **Precio:** ${amountText}
-- **Contraseña:** ${DEFAULT_PASSWORD}
-- **Límite:** 1 dispositivo(s)
-- **Duración:** ${planData.days} días
+- 🌐 Plan:* ${planData.planName}
+- 💰 Precio:* ${amountText}
+- 🔌 Límite:* 1 dispositivo(s)
+- 🗓 Duración:* ${planData.days} días
 
 ---
 
