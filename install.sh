@@ -132,7 +132,7 @@ mkdir -p /root/.wppconnect
 chmod -R 755 "$INSTALL_DIR"
 chmod -R 700 /root/.wppconnect
 
-# Crear configuración CON MERCADOPAGO
+# MODIFICADO: Quitar planes 1d, 3d y 90d
 cat > "$CONFIG_FILE" << EOF
 {
     "bot": {
@@ -143,13 +143,10 @@ cat > "$CONFIG_FILE" << EOF
     },
     "prices": {
         "test_hours": 1,
-        "price_1d": 500.00,
-        "price_3d": 1500.00,
         "price_7d": 3000.00,
         "price_15d": 4000.00,
         "price_30d": 7000.00,
         "price_50d": 9500.00,
-        "price_90d": 15000.00,
         "currency": "ARS"
     },
     "mercadopago": {
@@ -741,20 +738,18 @@ Elija una opción:
                 // SUBMENÚ DE COMPRAS
                 else if (userState.state === 'buying_ssh') {
                     if (text === '1') {
-                        // PLANES DIARIOS
+                        // PLANES DIARIOS MODIFICADOS: Solo 7 y 15 días
                         await setUserState(from, 'selecting_daily_plan');
                         
                         await client.sendText(from, `📅 *PLANES DIARIOS SSH*
 
 Elija un plan:
-📌 1 - 1 DÍA - $${config.prices.price_1d}
-📌 2 - 3 DÍAS - $${config.prices.price_3d}
-📌 3 - 7 DÍAS - $${config.prices.price_7d}
-📌 4 - 15 DÍAS - $${config.prices.price_15d}
+📌 1 - 7 DÍAS - $${config.prices.price_7d}
+📌 2 - 15 DÍAS - $${config.prices.price_15d}
 ⬅️ 0 - VOLVER`);
                     }
                     else if (text === '2') {
-                        // PLANES MENSUALES
+                        // PLANES MENSUALES MODIFICADOS: Solo 30 y 50 días
                         await setUserState(from, 'selecting_monthly_plan');
                         
                         await client.sendText(from, `📅 *PLANES MENSUALES SSH*
@@ -762,7 +757,6 @@ Elija un plan:
 Elija un plan:
 📌 1 - 30 DÍAS - $${config.prices.price_30d}
 📌 2 - 50 DÍAS - $${config.prices.price_50d}
-📌 3 - 90 DÍAS - $${config.prices.price_90d}
 ⬅️ 0 - VOLVER`);
                     }
                     else if (text === '0') {
@@ -778,14 +772,12 @@ Elija una opción:
                     }
                 }
                 
-                // SELECCIÓN DE PLAN DIARIO
+                // SELECCIÓN DE PLAN DIARIO MODIFICADO
                 else if (userState.state === 'selecting_daily_plan') {
-                    if (['1', '2', '3', '4'].includes(text)) {
+                    if (['1', '2'].includes(text)) {
                         const planMap = {
-                            '1': { days: 1, price: config.prices.price_1d, name: '1 DÍA' },
-                            '2': { days: 3, price: config.prices.price_3d, name: '3 DÍAS' },
-                            '3': { days: 7, price: config.prices.price_7d, name: '7 DÍAS' },
-                            '4': { days: 15, price: config.prices.price_15d, name: '15 DÍAS' }
+                            '1': { days: 7, price: config.prices.price_7d, name: '7 DÍAS' },
+                            '2': { days: 15, price: config.prices.price_15d, name: '15 DÍAS' }
                         };
                         
                         const plan = planMap[text];
@@ -829,13 +821,12 @@ Elija una opción:
                     }
                 }
                 
-                // SELECCIÓN DE PLAN MENSUAL
+                // SELECCIÓN DE PLAN MENSUAL MODIFICADO
                 else if (userState.state === 'selecting_monthly_plan') {
-                    if (['1', '2', '3'].includes(text)) {
+                    if (['1', '2'].includes(text)) {
                         const planMap = {
                             '1': { days: 30, price: config.prices.price_30d, name: '30 DÍAS' },
-                            '2': { days: 50, price: config.prices.price_50d, name: '50 DÍAS' },
-                            '3': { days: 90, price: config.prices.price_90d, name: '90 DÍAS' }
+                            '2': { days: 50, price: config.prices.price_50d, name: '50 DÍAS' }
                         };
                         
                         const plan = planMap[text];
@@ -932,12 +923,8 @@ Usuario: (el que te proporcionamos)
 Contraseña: ${DEFAULT_PASSWORD}`);
                 }
                 
-                // COMANDO NO RECONOCIDO
-                else {
-                    await client.sendText(from, `❌ Comando no reconocido.
-
-Escribe *menu* para ver las opciones disponibles.`);
-                }
+                // MODIFICADO: Eliminado el mensaje de "Comando no reconocido"
+                // Solo ignoramos los comandos no válidos silenciosamente
                 
             } catch (error) {
                 console.error(chalk.red('❌ Error procesando mensaje:'), error.message);
@@ -1146,14 +1133,11 @@ while true; do
     
     echo -e "${YELLOW}💰 PRECIOS ACTUALES:${NC}"
     echo -e "  ${CYAN}DIARIOS:${NC}"
-    echo -e "    1 día: $ $(get_val '.prices.price_1d') ARS"
-    echo -e "    3 días: $ $(get_val '.prices.price_3d') ARS"
     echo -e "    7 días: $ $(get_val '.prices.price_7d') ARS"
     echo -e "    15 días: $ $(get_val '.prices.price_15d') ARS"
     echo -e "  ${CYAN}MENSUALES:${NC}"
     echo -e "    30 días: $ $(get_val '.prices.price_30d') ARS"
     echo -e "    50 días: $ $(get_val '.prices.price_50d') ARS"
-    echo -e "    90 días: $ $(get_val '.prices.price_90d') ARS"
     echo -e ""
     
     echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
@@ -1201,7 +1185,7 @@ while true; do
             read -p "Teléfono (ej: 5491122334455): " PHONE
             read -p "Usuario (minúsculas, auto=generar): " USERNAME
             read -p "Tipo (test/premium): " TIPO
-            read -p "Días (0=test 1h, 1,3,7,15,30,50,90=premium): " DAYS
+            read -p "Días (0=test 1h, 7,15,30,50=premium): " DAYS
             
             [[ -z "$DAYS" ]] && DAYS="30"
             if [[ "$USERNAME" == "auto" || -z "$USERNAME" ]]; then
@@ -1250,41 +1234,29 @@ while true; do
             clear
             echo -e "${CYAN}💰 CAMBIAR PRECIOS${NC}\n"
             
-            CURRENT_1D=$(get_val '.prices.price_1d')
-            CURRENT_3D=$(get_val '.prices.price_3d')
             CURRENT_7D=$(get_val '.prices.price_7d')
             CURRENT_15D=$(get_val '.prices.price_15d')
             CURRENT_30D=$(get_val '.prices.price_30d')
             CURRENT_50D=$(get_val '.prices.price_50d')
-            CURRENT_90D=$(get_val '.prices.price_90d')
             
             echo -e "${YELLOW}Precios actuales:${NC}"
             echo -e "  ${CYAN}DIARIOS:${NC}"
-            echo -e "  1. 1 día: $${CURRENT_1D} ARS"
-            echo -e "  2. 3 días: $${CURRENT_3D} ARS"
-            echo -e "  3. 7 días: $${CURRENT_7D} ARS"
-            echo -e "  4. 15 días: $${CURRENT_15D} ARS"
+            echo -e "  1. 7 días: $${CURRENT_7D} ARS"
+            echo -e "  2. 15 días: $${CURRENT_15D} ARS"
             echo -e "  ${CYAN}MENSUALES:${NC}"
-            echo -e "  5. 30 días: $${CURRENT_30D} ARS"
-            echo -e "  6. 50 días: $${CURRENT_50D} ARS"
-            echo -e "  7. 90 días: $${CURRENT_90D} ARS\n"
+            echo -e "  3. 30 días: $${CURRENT_30D} ARS"
+            echo -e "  4. 50 días: $${CURRENT_50D} ARS\n"
             
             echo -e "${CYAN}Modificar precios:${NC}"
-            read -p "Nuevo precio 1d [${CURRENT_1D}]: " NEW_1D
-            read -p "Nuevo precio 3d [${CURRENT_3D}]: " NEW_3D
             read -p "Nuevo precio 7d [${CURRENT_7D}]: " NEW_7D
             read -p "Nuevo precio 15d [${CURRENT_15D}]: " NEW_15D
             read -p "Nuevo precio 30d [${CURRENT_30D}]: " NEW_30D
             read -p "Nuevo precio 50d [${CURRENT_50D}]: " NEW_50D
-            read -p "Nuevo precio 90d [${CURRENT_90D}]: " NEW_90D
             
-            [[ -n "$NEW_1D" ]] && set_val '.prices.price_1d' "$NEW_1D"
-            [[ -n "$NEW_3D" ]] && set_val '.prices.price_3d' "$NEW_3D"
             [[ -n "$NEW_7D" ]] && set_val '.prices.price_7d' "$NEW_7D"
             [[ -n "$NEW_15D" ]] && set_val '.prices.price_15d' "$NEW_15D"
             [[ -n "$NEW_30D" ]] && set_val '.prices.price_30d' "$NEW_30D"
             [[ -n "$NEW_50D" ]] && set_val '.prices.price_50d' "$NEW_50D"
-            [[ -n "$NEW_90D" ]] && set_val '.prices.price_90d' "$NEW_90D"
             
             echo -e "\n${GREEN}✅ Precios actualizados${NC}"
             read -p "Presiona Enter..."
@@ -1355,7 +1327,7 @@ while true; do
             sqlite3 "$DB" "SELECT 'Pendientes: ' || SUM(CASE WHEN status='pending' THEN 1 ELSE 0 END) || ' | Aprobados: ' || SUM(CASE WHEN status='approved' THEN 1 ELSE 0 END) || ' | Total: $' || printf('%.2f', SUM(CASE WHEN status='approved' THEN final_amount ELSE 0 END)) FROM payments"
             
             echo -e "\n${YELLOW}📅 DISTRIBUCIÓN:${NC}"
-            sqlite3 "$DB" "SELECT '1 día: ' || SUM(CASE WHEN plan='1d' THEN 1 ELSE 0 END) || ' | 3 días: ' || SUM(CASE WHEN plan='3d' THEN 1 ELSE 0 END) || ' | 7 días: ' || SUM(CASE WHEN plan='7d' THEN 1 ELSE 0 END) || ' | 15 días: ' || SUM(CASE WHEN plan='15d' THEN 1 ELSE 0 END) || ' | 30 días: ' || SUM(CASE WHEN plan='30d' THEN 1 ELSE 0 END) || ' | 50 días: ' || SUM(CASE WHEN plan='50d' THEN 1 ELSE 0 END) || ' | 90 días: ' || SUM(CASE WHEN plan='90d' THEN 1 ELSE 0 END) FROM payments WHERE status='approved'"
+            sqlite3 "$DB" "SELECT '7 días: ' || SUM(CASE WHEN plan='7d' THEN 1 ELSE 0 END) || ' | 15 días: ' || SUM(CASE WHEN plan='15d' THEN 1 ELSE 0 END) || ' | 30 días: ' || SUM(CASE WHEN plan='30d' THEN 1 ELSE 0 END) || ' | 50 días: ' || SUM(CASE WHEN plan='50d' THEN 1 ELSE 0 END) FROM payments WHERE status='approved'"
             
             echo -e "\n${YELLOW}💸 INGRESOS HOY:${NC}"
             sqlite3 "$DB" "SELECT 'Hoy: $' || printf('%.2f', SUM(CASE WHEN date(created_at) = date('now') THEN final_amount ELSE 0 END)) FROM payments WHERE status='approved'"
@@ -1393,14 +1365,11 @@ while true; do
             
             echo -e "\n${YELLOW}💰 PRECIOS:${NC}"
             echo -e "  ${CYAN}DIARIOS:${NC}"
-            echo -e "  1d: $(get_val '.prices.price_1d') ARS"
-            echo -e "  3d: $(get_val '.prices.price_3d') ARS"
             echo -e "  7d: $(get_val '.prices.price_7d') ARS"
             echo -e "  15d: $(get_val '.prices.price_15d') ARS"
             echo -e "  ${CYAN}MENSUALES:${NC}"
             echo -e "  30d: $(get_val '.prices.price_30d') ARS"
             echo -e "  50d: $(get_val '.prices.price_50d') ARS"
-            echo -e "  90d: $(get_val '.prices.price_90d') ARS"
             echo -e "  Test: 1 hora"
             
             echo -e "\n${YELLOW}💳 MERCADOPAGO:${NC}"
@@ -1473,7 +1442,7 @@ echo -e "${GREEN}✅ Panel de control completo${NC}"
 echo -e "${GREEN}✅ Pago automático con QR${NC}"
 echo -e "${GREEN}✅ Verificación automática de pagos${NC}"
 echo -e "${GREEN}✅ Estadísticas completas${NC}"
-echo -e "${GREEN}✅ Planes: Diarios (1,3,7,15 días) y Mensuales (30,50,90 días)${NC}"
+echo -e "${GREEN}✅ Planes: 7 días, 15 días, 30 días, 50 días${NC}"
 echo -e "${GREEN}✅ Contraseña fija: mgvpn247${NC}"
 echo -e "${CYAN}══════════════════════════════════════════════════════════════${NC}\n"
 
