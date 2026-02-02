@@ -677,7 +677,7 @@ async function initializeBot() {
                 if (['menu', 'hola', 'start', 'hi', 'volver', '0'].includes(text)) {
                     await setUserState(from, 'main_menu');
                     
-                    await client.sendText(from, `HOLA, BIENVENIDO BOT MGVPN 🚀
+                    await client.sendText(from, `HOLA BIENVENIDO BOT MGVPN 🚀
 
 Elija una opción:
 
@@ -745,7 +745,9 @@ Elija una opción:
 
 Elija un plan:
 🗓 1 - 7 DÍAS - $${config.prices.price_7d}
+
 🗓 2 - 15 DÍAS - $${config.prices.price_15d}
+
 ⬅️ 0 - VOLVER`);
                     }
                     else if (text === '2') {
@@ -756,12 +758,14 @@ Elija un plan:
 
 Elija un plan:
 🗓 1 - 30 DÍAS - $${config.prices.price_30d}
+
 🗓 2 - 50 DÍAS - $${config.prices.price_50d}
+
 ⬅️ 0 - VOLVER`);
                     }
                     else if (text === '0') {
                         await setUserState(from, 'main_menu');
-                        await client.sendText(from, `🚀 HOLA, BIENVENIDO MGVPN
+                        await client.sendText(from, `🚀 HOLA BIENVENIDO MGVPN
 
 Elija una opción:
 
@@ -792,7 +796,7 @@ Elija una opción:
                             });
                             
                             await client.sendText(from, `**¿Tienes un cupón de descuento?**
-Responde: sí o no.`);
+Responde: si o no.`);
                             
                         } else {
                             // SIN MERCADOPAGO
