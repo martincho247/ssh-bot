@@ -656,10 +656,10 @@ async function initializeBot() {
 
 Elija una opción:
 
-1 - CREAR PRUEBA
-2 - COMPRAR USUARIO SSH
-3 - RENOVAR USUARIO SSH
-4 - DESCARGAR APLICACIÓN`);
+🧾 1 - CREAR PRUEBA
+💰 2 - COMPRAR USUARIO SSH
+🔄 3 - RENOVAR USUARIO SSH
+📱 4 - DESCARGAR APLICACIÓN`);
                 }
                 
                 // OPCIÓN 1: CREAR PRUEBA
@@ -680,7 +680,7 @@ Elija una opción:
                         if (result.success) {
                             registerTest(from);
                             
-                            await client.sendText(from, `PRUEBA CREADA CON EXITO !
+                            await client.sendText(from, `✅️ PRUEBA CREADA CON EXITO !
 
 👤 Usuario: ${username}
 🔐 Contraseña: ${DEFAULT_PASSWORD}
@@ -698,56 +698,56 @@ Elija una opción:
                     }
                 }
                 
-                // OPCIÓN 2: COMPRAR USUARIO SSH
+                // OPCIÓN 2: 💰 COMPRAR USUARIO SSH
                 else if (text === '2' && userState.state === 'main_menu') {
                     await setUserState(from, 'buying_ssh');
                     
-                    await client.sendText(from, `PLANES SSH PREMIUM !
+                    await client.sendText(from, `🌐 PLANES SSH PREMIUM !
 
 Elija una opción:
-1 - PLANES DIARIOS
-2 - PLANES MENSUALES
-0 - VOLVER`);
+🗓 1 - PLANES DIARIOS
+🗓 2 - PLANES MENSUALES
+⬅️ 0 - VOLVER`);
                 }
                 
                 // SUBMENÚ DE COMPRAS
                 else if (userState.state === 'buying_ssh') {
                     if (text === '1') {
-                        // PLANES DIARIOS
+                        // 🌐 PLANES DIARIOS
                         await setUserState(from, 'selecting_daily_plan');
                         
-                        await client.sendText(from, `PLANES DIARIOS SSH
+                        await client.sendText(from, `🌐 PLANES DIARIOS SSH
 
 Elija un plan:
-1 - 7 DIAS - $${config.prices.price_7d}
+🗓 1 - 7 DIAS - $${config.prices.price_7d}
 
-2 - 15 DIAS - $${config.prices.price_15d}
+🗓 2 - 15 DIAS - $${config.prices.price_15d}
 
-0 - VOLVER`);
+⬅️ 0 - VOLVER`);
                     }
                     else if (text === '2') {
-                        // PLANES MENSUALES
+                        // 🌐 PLANES MENSUALES
                         await setUserState(from, 'selecting_monthly_plan');
                         
-                        await client.sendText(from, `PLANES MENSUALES SSH
+                        await client.sendText(from, `🌐 PLANES MENSUALES SSH
 
 Elija un plan:
-1 - 30 DIAS - $${config.prices.price_30d}
+🗓 1 - 30 DIAS - $${config.prices.price_30d}
 
-2 - 50 DIAS - $${config.prices.price_50d}
+🗓 2 - 50 DIAS - $${config.prices.price_50d}
 
-0 - VOLVER`);
+⬅️ 0 - VOLVER`);
                     }
                     else if (text === '0') {
                         await setUserState(from, 'main_menu');
-                        await client.sendText(from, `HOLA BIENVENIDO MGVPN
+                        await client.sendText(from, `🚀 HOLA BIENVENIDO MGVPN
 
 Elija una opción:
 
-1 - CREAR PRUEBA
-2 - COMPRAR USUARIO SSH
-3 - RENOVAR USUARIO SSH
-4 - DESCARGAR Aplicación`);
+🧾 1 - CREAR PRUEBA
+💰 2 - COMPRAR USUARIO SSH
+🔄 3 - RENOVAR USUARIO SSH
+📱 4 - DESCARGAR APLICACIÓN`);
                     }
                 }
                 
@@ -773,12 +773,12 @@ Elija una opción:
                             );
                             
                             if (payment.success) {
-                                const message = `USUARIO SSH
+                                const message = `👤 USUARIO SSH
 
-- Plan: ${plan.name}
-- Precio: $${payment.amount}
-- Límite: 1 dispositivo(s)
-- Duración: ${plan.days} días
+- 🌐 Plan: ${plan.name}
+- 💰 Precio: $${payment.amount}
+- 🔌 Límite: 1 dispositivo(s)
+- 🕜 Duración: ${plan.days} días
 
 LINK DE PAGO
 
@@ -828,12 +828,12 @@ O envía el monto por transferencia bancaria.`);
                     }
                     else if (text === '0') {
                         await setUserState(from, 'buying_ssh');
-                        await client.sendText(from, `PLANES SSH PREMIUM !
+                        await client.sendText(from, `🌐 PLANES SSH PREMIUM !
 
 Elija una opción:
-1 - PLANES DIARIOS
-2 - PLANES MENSUALES
-0 - VOLVER`);
+🗓 1 - PLANES DIARIOS
+🗓 2 - PLANES MENSUALES
+⬅️ 0 - VOLVER`);
                     }
                 }
                 
@@ -861,10 +861,10 @@ Elija una opción:
                             if (payment.success) {
                                 const message = `USUARIO SSH
 
-- Plan: ${plan.name}
-- Precio: $${payment.amount}
-- Límite: 1 dispositivo(s)
-- Duración: ${plan.days} días
+- 🌐 Plan: ${plan.name}
+- 💰 Precio: $${payment.amount}
+- 🔌 Límite: 1 dispositivo(s)
+- 🕜 Duración: ${plan.days} días
 
 LINK DE PAGO
 
@@ -898,10 +898,10 @@ Contacta al administrador para otras opciones de pago.`);
                             
                         } else {
                             // SIN MERCADOPAGO
-                            await client.sendText(from, `PLAN SELECCIONADO: ${plan.name}
+                            await client.sendText(from, `🌐 PLAN SELECCIONADO: ${plan.name}
 
-Precio: $${plan.price} ARS
-Duración: ${plan.days} días
+💰 Precio: $${plan.price} ARS
+🕜 Duración: ${plan.days} días
 
 Para continuar con la compra, contacta al administrador:
 ${config.links.support}
@@ -913,12 +913,12 @@ O envía el monto por transferencia bancaria.`);
                     }
                     else if (text === '0') {
                         await setUserState(from, 'buying_ssh');
-                        await client.sendText(from, `PLANES SSH PREMIUM !
+                        await client.sendText(from, `🌐 PLANES SSH PREMIUM !
 
 Elija una opción:
-1 - PLANES DIARIOS
-2 - PLANES MENSUALES
-0 - VOLVER`);
+🗓 1 - PLANES DIARIOS
+🗓 2 - PLANES MENSUALES
+⬅️ 0 - VOLVER`);
                     }
                 }
                 
@@ -939,7 +939,7 @@ O envía tu nombre de usuario actual.`);
 🔗 Enlace de descarga:
 ${config.links.app_download}
 
-Instrucciones:
+💡Instrucciones:
 1. Abre el enlace en tu navegador
 2. Descarga el archivo APK
 3. Instala la aplicación click en mas detalles - click en instalar todas formas
