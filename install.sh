@@ -146,7 +146,7 @@ cat > "$CONFIG_FILE" << EOF
         "price_7d": 3000.00,
         "price_15d": 4000.00,
         "price_30d": 7000.00,
-        "price_50d": 9500.00,
+        "price_50d": 9700.00,
         "currency": "ARS"
     },
     "mercadopago": {
