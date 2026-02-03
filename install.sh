@@ -744,9 +744,9 @@ Elija una opción:
                         await client.sendText(from, `🌐 *PLANES DIARIOS SSH*
 
 Elija un plan:
-🗓 1 - 7 DÍAS - $${config.prices.price_7d}
+🗓 1 - 7 DIAS - $${config.prices.price_7d}
 
-🗓 2 - 15 DÍAS - $${config.prices.price_15d}
+🗓 2 - 15 DIAS - $${config.prices.price_15d}
 
 ⬅️ 0 - VOLVER`);
                     }
@@ -757,9 +757,9 @@ Elija un plan:
                         await client.sendText(from, `🌐 *PLANES MENSUALES SSH*
 
 Elija un plan:
-🗓 1 - 30 DÍAS - $${config.prices.price_30d}
+🗓 1 - 30 DIAS - $${config.prices.price_30d}
 
-🗓 2 - 50 DÍAS - $${config.prices.price_50d}
+🗓 2 - 50 DIAS - $${config.prices.price_50d}
 
 ⬅️ 0 - VOLVER`);
                     }
