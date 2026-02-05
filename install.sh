@@ -451,7 +451,7 @@ async function createMercadoPagoPayment(phone, days, amount, planName) {
             expiration_date_from: moment().toISOString(),
             expiration_date_to: isoDate,
             back_urls: {
-                success: `https://wa.me/${phoneClean}?text=Pago%20exitoso%20SSH`,
+                success: `https://wa.me/${phoneClean}?text=Ya%20pague%20mgvpn`,
                 failure: `https://wa.me/${phoneClean}?text=Pago%20fallido%20SSH`,
                 pending: `https://wa.me/${phoneClean}?text=Pago%20pendiente%20SSH`
             },
