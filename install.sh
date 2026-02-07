@@ -680,20 +680,22 @@ Elija una opción:
                         if (result.success) {
                             registerTest(from);
                             
-                            await client.sendText(from, `✅️ PRUEBA CREADA CON EXITO !
+                           await client.sendText(from, `✅️ PRUEBA CREADA CON EXITO !
 
 👤 Usuario: ${username}
 🔐 Contraseña: ${DEFAULT_PASSWORD}
 🔌 Limite: 1 dispositivo(s)
 ⌛️ Expira en: ${config.prices.test_hours} hora(s)
 
-📱APP: ${config.links.app_download}`);
- 
+📱 APP: ${config.links.app_download}
+
 💡 *Instrucciones:*
 1. Abre el link Descarga el APK
 2. Abre el apk Click en "Más detalles"
 3. Click en "Instalar de todas formas"
-4. Configura con tus credenciales                           
+4. Configura con tus credenciales`);
+
+                         
                             console.log(chalk.green(`✅ Test creado: ${username}`));
                         } else {
                             await client.sendText(from, `❌ Error: ${result.error}`);
