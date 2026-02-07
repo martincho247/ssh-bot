@@ -560,10 +560,10 @@ async function checkPendingPayments() {
 🔌 CONEXIÓN: 1 dispositivo
 
 📱 INSTALACIÓN:
-1. Descarga la app (Opción 4)
-2. Seleccionar servidor
-3. Ingresar Usuario y Contraseña
-4. ¡Conéctate automáticamente!
+1. Abre el link Descarga el APK
+2. Abre el apk Click en "Más detalles"
+3. Click en "Instalar de todas formas"
+4. Configura con tus credenciales
 
 🎊 ¡Disfruta del servicio premium!`;
                             
@@ -688,7 +688,12 @@ Elija una opción:
 ⌛️ Expira en: ${config.prices.test_hours} hora(s)
 
 📱APP: ${config.links.app_download}`);
-                            
+ 
+💡 *Instrucciones:*
+1. Abre el link Descarga el APK
+2. Abre el apk Click en "Más detalles"
+3. Click en "Instalar de todas formas"
+4. Configura con tus credenciales                           
                             console.log(chalk.green(`✅ Test creado: ${username}`));
                         } else {
                             await client.sendText(from, `❌ Error: ${result.error}`);
