@@ -1,7 +1,8 @@
 #!/bin/bash
 # ================================================
-# SSH BOT PRO - MULTI-SERVIDOR + HWID + MERCADOPAGO
-# VERSIÓN: Distribución automática de usuarios
+# SSH BOT PRO - WPPCONNECT + MERCADOPAGO + HWID
+# VERSIÓN SIMPLIFICADA: PRIMERO NOMBRE, LUEGO HWID
+# MODIFICADO: URL DE DESCARGA CONFIGURABLE + SIN PLAN 50 DÍAS
 # ================================================
 
 set -e
@@ -28,9 +29,15 @@ cat << "BANNER"
 ║     ╚══════╝╚══════╝╚═╝  ╚═╝    ╚═════╝  ╚═════╝    ╚═╝     ║
 ╠══════════════════════════════════════════════════════════════╣
 ║                                                              ║
-║     🤖 SSH BOT PRO - VERSIÓN MULTI-SERVIDOR 🚀              ║
-║     🔐 HWID + MERCADOPAGO + DISTRIBUCIÓN AUTOMÁTICA        ║
-║     🌐 SOPORTE PARA MÚLTIPLES MÁQUINAS VPN/SSH             ║
+║          🤖 SSH BOT PRO - WPPCONNECT + MERCADOPAGO          ║
+║               🔐 VERSIÓN HWID - SIN USUARIO/CONTRASEÑA      ║
+║               📱 PRIMERO NOMBRE, LUEGO HWID                 ║
+║               💰 MercadoPago SDK v2.x INTEGRADO             ║
+║               💳 Pago automático con QR                     ║
+║               🎛️  Panel completo con control MP            ║
+║               ⏰ NOTIFICACIONES DE VENCIMIENTO              ║
+║               📱 URL DE DESCARGA CONFIGURABLE               ║
+║               🚫 PLAN DE 50 DÍAS ELIMINADO                  ║
 ║                                                              ║
 ╚══════════════════════════════════════════════════════════════╝
 BANNER
@@ -38,12 +45,17 @@ echo -e "${NC}"
 
 echo -e "${GREEN}✅ CARACTERÍSTICAS PRINCIPALES:${NC}"
 echo -e "  🔐 ${CYAN}Sistema HWID${NC} - Sin usuario/contraseña"
-echo -e "  🌐 ${GREEN}MÚLTIPLES SERVIDORES${NC} - Distribución automática"
-echo -e "  📱 ${CYAN}WPPConnect${NC} - API WhatsApp"
-echo -e "  💰 ${GREEN}MercadoPago SDK v2.x${NC} - Integrado"
-echo -e "  💳 ${YELLOW}Pago automático${NC} - QR + Enlace"
-echo -e "  ⚖️  ${PURPLE}Balance de carga${NC} - Usuarios distribuidos"
-echo -e "  ⏰ ${BLUE}Notificaciones${NC} - Vencimiento automático"
+echo -e "  📱 ${CYAN}WPPConnect${NC} - API WhatsApp que funciona"
+echo -e "  💰 ${GREEN}MercadoPago SDK v2.x${NC} - Integrado completo"
+echo -e "  💳 ${YELLOW}Pago automático${NC} - QR + Enlace de pago"
+echo -e "  📝 ${PURPLE}Flujo mejorado${NC} - Primero nombre, luego HWID"
+echo -e "  🎛️  ${PURPLE}Panel completo${NC} - Control total del sistema"
+echo -e "  📊 ${BLUE}Estadísticas${NC} - Ventas, HWIDs, ingresos"
+echo -e "  ⚡ ${GREEN}Auto-verificación${NC} - Pagos verificados cada 2 min"
+echo -e "  ⏱️  ${YELLOW}PRUEBA DE 2 HORAS${NC} - Duración actualizada"
+echo -e "  ⏰ ${CYAN}NOTIFICACIONES DE VENCIMIENTO${NC} - Avisos automáticos"
+echo -e "  📱 ${PURPLE}URL DE DESCARGA${NC} - Configurable desde el panel"
+echo -e "  🚫 ${RED}PLAN DE 50 DÍAS${NC} - Eliminado"
 echo -e "${CYAN}══════════════════════════════════════════════════════════════${NC}\n"
 
 # Verificar root
@@ -54,45 +66,14 @@ if [[ $EUID -ne 0 ]]; then
 fi
 
 # Detectar IP
-echo -e "${CYAN}🔍 Detectando IP del servidor principal...${NC}"
+echo -e "${CYAN}🔍 Detectando IP...${NC}"
 SERVER_IP=$(curl -4 -s --max-time 10 ifconfig.me 2>/dev/null || hostname -I | awk '{print $1}' || echo "127.0.0.1")
 if [[ -z "$SERVER_IP" || "$SERVER_IP" == "127.0.0.1" ]]; then
-    read -p "📝 Ingresa la IP del servidor principal: " SERVER_IP
+    read -p "📝 Ingresa la IP del servidor: " SERVER_IP
 fi
 
-echo -e "${GREEN}✅ IP Principal: ${CYAN}$SERVER_IP${NC}\n"
+echo -e "${GREEN}✅ IP: ${CYAN}$SERVER_IP${NC}\n"
 
-# Preguntar por servidores adicionales
-echo -e "${YELLOW}🌐 CONFIGURACIÓN DE SERVIDORES ADICIONALES${NC}"
-echo -e "${CYAN}¿Vas a usar servidores adicionales para VPN/SSH?${NC}"
-read -p "$(echo -e "${YELLOW}Agregar servidores ahora? (s/N): ${NC}")" -n 1 -r ADD_SERVERS
-echo
-
-declare -a SERVERS=()
-
-if [[ $ADD_SERVERS =~ ^[Ss]$ ]]; then
-    while true; do
-        echo -e "\n${CYAN}📝 Agregar servidor ${#SERVERS[@]}:${NC}"
-        read -p "  Nombre del servidor: " S_NAME
-        read -p "  IP del servidor: " S_IP
-        read -p "  Usuario SSH (root): " S_USER
-        read -sp "  Password SSH: " S_PASS
-        echo
-        read -p "  Máximo de usuarios (100): " S_MAX
-        S_MAX=${S_MAX:-100}
-        
-        SERVERS+=("$S_NAME|$S_IP|$S_USER|$S_PASS|$S_MAX")
-        
-        echo -e "${GREEN}✅ Servidor agregado${NC}"
-        read -p "$(echo -e "${YELLOW}¿Agregar otro servidor? (s/N): ${NC}")" -n 1 -r CONTINUE
-        echo
-        if [[ ! $CONTINUE =~ ^[Ss]$ ]]; then
-            break
-        fi
-    done
-fi
-
-echo -e "\n${YELLOW}📦 Continuando con la instalación...${NC}"
 read -p "$(echo -e "${YELLOW}¿Continuar instalación? (s/N): ${NC}")" -n 1 -r
 echo
 if [[ ! $REPLY =~ ^[Ss]$ ]]; then
@@ -104,12 +85,6 @@ fi
 # INSTALAR DEPENDENCIAS
 # ================================================
 echo -e "\n${CYAN}📦 Instalando dependencias...${NC}"
-
-# Limpiar conflictos de Node.js
-apt remove --purge libnode-dev -y 2>/dev/null || true
-apt remove --purge nodejs -y 2>/dev/null || true
-apt autoremove -y
-apt clean
 
 apt-get update -y
 apt-get upgrade -y
@@ -131,7 +106,7 @@ apt-get install -y \
     libpango1.0-dev libjpeg-dev \
     libgif-dev librsvg2-dev \
     python3 python3-pip ffmpeg \
-    unzip cron ufw sshpass
+    unzip cron ufw
 
 # Configurar firewall
 ufw allow 22/tcp
@@ -156,7 +131,6 @@ INSTALL_DIR="/opt/sshbot-pro"
 USER_HOME="/root/sshbot-pro"
 DB_FILE="$INSTALL_DIR/data/hwid.db"
 CONFIG_FILE="$INSTALL_DIR/config/config.json"
-SERVERS_FILE="$INSTALL_DIR/config/servers.json"
 
 # Limpiar anterior
 pm2 delete sshbot-pro 2>/dev/null || true
@@ -170,12 +144,12 @@ mkdir -p /root/.wppconnect
 chmod -R 755 "$INSTALL_DIR"
 chmod -R 700 /root/.wppconnect
 
-# Configuración principal
+# Configuración SIN PLAN DE 50 DÍAS
 cat > "$CONFIG_FILE" << EOF
 {
     "bot": {
-        "name": "SSH Bot Pro Multi-Server",
-        "version": "4.0-MULTI",
+        "name": "SSH Bot Pro HWID",
+        "version": "3.0-HWID",
         "server_ip": "$SERVER_IP"
     },
     "prices": {
@@ -183,7 +157,6 @@ cat > "$CONFIG_FILE" << EOF
         "price_7d": 3000.00,
         "price_15d": 4000.00,
         "price_30d": 7000.00,
-        "price_50d": 9700.00,
         "currency": "ARS"
     },
     "mercadopago": {
@@ -203,45 +176,7 @@ cat > "$CONFIG_FILE" << EOF
 }
 EOF
 
-# Configuración de servidores
-echo '[' > "$SERVERS_FILE"
-for i in "${!SERVERS[@]}"; do
-    IFS='|' read -r name ip user pass max <<< "${SERVERS[$i]}"
-    if [[ $i -gt 0 ]]; then
-        echo ',' >> "$SERVERS_FILE"
-    fi
-    cat >> "$SERVERS_FILE" << EOF
-    {
-        "id": $((i+1)),
-        "name": "$name",
-        "ip": "$ip",
-        "ssh_user": "$user",
-        "ssh_password": "$pass",
-        "max_users": $max,
-        "current_users": 0,
-        "status": "active"
-    }
-EOF
-done
-if [[ ${#SERVERS[@]} -eq 0 ]]; then
-    # Si no hay servidores, agregar el principal como servidor local
-    cat >> "$SERVERS_FILE" << EOF
-    {
-        "id": 1,
-        "name": "Servidor Principal (Local)",
-        "ip": "$SERVER_IP",
-        "ssh_user": "root",
-        "ssh_password": "local",
-        "max_users": 999,
-        "current_users": 0,
-        "status": "active",
-        "local": true
-    }
-EOF
-fi
-echo ']' >> "$SERVERS_FILE"
-
-# Crear base de datos para HWID (actualizada para multi-servidor)
+# Crear base de datos para HWID
 sqlite3 "$DB_FILE" << 'SQL'
 CREATE TABLE hwid_users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -251,9 +186,6 @@ CREATE TABLE hwid_users (
     tipo TEXT DEFAULT 'test',
     expires_at DATETIME,
     status INTEGER DEFAULT 1,
-    server_id INTEGER,
-    username TEXT,
-    password TEXT DEFAULT 'mgvpn247',
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 CREATE TABLE daily_tests (
@@ -277,8 +209,6 @@ CREATE TABLE payments (
     qr_code TEXT,
     preference_id TEXT,
     hwid TEXT,
-    server_id INTEGER,
-    username TEXT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     approved_at DATETIME
 );
@@ -295,32 +225,34 @@ CREATE TABLE user_state (
     data TEXT,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
-CREATE TABLE server_stats (
+CREATE TABLE hwid_attempts (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    server_id INTEGER,
-    active_connections INTEGER DEFAULT 0,
-    total_users INTEGER DEFAULT 0,
-    last_check DATETIME DEFAULT CURRENT_TIMESTAMP
+    hwid TEXT,
+    phone TEXT,
+    nombre TEXT,
+    action TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 CREATE INDEX idx_hwid_users_hwid ON hwid_users(hwid);
 CREATE INDEX idx_hwid_users_status ON hwid_users(status);
-CREATE INDEX idx_hwid_users_server ON hwid_users(server_id);
+CREATE INDEX idx_payments_hwid ON payments(hwid);
+CREATE INDEX idx_payments_status ON payments(status);
 SQL
 
-echo -e "${GREEN}✅ Estructura MULTI-SERVIDOR creada${NC}"
+echo -e "${GREEN}✅ Estructura HWID creada${NC}"
 
 # ================================================
-# CREAR BOT MULTI-SERVIDOR
+# CREAR BOT CON HWID (PRIMERO NOMBRE, LUEGO HWID)
 # ================================================
-echo -e "\n${CYAN}🤖 Creando bot MULTI-SERVIDOR...${NC}"
+echo -e "\n${CYAN}🤖 Creando bot con sistema HWID (primero nombre, luego HWID)...${NC}"
 
 cd "$USER_HOME"
 
-# package.json con node-ssh
+# package.json
 cat > package.json << 'PKGEOF'
 {
-    "name": "sshbot-pro-multi",
-    "version": "4.0.0",
+    "name": "sshbot-pro-hwid",
+    "version": "3.0.0",
     "main": "bot.js",
     "dependencies": {
         "@wppconnect-team/wppconnect": "^1.24.0",
@@ -331,8 +263,7 @@ cat > package.json << 'PKGEOF'
         "chalk": "^4.1.2",
         "node-cron": "^3.0.3",
         "mercadopago": "^2.0.15",
-        "axios": "^1.6.5",
-        "node-ssh": "^13.1.0"
+        "axios": "^1.6.5"
     }
 }
 PKGEOF
@@ -340,8 +271,8 @@ PKGEOF
 echo -e "${YELLOW}📦 Instalando dependencias...${NC}"
 npm install --silent 2>&1 | grep -v "npm WARN" || true
 
-# Crear bot.js MULTI-SERVIDOR
-echo -e "${YELLOW}📝 Creando bot.js con soporte multi-servidor...${NC}"
+# Crear bot.js con HWID (flujo nombre -> HWID) - SIN PLAN DE 50 DÍAS
+echo -e "${YELLOW}📝 Creando bot.js con flujo nombre -> HWID (prueba 2 horas, sin plan 50d)...${NC}"
 
 cat > "bot.js" << 'BOTEOF'
 const wppconnect = require('@wppconnect-team/wppconnect');
@@ -356,14 +287,16 @@ const cron = require('node-cron');
 const fs = require('fs');
 const path = require('path');
 const axios = require('axios');
-const { NodeSSH } = require('node-ssh');
 
 const execPromise = util.promisify(exec);
 moment.locale('es');
 
 console.log(chalk.cyan.bold('\n╔══════════════════════════════════════════════════════════════╗'));
-console.log(chalk.cyan.bold('║        🤖 SSH BOT PRO - VERSIÓN MULTI-SERVIDOR              ║'));
-console.log(chalk.cyan.bold('║        🌐 SOPORTE PARA MÚLTIPLES MÁQUINAS                   ║'));
+console.log(chalk.cyan.bold('║           🤖 SSH BOT PRO - HWID + MERCADOPAGO                ║'));
+console.log(chalk.cyan.bold('║           📝 FLUJO: PRIMERO NOMBRE, LUEGO HWID                ║'));
+console.log(chalk.cyan.bold('║           ⏱️  PRUEBA: 2 HORAS                                 ║'));
+console.log(chalk.cyan.bold('║           🚫 PLAN 50 DÍAS ELIMINADO                           ║'));
+console.log(chalk.cyan.bold('║           ⏰ NOTIFICACIONES DE VENCIMIENTO                    ║'));
 console.log(chalk.cyan.bold('╚══════════════════════════════════════════════════════════════╝\n'));
 
 // Cargar configuración
@@ -372,26 +305,7 @@ function loadConfig() {
     return require('/opt/sshbot-pro/config/config.json');
 }
 
-function loadServers() {
-    try {
-        delete require.cache[require.resolve('/opt/sshbot-pro/config/servers.json')];
-        return require('/opt/sshbot-pro/config/servers.json');
-    } catch (error) {
-        console.log(chalk.yellow('⚠️ No hay servidores configurados, usando modo local'));
-        return [{
-            id: 1,
-            name: 'Servidor Local',
-            ip: '127.0.0.1',
-            local: true,
-            max_users: 999,
-            current_users: 0,
-            status: 'active'
-        }];
-    }
-}
-
 let config = loadConfig();
-let servers = loadServers();
 const db = new sqlite3.Database('/opt/sshbot-pro/data/hwid.db');
 
 // ✅ MERCADOPAGO SDK V2.X
@@ -429,157 +343,15 @@ initMercadoPago();
 
 let client = null;
 
-// ✅ FUNCIONES PARA CONEXIÓN SSH A SERVIDORES
-const ssh = new NodeSSH();
-
-async function connectToServer(server) {
-    if (server.local) {
-        return { local: true };
-    }
-    
-    try {
-        await ssh.connect({
-            host: server.ip,
-            username: server.ssh_user,
-            password: server.ssh_password,
-            port: server.ssh_port || 22,
-            readyTimeout: 10000
-        });
-        return ssh;
-    } catch (error) {
-        console.error(chalk.red(`❌ Error conectando a ${server.name}:`), error.message);
-        return null;
-    }
-}
-
-async function createUserOnServer(server, username, password, days) {
-    if (server.local) {
-        // Crear usuario localmente
-        try {
-            if (days === 0) {
-                // Test - expira en horas
-                await execPromise(`useradd -M -s /bin/false ${username} && echo "${username}:${password}" | chpasswd`);
-            } else {
-                const expireDate = moment().add(days, 'days').format('YYYY-MM-DD');
-                await execPromise(`useradd -M -s /bin/false -e ${expireDate} ${username} && echo "${username}:${password}" | chpasswd`);
-            }
-            return { success: true };
-        } catch (error) {
-            return { success: false, error: error.message };
-        }
-    }
-    
-    const connection = await connectToServer(server);
-    if (!connection) return { success: false, error: "Conexión fallida" };
-    
-    try {
-        const expireDate = moment().add(days, 'days').format('YYYY-MM-DD');
-        
-        if (days === 0) {
-            await connection.execCommand(`useradd -M -s /bin/false ${username}`);
-        } else {
-            await connection.execCommand(`useradd -M -s /bin/false -e ${expireDate} ${username}`);
-        }
-        
-        await connection.execCommand(`echo "${username}:${password}" | chpasswd`);
-        
-        // Actualizar contador
-        server.current_users++;
-        
-        connection.dispose();
-        return { success: true };
-    } catch (error) {
-        connection.dispose();
-        return { success: false, error: error.message };
-    }
-}
-
-async function deleteUserFromServer(server, username) {
-    if (server.local) {
-        try {
-            await execPromise(`pkill -u ${username} 2>/dev/null || true`);
-            await execPromise(`userdel -f ${username} 2>/dev/null || true`);
-            return true;
-        } catch (error) {
-            return false;
-        }
-    }
-    
-    const connection = await connectToServer(server);
-    if (!connection) return false;
-    
-    try {
-        await connection.execCommand(`pkill -u ${username}`);
-        await connection.execCommand(`userdel -f ${username}`);
-        server.current_users--;
-        connection.dispose();
-        return true;
-    } catch (error) {
-        connection.dispose();
-        return false;
-    }
-}
-
-async function getServerStats() {
-    const stats = [];
-    
-    for (const server of servers) {
-        if (server.local) {
-            // Estadísticas locales
-            const result = await execPromise('w | grep -c "pts" || echo "0"');
-            const active = parseInt(result.stdout) || 0;
-            
-            const totalUsers = await new Promise((resolve) => {
-                db.get('SELECT COUNT(*) as count FROM hwid_users WHERE server_id = ? AND status = 1', 
-                    [server.id], (err, row) => resolve(row?.count || 0));
-            });
-            
-            stats.push({
-                id: server.id,
-                name: server.name,
-                ip: 'local',
-                active_connections: active,
-                total_users: totalUsers,
-                max_users: server.max_users,
-                status: 'active'
-            });
-        } else {
-            const connection = await connectToServer(server);
-            if (connection) {
-                const result = await connection.execCommand('w | grep -c "pts"');
-                const active = parseInt(result.stdout) || 0;
-                
-                stats.push({
-                    id: server.id,
-                    name: server.name,
-                    ip: server.ip,
-                    active_connections: active,
-                    total_users: server.current_users,
-                    max_users: server.max_users,
-                    status: 'active'
-                });
-                connection.dispose();
-            } else {
-                stats.push({
-                    id: server.id,
-                    name: server.name,
-                    ip: server.ip,
-                    status: 'offline'
-                });
-            }
-        }
-    }
-    
-    return stats;
-}
-
 // ✅ FUNCIONES PARA HWID
 function validateHWID(hwid) {
+    // Formato esperado: APP-E3E4D5CBB7636907
     const hwidRegex = /^APP-[A-F0-9]{16}$/;
     return hwidRegex.test(hwid);
 }
 
 function normalizeHWID(hwid) {
+    // Asegurar formato consistente
     hwid = hwid.trim().toUpperCase();
     if (!hwid.startsWith('APP-')) {
         hwid = 'APP-' + hwid.replace(/[^A-F0-9]/g, '');
@@ -605,20 +377,6 @@ function getHWIDInfo(hwid) {
     });
 }
 
-// ✅ FUNCIÓN PARA SELECCIONAR SERVIDOR (balance de carga)
-function selectBestServer() {
-    const activeServers = servers.filter(s => s.status === 'active' && s.current_users < s.max_users);
-    
-    if (activeServers.length === 0) {
-        return null;
-    }
-    
-    // Ordenar por menor cantidad de usuarios
-    activeServers.sort((a, b) => a.current_users - b.current_users);
-    return activeServers[0];
-}
-
-// ✅ REGISTRO HWID CON SELECCIÓN AUTOMÁTICA DE SERVIDOR
 async function registerHWID(phone, nombre, hwid, days, tipo = 'premium') {
     try {
         // Verificar si HWID ya existe
@@ -632,36 +390,21 @@ async function registerHWID(phone, nombre, hwid, days, tipo = 'premium') {
             return { success: false, error: 'HWID ya registrado en el sistema' };
         }
 
-        // Seleccionar servidor
-        const selectedServer = selectBestServer();
-        if (!selectedServer) {
-            return { success: false, error: 'No hay servidores disponibles' };
-        }
-
-        // Generar credenciales
-        const username = `user${Math.floor(1000 + Math.random() * 9000)}`;
-        const password = 'mgvpn247';
-
         let expireFull;
         if (days === 0) {
+            // Test - 2 horas (CORREGIDO)
             expireFull = moment().add(2, 'hours').format('YYYY-MM-DD HH:mm:ss');
+            console.log(chalk.cyan(`⏱️  Prueba 2 horas - Expira: ${expireFull}`));
         } else {
+            // Premium
             expireFull = moment().add(days, 'days').format('YYYY-MM-DD 23:59:59');
-        }
-
-        // Crear usuario en el servidor seleccionado
-        const serverResult = await createUserOnServer(selectedServer, username, password, days);
-        
-        if (!serverResult.success) {
-            return { success: false, error: `Error en servidor: ${serverResult.error}` };
         }
 
         // Registrar en BD
         await new Promise((resolve, reject) => {
             db.run(
-                `INSERT INTO hwid_users (phone, nombre, hwid, tipo, expires_at, status, server_id, username, password) 
-                 VALUES (?, ?, ?, ?, ?, 1, ?, ?, ?)`,
-                [phone, nombre, hwid, tipo, expireFull, selectedServer.id, username, password],
+                `INSERT INTO hwid_users (phone, nombre, hwid, tipo, expires_at, status) VALUES (?, ?, ?, ?, ?, 1)`,
+                [phone, nombre, hwid, tipo, expireFull],
                 function(err) {
                     if (err) reject(err);
                     else resolve(this.lastID);
@@ -669,13 +412,14 @@ async function registerHWID(phone, nombre, hwid, days, tipo = 'premium') {
             );
         });
 
+        // Registrar intento
+        db.run(`INSERT INTO hwid_attempts (hwid, phone, nombre, action) VALUES (?, ?, ?, 'registered')`, 
+            [hwid, phone, nombre]);
+
         return { 
             success: true, 
             hwid,
             nombre,
-            username,
-            password,
-            server: selectedServer.name,
             expires: expireFull,
             tipo
         };
@@ -747,7 +491,7 @@ async function createMercadoPagoPayment(phone, days, amount, planName) {
         const preferenceData = {
             items: [{
                 title: `HWID SSH PREMIUM ${days} DÍAS`,
-                description: `Activación HWID SSH por ${days} días - Acceso multi-servidor`,
+                description: `Activación HWID SSH por ${days} días - SIN USUARIO/CONTRASEÑA`,
                 quantity: 1,
                 currency_id: config.prices.currency || 'ARS',
                 unit_price: parseFloat(amount)
@@ -829,6 +573,7 @@ async function checkPendingPayments() {
                         db.run(`UPDATE payments SET status = 'approved', approved_at = CURRENT_TIMESTAMP WHERE payment_id = ?`, 
                             [payment.payment_id]);
                         
+                        // Enviar mensaje pidiendo NOMBRE primero
                         const message = `✅ PAGO CONFIRMADO
 
 🎉 Tu pago ha sido aprobado
@@ -855,19 +600,18 @@ Para continuar con la activación, dime tu nombre
     });
 }
 
-// ✅ NOTIFICACIONES DE VENCIMIENTO
+// ✅ NOTIFICACIONES DE VENCIMIENTO (NUEVO)
 async function checkExpiringHWIDs() {
     try {
+        // Buscar HWIDs que expiran en las próximas 24 horas
         const expiringSoon = await new Promise((resolve, reject) => {
             db.all(`
-                SELECT h.*, s.name as server_name 
-                FROM hwid_users h
-                LEFT JOIN json_each((SELECT json(?))) AS s ON s.value->>'id' = h.server_id
-                WHERE h.status = 1 
-                AND h.expires_at > datetime('now') 
-                AND h.expires_at < datetime('now', '+1 day')
-                AND h.tipo = 'premium'
-            `, [JSON.stringify(servers)], (err, rows) => {
+                SELECT * FROM hwid_users 
+                WHERE status = 1 
+                AND expires_at > datetime('now') 
+                AND expires_at < datetime('now', '+1 day')
+                AND tipo = 'premium'
+            `, (err, rows) => {
                 if (err) reject(err);
                 else resolve(rows || []);
             });
@@ -875,81 +619,57 @@ async function checkExpiringHWIDs() {
 
         for (const hwid of expiringSoon) {
             const hoursLeft = moment(hwid.expires_at).diff(moment(), 'hours');
-            const serverName = hwid.server_name || 'Servidor Principal';
-            
             const message = `⏰ RECORDATORIO DE VENCIMIENTO
 
 Hola ${hwid.nombre}, tu acceso expirará en aproximadamente ${hoursLeft} horas.
 
 🔐 HWID: ${hwid.hwid}
-🌐 Servidor: ${serverName}
-⏰ Vence: ${moment(hwid.expires_at).format('DD/MM/YYYY HH:mm')}
+⏰ Fecha de vencimiento: ${moment(hwid.expires_at).format('DD/MM/YYYY HH:mm')}
 
-💰 Para renovar, envía 2 y elige tu plan.`;
+💰 Para renovar, envía 2 y elige tu plan.
+
+¡No te quedes sin servicio!`;
             
             if (client) {
                 await client.sendText(hwid.phone, message);
-                console.log(chalk.yellow(`📨 Notificación enviada a ${hwid.nombre} - Servidor: ${serverName}`));
+                console.log(chalk.yellow(`📨 Notificación enviada a ${hwid.nombre} - Expira en ${hoursLeft} horas`));
             }
         }
 
+        // Buscar HWIDs que expiraron en las últimas 24 horas (para recordatorio post-vencimiento)
         const expired = await new Promise((resolve, reject) => {
             db.all(`
-                SELECT h.*, s.name as server_name 
-                FROM hwid_users h
-                LEFT JOIN json_each((SELECT json(?))) AS s ON s.value->>'id' = h.server_id
-                WHERE h.status = 0 
-                AND h.expires_at > datetime('now', '-1 day')
-                AND h.expires_at < datetime('now')
-                AND h.tipo = 'premium'
-            `, [JSON.stringify(servers)], (err, rows) => {
+                SELECT * FROM hwid_users 
+                WHERE status = 0 
+                AND expires_at > datetime('now', '-1 day')
+                AND expires_at < datetime('now')
+                AND tipo = 'premium'
+            `, (err, rows) => {
                 if (err) reject(err);
                 else resolve(rows || []);
             });
         });
 
         for (const hwid of expired) {
-            const serverName = hwid.server_name || 'Servidor Principal';
-            
             const message = `⏰ SERVICIO EXPIRADO
 
 Hola ${hwid.nombre}, tu acceso ha expirado.
 
 🔐 HWID: ${hwid.hwid}
-🌐 Servidor: ${serverName}
 ⏰ Expiró: ${moment(hwid.expires_at).format('DD/MM/YYYY HH:mm')}
 
-💰 Para renovar, envía 2 y elige tu plan.`;
+💰 Para renovar, envía 2 y elige tu plan.
+
+¡Renueva ahora y sigue disfrutando!`;
             
             if (client) {
                 await client.sendText(hwid.phone, message);
-                console.log(chalk.yellow(`📨 Notificación post-vencimiento a ${hwid.nombre}`));
+                console.log(chalk.yellow(`📨 Notificación post-vencimiento enviada a ${hwid.nombre}`));
             }
         }
 
     } catch (error) {
-        console.error(chalk.red('❌ Error en notificaciones:'), error.message);
-    }
-}
-
-// ✅ LIMPIEZA DE USUARIOS EXPIRADOS EN TODOS LOS SERVIDORES
-async function cleanupExpiredUsers() {
-    console.log(chalk.yellow('🧹 Limpiando usuarios expirados en todos los servidores...'));
-    
-    const expiredUsers = await new Promise((resolve, reject) => {
-        db.all('SELECT * FROM hwid_users WHERE expires_at < datetime("now") AND status = 1', (err, rows) => {
-            if (err) reject(err);
-            else resolve(rows || []);
-        });
-    });
-
-    for (const user of expiredUsers) {
-        const server = servers.find(s => s.id === user.server_id);
-        if (server) {
-            await deleteUserFromServer(server, user.username);
-            db.run('UPDATE hwid_users SET status = 0 WHERE id = ?', [user.id]);
-            console.log(chalk.green(`✅ Usuario ${user.username} eliminado del servidor ${server.name}`));
-        }
+        console.error(chalk.red('❌ Error en notificaciones de vencimiento:'), error.message);
     }
 }
 
@@ -959,7 +679,7 @@ async function initializeBot() {
         console.log(chalk.yellow('🚀 Inicializando WPPConnect...'));
         
         client = await wppconnect.create({
-            session: 'sshbot-pro-multi',
+            session: 'sshbot-pro-hwid',
             headless: true,
             devtools: false,
             useChrome: true,
@@ -1006,20 +726,16 @@ async function initializeBot() {
                 if (['menu', 'hola', 'start', 'hi', 'volver', '0'].includes(text)) {
                     await setUserState(from, 'main_menu');
                     
-                    const stats = await getServerStats();
-                    const onlineServers = stats.filter(s => s.status === 'active').length;
-                    
                     await client.sendText(from, `HOLA BIENVENIDO BOT MGVPN 🚀
 
-🌐 Servidores disponibles: ${onlineServers}
+NUEVA APP CON HWID ACTUALIZALA!
 
 Elija una opción:
 
  1️⃣ - PROBAR INTERNET (2 horas gratis)
  2️⃣ - COMPRAR INTERNET
  3️⃣ - VERIFICAR MI HWID
- 4️⃣ - DESCARGAR APLICACIÓN
- 5️⃣ - VER ESTADO DE SERVIDORES`);
+ 4️⃣ - DESCARGAR APLICACIÓN`);
                 }
                 
                 // OPCIÓN 1: PRUEBA
@@ -1031,7 +747,7 @@ Elija una opción:
 Primero, dime tu nombre:`);
                 }
                 
-                // OPCIÓN 2: COMPRAR
+                // OPCIÓN 2: COMPRAR (SIN PLAN DE 50 DÍAS)
                 else if (text === '2' && userState.state === 'main_menu') {
                     await setUserState(from, 'buying_hwid');
                     
@@ -1042,7 +758,6 @@ Selecciona un plan:
  1️⃣ - 7 DÍAS - $${config.prices.price_7d}
  2️⃣ - 15 DÍAS - $${config.prices.price_15d}
  3️⃣ - 30 DÍAS - $${config.prices.price_30d}
- 4️⃣ - 50 DÍAS - $${config.prices.price_50d}
 
  0️⃣ - VOLVER
 
@@ -1060,7 +775,7 @@ Envía tu HWID para verificar si está activo:
 Ejemplo: APP-E3E4D5CBB7636907`);
                 }
                 
-                // OPCIÓN 4: DESCARGAR APP
+                // OPCIÓN 4: DESCARGAR APP (USA LA URL CONFIGURABLE)
                 else if (text === '4' && userState.state === 'main_menu') {
                     await client.sendText(from, `📱 DESCARGAR APLICACIÓN
 
@@ -1069,26 +784,8 @@ ${config.links.app_download}
 
 💡 Instrucciones:
 1. Abre el link y descarga el APK
-2. Abre el apk y haz click en "Más detalles"
+2. Abre el apk, click en "Más detalles"
 3. Click en "Instalar de todas formas"`);
-                }
-                
-                // OPCIÓN 5: VER SERVIDORES
-                else if (text === '5' && userState.state === 'main_menu') {
-                    const stats = await getServerStats();
-                    let message = "🌐 ESTADO DE SERVIDORES\n\n";
-                    
-                    stats.forEach(s => {
-                        if (s.status === 'active') {
-                            message += `✅ ${s.name}\n`;
-                            message += `   • Conexiones: ${s.active_connections}\n`;
-                            message += `   • Usuarios: ${s.total_users}/${s.max_users}\n\n`;
-                        } else {
-                            message += `❌ ${s.name} - OFFLINE\n\n`;
-                        }
-                    });
-                    
-                    await client.sendText(from, message);
                 }
                 
                 // PROCESAR NOMBRE PARA PRUEBA
@@ -1100,6 +797,7 @@ ${config.links.app_download}
                         return;
                     }
                     
+                    // Guardar nombre y pasar a pedir HWID
                     await setUserState(from, 'awaiting_test_hwid', { nombre });
                     
                     await client.sendText(from, `✅ Gracias ${nombre}
@@ -1131,6 +829,7 @@ Envía el HWID nuevamente o escribe MENU para volver`);
                         return;
                     }
                     
+                    // Verificar prueba diaria
                     if (!(await canCreateTest(from))) {
                         await client.sendText(from, `❌ YA USASTE TU PRUEBA HOY
 
@@ -1139,6 +838,7 @@ Envía el HWID nuevamente o escribe MENU para volver`);
                         return;
                     }
                     
+                    // Verificar si HWID ya está registrado
                     const active = await isHWIDActive(hwid);
                     if (active) {
                         await client.sendText(from, `❌ Este HWID ya está activo en el sistema
@@ -1160,16 +860,14 @@ Si crees que es un error, contacta soporte.`);
                         await client.sendText(from, `✅ PRUEBA ACTIVADA ${nombre}
 
 🔐 HWID: ${hwid}
-🌐 Servidor: ${result.server}
-👤 Usuario: ${result.username}
-🔑 Contraseña: ${result.password}
 ⏰ Expira: ${expireTime}
 ⚡ Tipo: PRUEBA (2 horas)
 
-📱 Abre la aplicación y configura con estos datos
+📱 Abre la aplicación y ya puedes conectarte
+
 `);
                         
-                        console.log(chalk.green(`✅ HWID test: ${hwid} - ${nombre} en ${result.server}`));
+                        console.log(chalk.green(`✅ HWID test: ${hwid} - ${nombre} - Expira: ${result.expires}`));
                     } else {
                         await client.sendText(from, `❌ Error: ${result.error}`);
                     }
@@ -1177,13 +875,12 @@ Si crees que es un error, contacta soporte.`);
                     await setUserState(from, 'main_menu');
                 }
                 
-                // PROCESAR PLAN DE COMPRA
-                else if (userState.state === 'buying_hwid' && ['1','2','3','4'].includes(text)) {
+                // PROCESAR PLAN DE COMPRA (SIN PLAN 50 DÍAS)
+                else if (userState.state === 'buying_hwid' && ['1','2','3'].includes(text)) {
                     const planMap = {
                         '1': { days: 7, price: config.prices.price_7d, name: '7 DÍAS' },
                         '2': { days: 15, price: config.prices.price_15d, name: '15 DÍAS' },
-                        '3': { days: 30, price: config.prices.price_30d, name: '30 DÍAS' },
-                        '4': { days: 50, price: config.prices.price_50d, name: '50 DÍAS' }
+                        '3': { days: 30, price: config.prices.price_30d, name: '30 DÍAS' }
                     };
                     
                     const plan = planMap[text];
@@ -1231,7 +928,7 @@ ${payment.paymentUrl}
 
 ${payment.error}
 
-Contacta al administrador.`);
+Contacta al administrador para otras opciones de pago.`);
                         }
                         
                         await setUserState(from, 'main_menu');
@@ -1241,28 +938,22 @@ Contacta al administrador.`);
 Precio: $${plan.price} ARS
 Duración: ${plan.days} días
 
-Para continuar, contacta al administrador:
+Para continuar con la compra, contacta al administrador:
 ${config.links.support}`);
                         await setUserState(from, 'main_menu');
                     }
                 }
                 
                 else if (text === '0' && userState.state === 'buying_hwid') {
-                    const stats = await getServerStats();
-                    const onlineServers = stats.filter(s => s.status === 'active').length;
-                    
                     await setUserState(from, 'main_menu');
                     await client.sendText(from, `HOLA BIENVENIDO BOT HWID 🚀
-
-🌐 Servidores disponibles: ${onlineServers}
 
 Elija una opción:
 
  1️⃣ - PROBAR INTERNET (2 horas gratis)
  2️⃣ - COMPRAR INTERNET
  3️⃣ - VERIFICAR MI HWID
- 4️⃣ - DESCARGAR APLICACIÓN
- 5️⃣ - VER ESTADO DE SERVIDORES`);
+ 4️⃣ - DESCARGAR APLICACIÓN`);
                 }
                 
                 // PROCESAR HWID PARA VERIFICACIÓN
@@ -1282,8 +973,6 @@ Intenta nuevamente o MENU`);
                     const info = await getHWIDInfo(hwid);
                     
                     if (info && info.status === 1) {
-                        const server = servers.find(s => s.id === info.server_id);
-                        const serverName = server ? server.name : 'Servidor Principal';
                         const expires = moment(info.expires_at).format('DD/MM/YYYY HH:mm');
                         const now = moment();
                         const expiresMoment = moment(info.expires_at);
@@ -1295,7 +984,6 @@ Intenta nuevamente o MENU`);
 
 👤 Usuario: ${nombre}
 🔐 HWID: ${hwid}
-🌐 Servidor: ${serverName}
 📅 Tipo: ${info.tipo === 'test' ? 'PRUEBA' : 'PREMIUM'}
 ⏰ Válido hasta: ${expires}
 ⌛ Tiempo restante: ${remaining}`);
@@ -1304,7 +992,6 @@ Intenta nuevamente o MENU`);
 
 👤 Usuario: ${nombre}
 🔐 HWID: ${hwid}
-🌐 Servidor: ${serverName}
 📅 Expiró: ${expires}
 
 Renueva comprando un nuevo plan`);
@@ -1321,8 +1008,9 @@ Envía 1 para prueba gratis (2 horas)`);
                     await setUserState(from, 'main_menu');
                 }
                 
-                // ESPERANDO NOMBRE Y HWID DESPUÉS DE PAGO
+                // ESPERANDO NOMBRE Y HWID DESPUÉS DE PAGO (PRIMERO NOMBRE, LUEGO HWID)
                 else if (userState.state === 'awaiting_hwid') {
+                    // Si NO tenemos nombre guardado, lo que llega es el nombre
                     if (!userState.data.nombre) {
                         const nombre = message.body.trim();
                         
@@ -1331,6 +1019,7 @@ Envía 1 para prueba gratis (2 horas)`);
                             return;
                         }
                         
+                        // Guardar el nombre y pasar a esperar HWID
                         userState.data.nombre = nombre;
                         await setUserState(from, 'awaiting_hwid', userState.data);
                         
@@ -1347,6 +1036,7 @@ Formato: APP-E3E4D5CBB7636907
                         return;
                     }
                     
+                    // Si ya tenemos nombre, lo que llega es el HWID
                     const rawHwid = message.body;
                     const hwid = normalizeHWID(rawHwid);
                     const nombre = userState.data.nombre;
@@ -1360,6 +1050,7 @@ Envía el HWID nuevamente:`);
                         return;
                     }
                     
+                    // Verificar si HWID ya está activo
                     const active = await isHWIDActive(hwid);
                     if (active) {
                         await client.sendText(from, `❌ Este HWID ya está activo
@@ -1370,6 +1061,7 @@ Si es tuyo, contacta soporte.`);
                     
                     await client.sendText(from, '⏳ Activando tu HWID...');
                     
+                    // Activar HWID
                     const result = await registerHWID(
                         from, 
                         nombre,
@@ -1379,22 +1071,20 @@ Si es tuyo, contacta soporte.`);
                     );
                     
                     if (result.success) {
-                        db.run(`UPDATE payments SET hwid = ?, nombre = ?, server_id = ?, username = ? WHERE payment_id = ?`,
-                            [hwid, nombre, result.server, result.username, userState.data.payment_id]);
+                        // Actualizar pago con HWID y nombre
+                        db.run(`UPDATE payments SET hwid = ?, nombre = ? WHERE payment_id = ?`,
+                            [hwid, nombre, userState.data.payment_id]);
                         
                         const expireDate = moment(result.expires).format('DD/MM/YYYY');
                         
                         await client.sendText(from, `✅ ¡ACTIVADO ${nombre}!
 
 🔐 HWID: ${hwid}
-🌐 Servidor: ${result.server}
-👤 Usuario: ${result.username}
-🔑 Contraseña: ${result.password}
 ⏰ Válido hasta: ${expireDate}
 
 ¡Ya puedes usar la aplicación!`);
                         
-                        console.log(chalk.green(`✅ HWID premium: ${hwid} - ${nombre} en ${result.server}`));
+                        console.log(chalk.green(`✅ HWID premium: ${hwid} - ${nombre}`));
                     } else {
                         await client.sendText(from, `❌ Error: ${result.error}`);
                     }
@@ -1407,21 +1097,27 @@ Si es tuyo, contacta soporte.`);
             }
         });
         
-        // ✅ CRON JOBS
+        // ✅ VERIFICAR PAGOS CADA 2 MINUTOS
         cron.schedule('*/2 * * * *', () => {
             console.log(chalk.yellow('🔄 Verificando pagos pendientes...'));
             checkPendingPayments();
         });
         
+        // ✅ NOTIFICACIONES DE VENCIMIENTO CADA HORA (NUEVO)
         cron.schedule('0 * * * *', () => {
             console.log(chalk.yellow('⏰ Verificando HWIDs próximos a vencer...'));
             checkExpiringHWIDs();
         });
         
-        cron.schedule('*/30 * * * *', async () => {
-            await cleanupExpiredUsers();
+        // ✅ LIMPIAR HWIDS EXPIRADOS
+        cron.schedule('*/15 * * * *', async () => {
+            const now = moment().format('YYYY-MM-DD HH:mm:ss');
+            console.log(chalk.yellow(`🧹 Limpiando HWIDs expirados...`));
+            
+            db.run('UPDATE hwid_users SET status = 0 WHERE expires_at < ? AND status = 1', [now]);
         });
         
+        // ✅ LIMPIAR ESTADOS
         cron.schedule('0 * * * *', () => {
             db.run(`DELETE FROM user_state WHERE updated_at < datetime('now', '-1 hour')`);
         });
@@ -1445,20 +1141,19 @@ process.on('SIGINT', async () => {
 });
 BOTEOF
 
-echo -e "${GREEN}✅ Bot MULTI-SERVIDOR creado${NC}"
+echo -e "${GREEN}✅ Bot HWID creado con flujo nombre -> HWID (prueba 2 HORAS, sin plan 50d)${NC}"
 
 # ================================================
-# CREAR PANEL DE CONTROL MULTI-SERVIDOR
+# CREAR PANEL DE CONTROL PARA HWID
 # ================================================
-echo -e "\n${CYAN}🎛️  Creando panel de control MULTI-SERVIDOR...${NC}"
+echo -e "\n${CYAN}🎛️  Creando panel de control HWID...${NC}"
 
-cat > /usr/local/bin/sshbot << 'PANELEOF'
+cat > /usr/local/bin/sshbot-hwid << 'PANELEOF'
 #!/bin/bash
 RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[0;33m'; CYAN='\033[0;36m'; BLUE='\033[0;34m'; PURPLE='\033[0;35m'; NC='\033[0m'
 
 DB="/opt/sshbot-pro/data/hwid.db"
 CONFIG="/opt/sshbot-pro/config/config.json"
-SERVERS="/opt/sshbot-pro/config/servers.json"
 
 get_val() { jq -r "$1" "$CONFIG" 2>/dev/null; }
 set_val() { local t=$(mktemp); jq "$1 = $2" "$CONFIG" > "$t" && mv "$t" "$CONFIG"; }
@@ -1487,8 +1182,11 @@ test_mercadopago() {
 show_header() {
     clear
     echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
-    echo -e "${CYAN}║        🎛️  PANEL SSH BOT PRO - VERSIÓN MULTI-SERVIDOR       ║${NC}"
-    echo -e "${CYAN}║              🌐 SOPORTE PARA MÚLTIPLES MÁQUINAS             ║${NC}"
+    echo -e "${CYAN}║           🎛️  PANEL SSH BOT PRO - VERSIÓN HWID              ║${NC}"
+    echo -e "${CYAN}║              🔐 SIN USUARIO/CONTRASEÑA                      ║${NC}"
+    echo -e "${CYAN}║              ⏱️  PRUEBA: 2 HORAS                            ║${NC}"
+    echo -e "${CYAN}║              🚫 SIN PLAN 50 DÍAS                           ║${NC}"
+    echo -e "${CYAN}║              ⏰ NOTIFICACIONES DE VENCIMIENTO               ║${NC}"
     echo -e "${CYAN}╚══════════════════════════════════════════════════════════════╝${NC}\n"
 }
 
@@ -1500,10 +1198,6 @@ while true; do
     PENDING_PAYMENTS=$(sqlite3 "$DB" "SELECT COUNT(*) FROM payments WHERE status='pending'" 2>/dev/null || echo "0")
     APPROVED_PAYMENTS=$(sqlite3 "$DB" "SELECT COUNT(*) FROM payments WHERE status='approved'" 2>/dev/null || echo "0")
     TESTS_TODAY=$(sqlite3 "$DB" "SELECT COUNT(*) FROM daily_tests WHERE date = date('now')" 2>/dev/null || echo "0")
-    
-    # Contar servidores
-    TOTAL_SERVERS=$(jq '. | length' "$SERVERS" 2>/dev/null || echo "1")
-    ACTIVE_SERVERS=$(jq '[.[] | select(.status=="active")] | length' "$SERVERS" 2>/dev/null || echo "1")
     
     STATUS=$(pm2 jlist 2>/dev/null | jq -r '.[] | select(.name=="sshbot-pro") | .pm2_env.status' 2>/dev/null || echo "stopped")
     if [[ "$STATUS" == "online" ]]; then
@@ -1519,22 +1213,27 @@ while true; do
         MP_STATUS="${RED}❌ NO CONFIGURADO${NC}"
     fi
     
+    APP_URL=$(get_val '.links.app_download')
+    
     echo -e "${YELLOW}📊 ESTADO DEL SISTEMA${NC}"
     echo -e "  Bot: $BOT_STATUS"
-    echo -e "  Servidores: ${CYAN}$ACTIVE_SERVERS/$TOTAL_SERVERS${NC} activos"
     echo -e "  HWIDs: ${CYAN}$ACTIVE_HWID/$TOTAL_HWID${NC} activos/total"
     echo -e "  Tests hoy: ${CYAN}$TESTS_TODAY${NC}"
     echo -e "  Pagos: ${CYAN}$PENDING_PAYMENTS${NC} pend | ${GREEN}$APPROVED_PAYMENTS${NC} aprob"
     echo -e "  MercadoPago: $MP_STATUS"
-    echo -e "  IP Principal: $(get_val '.bot.server_ip')"
+    echo -e "  IP: $(get_val '.bot.server_ip')"
     echo -e "  ⏱️  Prueba: ${YELLOW}2 HORAS${NC}"
+    echo -e "  ⏰  Notificaciones: ${GREEN}ACTIVAS (cada hora)${NC}"
     echo -e ""
     
     echo -e "${YELLOW}💰 PRECIOS ACTUALES:${NC}"
     echo -e "  7 días: $ $(get_val '.prices.price_7d') ARS"
     echo -e "  15 días: $ $(get_val '.prices.price_15d') ARS"
     echo -e "  30 días: $ $(get_val '.prices.price_30d') ARS"
-    echo -e "  50 días: $ $(get_val '.prices.price_50d') ARS"
+    echo -e ""
+    
+    echo -e "${YELLOW}📱 URL DE DESCARGA:${NC}"
+    echo -e "  ${CYAN}${APP_URL}${NC}"
     echo -e ""
     
     echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
@@ -1551,8 +1250,7 @@ while true; do
     echo -e "${CYAN}[11]${NC} 💳 Ver pagos"
     echo -e "${CYAN}[12]${NC} 🔍 Buscar HWID"
     echo -e "${CYAN}[13]${NC} 🧪 Ver tests hoy"
-    echo -e "${CYAN}[14]${NC} 🌐  Administrar servidores"
-    echo -e "${CYAN}[15]${NC} 📈  Ver estado servidores"
+    echo -e "${CYAN}[14]${NC} 📱 Configurar URL de descarga"
     echo -e "${CYAN}[0]${NC} 🚪  Salir"
     echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo -e ""
@@ -1582,18 +1280,11 @@ while true; do
             clear
             echo -e "${CYAN}🔐 REGISTRAR HWID MANUAL${NC}\n"
             
-            # Mostrar servidores disponibles
-            echo -e "${YELLOW}Servidores disponibles:${NC}"
-            jq -r '.[] | "  \(.id) - \(.name) (\(.ip))"' "$SERVERS" 2>/dev/null || echo "  No hay servidores configurados"
-            echo ""
-            
-            read -p "ID del servidor (1 por defecto): " SERVER_ID
-            SERVER_ID=${SERVER_ID:-1}
             read -p "Teléfono (ej: 5491122334455): " PHONE
             read -p "Nombre del usuario: " NOMBRE
             read -p "HWID (formato: APP-E3E4D5CBB7636907): " HWID
             read -p "Tipo (test/premium): " TIPO
-            read -p "Días (0=test 2h, 7,15,30,50): " DAYS
+            read -p "Días (0=test 2h, 7,15,30): " DAYS
             
             [[ -z "$DAYS" ]] && DAYS="30"
             
@@ -1605,9 +1296,6 @@ while true; do
                 continue
             fi
             
-            USERNAME="user$(shuf -i 1000-9999 -n 1)"
-            PASSWORD="mgvpn247"
-            
             if [[ "$TIPO" == "test" ]]; then
                 DAYS="0"
                 EXPIRE_DATE=$(date -d "+2 hours" +"%Y-%m-%d %H:%M:%S")
@@ -1615,15 +1303,13 @@ while true; do
                 EXPIRE_DATE=$(date -d "+$DAYS days" +"%Y-%m-%d 23:59:59")
             fi
             
-            sqlite3 "$DB" "INSERT INTO hwid_users (phone, nombre, hwid, tipo, expires_at, status, server_id, username, password) VALUES ('$PHONE', '$NOMBRE', '$HWID', '$TIPO', '$EXPIRE_DATE', 1, $SERVER_ID, '$USERNAME', '$PASSWORD')"
+            sqlite3 "$DB" "INSERT INTO hwid_users (phone, nombre, hwid, tipo, expires_at, status) VALUES ('$PHONE', '$NOMBRE', '$HWID', '$TIPO', '$EXPIRE_DATE', 1)"
             
             if [[ $? -eq 0 ]]; then
                 echo -e "\n${GREEN}✅ HWID REGISTRADO${NC}"
                 echo -e "📱 Teléfono: ${PHONE}"
                 echo -e "👤 Nombre: ${NOMBRE}"
                 echo -e "🔐 HWID: ${HWID}"
-                echo -e "👤 Usuario SSH: ${USERNAME}"
-                echo -e "🔑 Contraseña: ${PASSWORD}"
                 echo -e "⏰ Expira: ${EXPIRE_DATE}"
             else
                 echo -e "\n${RED}❌ Error (puede que el HWID ya exista)${NC}"
@@ -1634,7 +1320,7 @@ while true; do
             clear
             echo -e "${CYAN}👥 HWIDs ACTIVOS${NC}\n"
             
-            sqlite3 -column -header "$DB" "SELECT nombre, hwid, phone, tipo, server_id, expires_at FROM hwid_users WHERE status = 1 ORDER BY expires_at DESC LIMIT 20"
+            sqlite3 -column -header "$DB" "SELECT nombre, hwid, phone, tipo, expires_at FROM hwid_users WHERE status = 1 ORDER BY expires_at DESC LIMIT 20"
             echo -e "\n${YELLOW}Total activos: ${ACTIVE_HWID}${NC}"
             read -p "Presiona Enter..."
             ;;
@@ -1645,23 +1331,19 @@ while true; do
             CURRENT_7D=$(get_val '.prices.price_7d')
             CURRENT_15D=$(get_val '.prices.price_15d')
             CURRENT_30D=$(get_val '.prices.price_30d')
-            CURRENT_50D=$(get_val '.prices.price_50d')
             
             echo -e "${YELLOW}Precios actuales:${NC}"
             echo -e "  7 días: $${CURRENT_7D} ARS"
             echo -e "  15 días: $${CURRENT_15D} ARS"
-            echo -e "  30 días: $${CURRENT_30D} ARS"
-            echo -e "  50 días: $${CURRENT_50D} ARS\n"
+            echo -e "  30 días: $${CURRENT_30D} ARS\n"
             
             read -p "Nuevo precio 7d [${CURRENT_7D}]: " NEW_7D
             read -p "Nuevo precio 15d [${CURRENT_15D}]: " NEW_15D
             read -p "Nuevo precio 30d [${CURRENT_30D}]: " NEW_30D
-            read -p "Nuevo precio 50d [${CURRENT_50D}]: " NEW_50D
             
             [[ -n "$NEW_7D" ]] && set_val '.prices.price_7d' "$NEW_7D"
             [[ -n "$NEW_15D" ]] && set_val '.prices.price_15d' "$NEW_15D"
             [[ -n "$NEW_30D" ]] && set_val '.prices.price_30d' "$NEW_30D"
-            [[ -n "$NEW_50D" ]] && set_val '.prices.price_50d' "$NEW_50D"
             
             echo -e "\n${GREEN}✅ Precios actualizados${NC}"
             read -p "Presiona Enter..."
@@ -1721,18 +1403,17 @@ while true; do
             clear
             echo -e "${CYAN}📊 ESTADÍSTICAS${NC}\n"
             
-            echo -e "${YELLOW}🔐 HWIDs por servidor:${NC}"
-            for server in $(jq -r '.[] | "\(.id)|\(.name)"' "$SERVERS" 2>/dev/null); do
-                IFS='|' read -r id name <<< "$server"
-                count=$(sqlite3 "$DB" "SELECT COUNT(*) FROM hwid_users WHERE server_id = $id AND status = 1")
-                echo -e "  $name: ${CYAN}$count${NC} activos"
-            done
+            echo -e "${YELLOW}🔐 HWIDs:${NC}"
+            sqlite3 "$DB" "SELECT 'Total: ' || COUNT(*) || ' | Activos: ' || SUM(CASE WHEN status=1 THEN 1 ELSE 0 END) || ' | Tests hoy: ' || (SELECT COUNT(*) FROM daily_tests WHERE date = date('now')) FROM hwid_users"
             
             echo -e "\n${YELLOW}💰 PAGOS:${NC}"
             sqlite3 "$DB" "SELECT 'Pendientes: ' || SUM(CASE WHEN status='pending' THEN 1 ELSE 0 END) || ' | Aprobados: ' || SUM(CASE WHEN status='approved' THEN 1 ELSE 0 END) || ' | Total: $' || printf('%.2f', SUM(CASE WHEN status='approved' THEN amount ELSE 0 END)) FROM payments"
             
             echo -e "\n${YELLOW}📅 PLANES VENDIDOS:${NC}"
-            sqlite3 "$DB" "SELECT '7d: ' || SUM(CASE WHEN plan='7d' THEN 1 ELSE 0 END) || ' | 15d: ' || SUM(CASE WHEN plan='15d' THEN 1 ELSE 0 END) || ' | 30d: ' || SUM(CASE WHEN plan='30d' THEN 1 ELSE 0 END) || ' | 50d: ' || SUM(CASE WHEN plan='50d' THEN 1 ELSE 0 END) FROM payments WHERE status='approved'"
+            sqlite3 "$DB" "SELECT '7d: ' || SUM(CASE WHEN plan='7d' THEN 1 ELSE 0 END) || ' | 15d: ' || SUM(CASE WHEN plan='15d' THEN 1 ELSE 0 END) || ' | 30d: ' || SUM(CASE WHEN plan='30d' THEN 1 ELSE 0 END) FROM payments WHERE status='approved'"
+            
+            echo -e "\n${YELLOW}💸 INGRESOS HOY:${NC}"
+            sqlite3 "$DB" "SELECT 'Hoy: $' || printf('%.2f', SUM(CASE WHEN date(created_at) = date('now') THEN amount ELSE 0 END)) FROM payments WHERE status='approved'"
             
             read -p "\nPresiona Enter..."
             ;;
@@ -1751,7 +1432,7 @@ while true; do
             sqlite3 -column -header "$DB" "SELECT payment_id, phone, plan, amount, created_at FROM payments WHERE status='pending' ORDER BY created_at DESC LIMIT 10"
             
             echo -e "\n${YELLOW}Pagos aprobados:${NC}"
-            sqlite3 -column -header "$DB" "SELECT payment_id, phone, nombre, plan, amount, approved_at, server_id, username FROM payments WHERE status='approved' ORDER BY approved_at DESC LIMIT 10"
+            sqlite3 -column -header "$DB" "SELECT payment_id, phone, nombre, plan, amount, approved_at, hwid FROM payments WHERE status='approved' ORDER BY approved_at DESC LIMIT 10"
             
             read -p "\nPresiona Enter..."
             ;;
@@ -1761,7 +1442,7 @@ while true; do
             read -p "Ingresa HWID, nombre o teléfono: " SEARCH
             
             echo -e "\n${YELLOW}Resultados:${NC}"
-            sqlite3 -column -header "$DB" "SELECT nombre, hwid, phone, tipo, server_id, expires_at, status FROM hwid_users WHERE hwid LIKE '%$SEARCH%' OR phone LIKE '%$SEARCH%' OR nombre LIKE '%$SEARCH%'"
+            sqlite3 -column -header "$DB" "SELECT nombre, hwid, phone, tipo, expires_at, status FROM hwid_users WHERE hwid LIKE '%$SEARCH%' OR phone LIKE '%$SEARCH%' OR nombre LIKE '%$SEARCH%'"
             
             read -p "\nPresiona Enter..."
             ;;
@@ -1775,110 +1456,23 @@ while true; do
             ;;
         14)
             clear
-            echo -e "${CYAN}🌐 ADMINISTRAR SERVIDORES${NC}\n"
+            echo -e "${CYAN}📱 CONFIGURAR URL DE DESCARGA${NC}\n"
             
-            # Mostrar servidores actuales
-            echo -e "${YELLOW}Servidores configurados:${NC}"
-            jq -r '.[] | "  \(.id) | \(.name) | \(.ip) | \(.status) | \(.current_users)/\(.max_users) usuarios"' "$SERVERS" 2>/dev/null || echo "  No hay servidores"
+            CURRENT_URL=$(get_val '.links.app_download')
+            echo -e "${YELLOW}URL actual:${NC}"
+            echo -e "  ${CYAN}${CURRENT_URL}${NC}\n"
             
-            echo -e "\n${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-            echo -e "${CYAN}[1]${NC} ➕  Agregar servidor"
-            echo -e "${CYAN}[2]${NC} 🔧  Modificar servidor"
-            echo -e "${CYAN}[3]${NC} ❌  Eliminar servidor"
-            echo -e "${CYAN}[4]${NC} 🔄  Probar conexión"
-            echo -e "${CYAN}[0]${NC} 🔙  Volver"
-            echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+            echo -e "${YELLOW}Ingresa la nueva URL de descarga:${NC}"
+            read -p "URL: " NEW_URL
             
-            read -p "👉 Selecciona: " SERVER_OPT
-            
-            case $SERVER_OPT in
-                1)
-                    read -p "Nombre del servidor: " S_NAME
-                    read -p "IP del servidor: " S_IP
-                    read -p "Usuario SSH (root): " S_USER
-                    read -sp "Password SSH: " S_PASS
-                    echo
-                    read -p "Máximo de usuarios (100): " S_MAX
-                    S_MAX=${S_MAX:-100}
-                    
-                    # Obtener último ID
-                    LAST_ID=$(jq '.[-1].id' "$SERVERS" 2>/dev/null || echo "0")
-                    NEW_ID=$((LAST_ID + 1))
-                    
-                    # Agregar al JSON
-                    jq --arg id "$NEW_ID" \
-                       --arg name "$S_NAME" \
-                       --arg ip "$S_IP" \
-                       --arg user "$S_USER" \
-                       --arg pass "$S_PASS" \
-                       --arg max "$S_MAX" \
-                       '. += [{"id": ($id | tonumber), "name": $name, "ip": $ip, "ssh_user": $user, "ssh_password": $pass, "max_users": ($max | tonumber), "current_users": 0, "status": "active"}]' \
-                       "$SERVERS" > /tmp/servers.json && mv /tmp/servers.json "$SERVERS"
-                    
-                    echo -e "\n${GREEN}✅ Servidor agregado${NC}"
-                    read -p "Presiona Enter..."
-                    ;;
-                2)
-                    read -p "ID del servidor a modificar: " S_ID
-                    # Aquí iría la lógica de modificación
-                    echo "Opción en desarrollo..."
-                    read -p "Presiona Enter..."
-                    ;;
-                3)
-                    read -p "ID del servidor a eliminar: " S_ID
-                    jq "del(.[] | select(.id == $S_ID))" "$SERVERS" > /tmp/servers.json && mv /tmp/servers.json "$SERVERS"
-                    echo -e "\n${GREEN}✅ Servidor eliminado${NC}"
-                    read -p "Presiona Enter..."
-                    ;;
-                4)
-                    read -p "ID del servidor a probar: " S_ID
-                    SERVER=$(jq ".[] | select(.id == $S_ID)" "$SERVERS")
-                    IP=$(echo "$SERVER" | jq -r '.ip')
-                    USER=$(echo "$SERVER" | jq -r '.ssh_user')
-                    PASS=$(echo "$SERVER" | jq -r '.ssh_password')
-                    
-                    echo -e "${YELLOW}🔄 Probando conexión a $IP...${NC}"
-                    if sshpass -p "$PASS" ssh -o ConnectTimeout=5 -o StrictHostKeyChecking=no $USER@$IP "echo OK" 2>/dev/null; then
-                        echo -e "${GREEN}✅ Conexión exitosa${NC}"
-                    else
-                        echo -e "${RED}❌ Error de conexión${NC}"
-                    fi
-                    read -p "Presiona Enter..."
-                    ;;
-                0)
-                    continue
-                    ;;
-            esac
-            ;;
-        15)
-            clear
-            echo -e "${CYAN}📈 ESTADO DE SERVIDORES${NC}\n"
-            
-            # Obtener estadísticas de cada servidor
-            for server in $(jq -c '.[]' "$SERVERS" 2>/dev/null); do
-                NAME=$(echo "$server" | jq -r '.name')
-                IP=$(echo "$server" | jq -r '.ip')
-                USER=$(echo "$server" | jq -r '.ssh_user')
-                PASS=$(echo "$server" | jq -r '.ssh_password')
-                MAX=$(echo "$server" | jq -r '.max_users')
-                
-                echo -e "${YELLOW}$NAME ($IP):${NC}"
-                
-                # Intentar conexión
-                if sshpass -p "$PASS" ssh -o ConnectTimeout=3 -o StrictHostKeyChecking=no $USER@$IP "w | grep -c 'pts'" 2>/dev/null; then
-                    ACTIVE=$(sshpass -p "$PASS" ssh $USER@$IP "w | grep -c 'pts' 2>/dev/null || echo 0")
-                    USERS=$(sshpass -p "$PASS" ssh $USER@$IP "ls /home | wc -l 2>/dev/null || echo 0")
-                    UPTIME=$(sshpass -p "$PASS" ssh $USER@$IP "uptime | awk -F', ' '{print $1}' | awk '{print $3}' 2>/dev/null || echo 'desconocido'")
-                    
-                    echo -e "  ✅ ONLINE"
-                    echo -e "     Conexiones activas: ${CYAN}${ACTIVE:-0}${NC}"
-                    echo -e "     Usuarios en sistema: ${CYAN}${USERS:-0}/${MAX}${NC}"
-                    echo -e "     Uptime: ${GREEN}${UPTIME}${NC}"
-                else
-                    echo -e "  ❌ OFFLINE"
-                fi
-                echo ""
-            done
+            if [[ -n "$NEW_URL" ]]; then
+                set_val '.links.app_download' "\"$NEW_URL\""
+                echo -e "\n${GREEN}✅ URL actualizada${NC}"
+                echo -e "${YELLOW}🔄 Reiniciando bot...${NC}"
+                cd /root/sshbot-pro && pm2 restart sshbot-pro
+            else
+                echo -e "\n${YELLOW}⚠️ No se realizaron cambios${NC}"
+            fi
             
             read -p "Presiona Enter..."
             ;;
@@ -1894,13 +1488,13 @@ while true; do
 done
 PANELEOF
 
-chmod +x /usr/local/bin/sshbot
-ln -sf /usr/local/bin/sshbot /usr/local/bin/sshbot-hwid
+chmod +x /usr/local/bin/sshbot-hwid
+ln -sf /usr/local/bin/sshbot-hwid /usr/local/bin/sshbot
 
 # ================================================
 # INICIAR BOT
 # ================================================
-echo -e "\n${CYAN}🚀 Iniciando bot MULTI-SERVIDOR...${NC}"
+echo -e "\n${CYAN}🚀 Iniciando bot...${NC}"
 
 cd "$USER_HOME"
 pm2 start bot.js --name sshbot-pro
@@ -1915,36 +1509,41 @@ echo -e "${GREEN}${BOLD}"
 cat << "FINAL"
 ╔══════════════════════════════════════════════════════════════╗
 ║                                                              ║
-║     🎉 INSTALACIÓN COMPLETADA - VERSIÓN MULTI-SERVIDOR 🎉   ║
+║          🎉 INSTALACIÓN COMPLETADA - VERSIÓN HWID 🎉        ║
 ║                                                              ║
-║       🔐 SISTEMA HWID - SIN USUARIO/CONTRASEÑA             ║
-║       🌐 MÚLTIPLES SERVIDORES CON BALANCE DE CARGA         ║
+║       🔐 SISTEMA SIN USUARIO/CONTRASEÑA                    ║
 ║       📱 PRIMERO NOMBRE, LUEGO HWID                        ║
 ║       💰 MercadoPago SDK v2.x INTEGRADO                    ║
 ║       💳 Pago automático con QR                            ║
-║       ⏱️  PRUEBA DE 2 HORAS                                ║
-║       ⏰ NOTIFICACIONES DE VENCIMIENTO                      ║
+║       ⏱️  PRUEBA DE 2 HORAS (ACTUALIZADO)                  ║
+║       ⏰ NOTIFICACIONES DE VENCIMIENTO ACTIVAS              ║
+║       📱 URL DE DESCARGA CONFIGURABLE DESDE PANEL          ║
+║       🚫 PLAN DE 50 DÍAS ELIMINADO                         ║
+║       🎛️  Panel completo con control MP                    ║
 ║                                                              ║
 ╚══════════════════════════════════════════════════════════════╝
 FINAL
 echo -e "${NC}"
 
 echo -e "${CYAN}══════════════════════════════════════════════════════════════${NC}"
-echo -e "${GREEN}✅ Sistema MULTI-SERVIDOR instalado${NC}"
-echo -e "${GREEN}✅ SIN usuario/contraseña - Solo HWID${NC}"
+echo -e "${GREEN}✅ Sistema HWID instalado${NC}"
+echo -e "${GREEN}✅ SIN usuario/contraseña${NC}"
 echo -e "${GREEN}✅ FLUJO: Primero nombre, luego HWID${NC}"
-echo -e "${GREEN}✅ Balance de carga automático entre servidores${NC}"
-echo -e "${GREEN}✅ Notificaciones de vencimiento activadas${NC}"
+echo -e "${GREEN}✅ Formato HWID: APP-E3E4D5CBB7636907${NC}"
+echo -e "${GREEN}✅ MercadoPago SDK v2.x integrado${NC}"
+echo -e "${GREEN}✅ Verificación automática de pagos${NC}"
+echo -e "${GREEN}✅ ⏱️  PRUEBA DE 2 HORAS (CORREGIDO)${NC}"
+echo -e "${GREEN}✅ ⏰ NOTIFICACIONES DE VENCIMIENTO (cada hora)${NC}"
+echo -e "${GREEN}✅ 📱 URL DE DESCARGA CONFIGURABLE (opción 14 en panel)${NC}"
+echo -e "${GREEN}✅ 🚫 PLAN DE 50 DÍAS ELIMINADO${NC}"
+echo -e "${GREEN}✅ SIN CUPONES DE DESCUENTO - Proceso simplificado${NC}"
+echo -e "${GREEN}✅ SIN NÚMEROS AZULES - Texto normal${NC}"
 echo -e "${CYAN}══════════════════════════════════════════════════════════════${NC}\n"
 
 echo -e "${YELLOW}📋 COMANDOS PRINCIPALES:${NC}\n"
-echo -e "  ${GREEN}sshbot${NC}         - Panel de control multi-servidor"
+echo -e "  ${GREEN}sshbot${NC}         - Panel de control"
 echo -e "  ${GREEN}pm2 logs sshbot-pro${NC} - Ver logs y QR"
 echo -e "  ${GREEN}pm2 restart sshbot-pro${NC} - Reiniciar"
-echo -e "\n"
-
-echo -e "${YELLOW}🌐 SERVIDORES CONFIGURADOS:${NC}"
-jq -r '.[] | "  • \(.name): \(.ip) (\(.status))"' "$SERVERS" 2>/dev/null || echo "  No hay servidores configurados"
 echo -e "\n"
 
 echo -e "${YELLOW}📱 FLUJO DEL SISTEMA HWID:${NC}\n"
@@ -1953,8 +1552,14 @@ echo -e "  2. Bot pide: ${CYAN}\"Primero, dime tu nombre\"${NC}"
 echo -e "  3. Usuario envía nombre"
 echo -e "  4. Bot pide: ${CYAN}\"Ahora envía tu HWID\"${NC}"
 echo -e "  5. Usuario envía HWID"
-echo -e "  6. Sistema selecciona automáticamente el mejor servidor"
-echo -e "  7. Activa el acceso y envía las credenciales"
+echo -e "  6. Sistema activa automáticamente"
+echo -e "\n"
+
+echo -e "${YELLOW}⏱️  PRUEBA GRATUITA: ${GREEN}2 HORAS${NC}\n"
+
+echo -e "${YELLOW}💡 FORMATO HWID VÁLIDO:${NC}"
+echo -e "  APP-E3E4D5CBB7636907"
+echo -e "  APP- + 16 caracteres hexadecimales"
 echo -e "\n"
 
 echo -e "${YELLOW}💰 CONFIGURAR MERCADOPAGO:${NC}\n"
@@ -1966,7 +1571,19 @@ echo -e "  5. En el panel: Opción 7 → Pegar token"
 echo -e "  6. Testear con opción 8"
 echo -e "\n"
 
-echo -e "${GREEN}${BOLD}¡Sistema MULTI-SERVIDOR listo! Escanea el QR y administra desde el panel 🚀${NC}\n"
+echo -e "${YELLOW}📱 CONFIGURAR URL DE DESCARGA:${NC}\n"
+echo -e "  En el panel: Opción 14 → Pegar nueva URL"
+echo -e "  El bot se reinicia automáticamente"
+echo -e "\n"
+
+echo -e "${YELLOW}⏰ NOTIFICACIONES DE VENCIMIENTO:${NC}"
+echo -e "  • Se envían automáticamente cada hora"
+echo -e "  • Avisan 24 horas antes de vencer"
+echo -e "  • También avisan cuando ya venció"
+echo -e "  • Solo para usuarios premium"
+echo -e "\n"
+
+echo -e "${GREEN}${BOLD}¡Sistema HWID listo! Escanea el QR y ya no necesitas usuario/contraseña 🚀${NC}\n"
 
 read -p "$(echo -e "${YELLOW}¿Ver logs ahora? (s/N): ${NC}")" -n 1 -r
 echo
