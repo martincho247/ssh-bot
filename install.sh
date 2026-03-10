@@ -1,7 +1,7 @@
 #!/bin/bash
 # ================================================
 # SSH BOT PRO - WPPCONNECT + MERCADOPAGO + HWID
-# VERSIÓN COMPLETA CON AGREGADO HWID AL SISTEMA
+# VERSIÓN CORREGIDA - PRUEBAS 2 HORAS FUNCIONALES
 # ================================================
 
 set -e
@@ -13,8 +13,8 @@ YELLOW='\033[1;33m'
 CYAN='\033[0;36m'
 BLUE='\033[0;34m'
 PURPLE='\033[0;35m'
-BOLD='\033[1m'
 NC='\033[0m'
+BOLD='\033[1m'
 
 clear
 echo -e "${CYAN}${BOLD}"
@@ -29,26 +29,24 @@ cat << "BANNER"
 ║     ╚══════╝╚══════╝╚═╝  ╚═╝    ╚═════╝  ╚═════╝    ╚═╝     ║
 ╠══════════════════════════════════════════════════════════════╣
 ║                                                              ║
-║          🤖 SSH BOT PRO - CON HWID EN SISTEMA               ║
-║               🔐 HWID AGREGADO AUTOMÁTICAMENTE              ║
-║               📱 PRIMERO NOMBRE, LUEGO HWID                 ║
+║          🤖 SSH BOT PRO - VERSIÓN CORREGIDA                 ║
+║               🔐 SISTEMA HWID - SIN USUARIO/CONTRASEÑA      ║
+║               ⏱️  PRUEBAS 2 HORAS - ¡YA FUNCIONAN!         ║
 ║               💰 MercadoPago SDK v2.x INTEGRADO             ║
-║               💳 Pago automático con QR                     ║
-║               ⏰ NOTIFICACIONES DE VENCIMIENTO              ║
+║               📱 PRIMERO NOMBRE, LUEGO HWID                 ║
 ║                                                              ║
 ╚══════════════════════════════════════════════════════════════╝
 BANNER
 echo -e "${NC}"
 
 echo -e "${GREEN}✅ CARACTERÍSTICAS PRINCIPALES:${NC}"
-echo -e "  🔐 ${CYAN}Sistema HWID${NC} - Agrega HWID al sistema operativo"
+echo -e "  🔐 ${CYAN}Sistema HWID${NC} - Sin usuario/contraseña"
+echo -e "  ⏱️  ${GREEN}PRUEBAS 2 HORAS - CORREGIDO Y FUNCIONAL${NC}"
 echo -e "  📱 ${CYAN}WPPConnect${NC} - API WhatsApp que funciona"
 echo -e "  💰 ${GREEN}MercadoPago SDK v2.x${NC} - Integrado completo"
 echo -e "  💳 ${YELLOW}Pago automático${NC} - QR + Enlace de pago"
 echo -e "  📝 ${PURPLE}Flujo mejorado${NC} - Primero nombre, luego HWID"
 echo -e "  🎛️  ${PURPLE}Panel completo${NC} - Control total del sistema"
-echo -e "  ⚡ ${GREEN}Auto-verificación${NC} - Pagos verificados cada 2 min"
-echo -e "  ⏱️  ${YELLOW}PRUEBA DE 2 HORAS${NC} - Duración actualizada"
 echo -e "  ⏰ ${CYAN}NOTIFICACIONES DE VENCIMIENTO${NC} - Avisos automáticos"
 echo -e "${CYAN}══════════════════════════════════════════════════════════════${NC}\n"
 
@@ -74,38 +72,6 @@ if [[ ! $REPLY =~ ^[Ss]$ ]]; then
     echo -e "${RED}❌ Cancelado${NC}"
     exit 0
 fi
-
-# ================================================
-# CONFIGURAR SSH PARA ACEPTAR HWID
-# ================================================
-echo -e "\n${CYAN}🔧 Configurando SSH para HWID...${NC}"
-
-# Asegurar que SSH acepte autenticación por contraseña
-sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/sshd_config
-sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/' /etc/ssh/sshd_config
-sed -i 's/#ChallengeResponseAuthentication yes/ChallengeResponseAuthentication yes/' /etc/ssh/sshd_config
-sed -i 's/ChallengeResponseAuthentication no/ChallengeResponseAuthentication yes/' /etc/ssh/sshd_config
-
-# Crear directorio para HWIDs autorizados
-mkdir -p /etc/ssh/hwid_auth
-touch /etc/ssh/hwid_auth/authorized_hwids
-chmod 755 /etc/ssh/hwid_auth
-chmod 644 /etc/ssh/hwid_auth/authorized_hwids
-
-# Crear script de verificación HWID
-cat > /usr/local/bin/verify-hwid << 'VERIFYEOF'
-#!/bin/bash
-# Verificador de HWID para SSH
-HWID="$1"
-grep -q "^$HWID$" /etc/ssh/hwid_auth/authorized_hwids && exit 0 || exit 1
-VERIFYEOF
-
-chmod +x /usr/local/bin/verify-hwid
-
-# Reiniciar SSH
-systemctl restart sshd
-
-echo -e "${GREEN}✅ SSH configurado para HWID${NC}"
 
 # ================================================
 # INSTALAR DEPENDENCIAS
@@ -174,7 +140,7 @@ cat > "$CONFIG_FILE" << EOF
 {
     "bot": {
         "name": "SSH Bot Pro HWID",
-        "version": "3.0-HWID-SYSTEM",
+        "version": "3.0-HWID-CORREGIDA",
         "server_ip": "$SERVER_IP"
     },
     "prices": {
@@ -212,7 +178,6 @@ CREATE TABLE hwid_users (
     tipo TEXT DEFAULT 'test',
     expires_at DATETIME,
     status INTEGER DEFAULT 1,
-    system_user TEXT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 CREATE TABLE daily_tests (
@@ -269,9 +234,9 @@ SQL
 echo -e "${GREEN}✅ Estructura HWID creada${NC}"
 
 # ================================================
-# CREAR BOT CON HWID (CON AGREGADO AL SISTEMA)
+# CREAR BOT CON HWID CORREGIDO
 # ================================================
-echo -e "\n${CYAN}🤖 Creando bot con sistema HWID (agrega HWID al sistema)...${NC}"
+echo -e "\n${CYAN}🤖 Creando bot con sistema HWID CORREGIDO...${NC}"
 
 cd "$USER_HOME"
 
@@ -279,7 +244,7 @@ cd "$USER_HOME"
 cat > package.json << 'PKGEOF'
 {
     "name": "sshbot-pro-hwid",
-    "version": "3.0.0",
+    "version": "3.0.1",
     "main": "bot.js",
     "dependencies": {
         "@wppconnect-team/wppconnect": "^1.24.0",
@@ -298,8 +263,8 @@ PKGEOF
 echo -e "${YELLOW}📦 Instalando dependencias...${NC}"
 npm install --silent 2>&1 | grep -v "npm WARN" || true
 
-# Crear bot.js COMPLETO con función para agregar HWID al sistema
-echo -e "${YELLOW}📝 Creando bot.js con agregado HWID al sistema...${NC}"
+# Crear bot.js CORREGIDO - CON PRUEBAS 2 HORAS FUNCIONALES
+echo -e "${YELLOW}📝 Creando bot.js con correcciones de fecha...${NC}"
 
 cat > "bot.js" << 'BOTEOF'
 const wppconnect = require('@wppconnect-team/wppconnect');
@@ -319,11 +284,9 @@ const execPromise = util.promisify(exec);
 moment.locale('es');
 
 console.log(chalk.cyan.bold('\n╔══════════════════════════════════════════════════════════════╗'));
-console.log(chalk.cyan.bold('║           🤖 SSH BOT PRO - HWID + SISTEMA                    ║'));
-console.log(chalk.cyan.bold('║           🔐 HWID AGREGADO AUTOMÁTICAMENTE                    ║'));
-console.log(chalk.cyan.bold('║           📝 FLUJO: PRIMERO NOMBRE, LUEGO HWID                ║'));
-console.log(chalk.cyan.bold('║           ⏱️  PRUEBA: 2 HORAS                                 ║'));
-console.log(chalk.cyan.bold('║           ⏰ NOTIFICACIONES DE VENCIMIENTO                    ║'));
+console.log(chalk.cyan.bold('║           🤖 SSH BOT PRO - VERSIÓN CORREGIDA                ║'));
+console.log(chalk.cyan.bold('║           ⏱️  PRUEBAS 2 HORAS - ¡YA FUNCIONAN!              ║'));
+console.log(chalk.cyan.bold('║           📝 FLUJO: PRIMERO NOMBRE, LUEGO HWID              ║'));
 console.log(chalk.cyan.bold('╚══════════════════════════════════════════════════════════════╝\n'));
 
 // Cargar configuración
@@ -370,88 +333,7 @@ initMercadoPago();
 
 let client = null;
 
-// ✅ FUNCIÓN PARA AGREGAR HWID A LA MÁQUINA
-async function addHWIDToSystem(hwid, expires_at, tipo, nombre) {
-    try {
-        // Crear nombre de usuario basado en HWID
-        const username = `hwid_${hwid.substring(4, 12).toLowerCase()}`;
-        
-        console.log(chalk.yellow(`👤 Creando usuario ${username} para HWID ${hwid}`));
-        
-        // Verificar si el usuario ya existe
-        const { stdout: userCheck } = await execPromise(`id ${username} 2>/dev/null && echo "exists" || echo "not exists"`);
-        
-        if (userCheck.trim() === "not exists") {
-            // Crear usuario con shell limitado y home directory
-            await execPromise(`useradd -m -s /bin/false -d /home/${username} -c "${nombre} - ${hwid}" ${username}`);
-            console.log(chalk.green(`✅ Usuario ${username} creado en el sistema`));
-        } else {
-            console.log(chalk.yellow(`⚠️ Usuario ${username} ya existe, actualizando...`));
-        }
-        
-        // Guardar HWID en archivo de autorización
-        const hwidFile = '/etc/ssh/hwid_auth/authorized_hwids';
-        
-        // Eliminar entrada anterior si existe
-        await execPromise(`sed -i '/^${hwid}$/d' ${hwidFile}`);
-        
-        // Agregar nuevo HWID
-        await execPromise(`echo "${hwid}" >> ${hwidFile}`);
-        
-        // Configurar expiración en el sistema
-        // Convertir fecha de expiración a formato timestamp para chage (YYYY-MM-DD)
-        const expireDate = moment(expires_at).format('YYYY-MM-DD');
-        await execPromise(`chage -E ${expireDate} ${username}`);
-        
-        // Establecer contraseña (opcional - para autenticación por contraseña)
-        // await execPromise(`echo "${username}:${hwid}" | chpasswd`);
-        
-        console.log(chalk.green(`✅ HWID ${hwid} agregado al sistema para usuario ${username}`));
-        
-        // Guardar nombre de usuario en BD
-        await new Promise((resolve, reject) => {
-            db.run('UPDATE hwid_users SET system_user = ? WHERE hwid = ?', [username, hwid], (err) => {
-                if (err) reject(err);
-                else resolve();
-            });
-        });
-        
-        return { success: true, username };
-        
-    } catch (error) {
-        console.error(chalk.red('❌ Error agregando HWID al sistema:'), error.message);
-        return { success: false, error: error.message };
-    }
-}
-
-// ✅ FUNCIÓN PARA ELIMINAR HWID DEL SISTEMA (CUANDO EXPIRA)
-async function removeHWIDFromSystem(hwid) {
-    try {
-        // Obtener información del HWID
-        const info = await new Promise((resolve) => {
-            db.get('SELECT system_user FROM hwid_users WHERE hwid = ?', [hwid], (err, row) => {
-                resolve(row);
-            });
-        });
-        
-        if (info && info.system_user) {
-            // Eliminar HWID del archivo de autorización
-            await execPromise(`sed -i '/^${hwid}$/d' /etc/ssh/hwid_auth/authorized_hwids`);
-            
-            // Opcional: deshabilitar usuario pero no eliminarlo
-            await execPromise(`usermod -L ${info.system_user}`);
-            
-            console.log(chalk.yellow(`🗑️  HWID ${hwid} eliminado del sistema`));
-        }
-        
-        return { success: true };
-    } catch (error) {
-        console.error(chalk.red('❌ Error eliminando HWID:'), error.message);
-        return { success: false };
-    }
-}
-
-// ✅ FUNCIONES PARA HWID
+// ✅ FUNCIONES PARA HWID - CORREGIDAS
 function validateHWID(hwid) {
     const hwidRegex = /^APP-[A-F0-9]{16}$/;
     return hwidRegex.test(hwid);
@@ -465,12 +347,39 @@ function normalizeHWID(hwid) {
     return hwid;
 }
 
+// FUNCIÓN CORREGIDA - Usa datetime() correctamente
 function isHWIDActive(hwid) {
     return new Promise((resolve) => {
-        db.get('SELECT * FROM hwid_users WHERE hwid = ? AND status = 1 AND expires_at > datetime("now")', 
-            [hwid], (err, row) => {
-            resolve(!err && row);
-        });
+        db.get(
+            'SELECT * FROM hwid_users WHERE hwid = ? AND status = 1 AND datetime(expires_at) > datetime("now", "localtime")', 
+            [hwid], 
+            (err, row) => {
+                if (err) {
+                    console.error(chalk.red('❌ Error verificando HWID:'), err.message);
+                    resolve(false);
+                } else {
+                    resolve(!!row);
+                }
+            }
+        );
+    });
+}
+
+// Función de debug
+async function debugHWID(hwid) {
+    return new Promise((resolve) => {
+        db.get(
+            'SELECT *, datetime(expires_at) as exp, datetime("now", "localtime") as now FROM hwid_users WHERE hwid = ?',
+            [hwid],
+            (err, row) => {
+                if (err) {
+                    console.error(chalk.red('❌ Error en debug:'), err.message);
+                    resolve(null);
+                } else {
+                    resolve(row);
+                }
+            }
+        );
     });
 }
 
@@ -498,9 +407,11 @@ async function registerHWID(phone, nombre, hwid, days, tipo = 'premium') {
 
         let expireFull;
         if (days === 0) {
+            // Test - 2 horas
             expireFull = moment().add(2, 'hours').format('YYYY-MM-DD HH:mm:ss');
-            console.log(chalk.cyan(`⏱️  Prueba 2 horas - Expira: ${expireFull}`));
+            console.log(chalk.cyan(`⏱️  Prueba 2 horas - Ahora: ${moment().format('YYYY-MM-DD HH:mm:ss')} - Expira: ${expireFull}`));
         } else {
+            // Premium
             expireFull = moment().add(days, 'days').format('YYYY-MM-DD 23:59:59');
         }
 
@@ -515,9 +426,6 @@ async function registerHWID(phone, nombre, hwid, days, tipo = 'premium') {
                 }
             );
         });
-
-        // ✅ AGREGAR HWID AL SISTEMA DE LA MÁQUINA
-        await addHWIDToSystem(hwid, expireFull, tipo, nombre);
 
         // Registrar intento
         db.run(`INSERT INTO hwid_attempts (hwid, phone, nombre, action) VALUES (?, ?, ?, 'registered')`, 
@@ -680,6 +588,7 @@ async function checkPendingPayments() {
                         db.run(`UPDATE payments SET status = 'approved', approved_at = CURRENT_TIMESTAMP WHERE payment_id = ?`, 
                             [payment.payment_id]);
                         
+                        // Enviar mensaje pidiendo NOMBRE primero
                         const message = `✅ PAGO CONFIRMADO
 
 🎉 Tu pago ha sido aprobado
@@ -709,12 +618,13 @@ Para continuar con la activación, dime tu nombre
 // ✅ NOTIFICACIONES DE VENCIMIENTO
 async function checkExpiringHWIDs() {
     try {
+        // Buscar HWIDs que expiran en las próximas 24 horas
         const expiringSoon = await new Promise((resolve, reject) => {
             db.all(`
                 SELECT * FROM hwid_users 
                 WHERE status = 1 
-                AND expires_at > datetime('now') 
-                AND expires_at < datetime('now', '+1 day')
+                AND datetime(expires_at) > datetime('now', 'localtime')
+                AND datetime(expires_at) < datetime('now', 'localtime', '+1 day')
                 AND tipo = 'premium'
             `, (err, rows) => {
                 if (err) reject(err);
@@ -741,11 +651,13 @@ Hola ${hwid.nombre}, tu acceso expirará en aproximadamente ${hoursLeft} horas.
             }
         }
 
+        // Buscar HWIDs que expiraron en las últimas 24 horas
         const expired = await new Promise((resolve, reject) => {
             db.all(`
                 SELECT * FROM hwid_users 
-                WHERE status = 1 
-                AND expires_at < datetime('now')
+                WHERE status = 0 
+                AND datetime(expires_at) > datetime('now', 'localtime', '-1 day')
+                AND datetime(expires_at) < datetime('now', 'localtime')
                 AND tipo = 'premium'
             `, (err, rows) => {
                 if (err) reject(err);
@@ -754,12 +666,6 @@ Hola ${hwid.nombre}, tu acceso expirará en aproximadamente ${hoursLeft} horas.
         });
 
         for (const hwid of expired) {
-            // Marcar como expirado en BD
-            db.run('UPDATE hwid_users SET status = 0 WHERE hwid = ?', [hwid.hwid]);
-            
-            // Eliminar del sistema
-            await removeHWIDFromSystem(hwid.hwid);
-            
             const message = `⏰ SERVICIO EXPIRADO
 
 Hola ${hwid.nombre}, tu acceso ha expirado.
@@ -835,7 +741,7 @@ async function initializeBot() {
                 if (['menu', 'hola', 'start', 'hi', 'volver', '0'].includes(text)) {
                     await setUserState(from, 'main_menu');
                     
-                    await client.sendText(from, `HOLA BIENVENIDO BOT MGVPN 🚀
+                    await client.sendText(from, `HOLA BIENVENIDO BOT HWID 🚀
 
 Elija una opción:
 
@@ -891,8 +797,8 @@ Ejemplo: APP-E3E4D5CBB7636907`);
 ${config.links.app_download}
 
 💡 Instrucciones:
-1. Abre el link Descarga el APK
-2. Abre el apk Click en "Más detalles"
+1. Abre el link y descarga el APK
+2. Abre el apk, click en "Más detalles"
 3. Click en "Instalar de todas formas"`);
                 }
                 
@@ -905,6 +811,7 @@ ${config.links.app_download}
                         return;
                     }
                     
+                    // Guardar nombre y pasar a pedir HWID
                     await setUserState(from, 'awaiting_test_hwid', { nombre });
                     
                     await client.sendText(from, `✅ Gracias ${nombre}
@@ -915,13 +822,13 @@ Formato: APP-E3E4D5CBB7636907
 
 📱 ¿CÓMO OBTENER TU HWID?
 1. Abre la aplicación
-2. Toca el boton de WhatsApp
-3. Envia el HWID
+2. Toca el botón de WhatsApp
+3. Envía el HWID
 
 ⏳ Una prueba por día`);
                 }
                 
-                // PROCESAR HWID PARA PRUEBA
+                // PROCESAR HWID PARA PRUEBA - VERSIÓN CORREGIDA
                 else if (userState.state === 'awaiting_test_hwid') {
                     const rawHwid = message.body;
                     const hwid = normalizeHWID(rawHwid);
@@ -936,6 +843,7 @@ Envía el HWID nuevamente o escribe MENU para volver`);
                         return;
                     }
                     
+                    // Verificar prueba diaria
                     if (!(await canCreateTest(from))) {
                         await client.sendText(from, `❌ YA USASTE TU PRUEBA HOY
 
@@ -944,8 +852,13 @@ Envía el HWID nuevamente o escribe MENU para volver`);
                         return;
                     }
                     
+                    // Verificar si HWID ya está registrado
                     const active = await isHWIDActive(hwid);
                     if (active) {
+                        // Debug para ver qué pasa
+                        const debug = await debugHWID(hwid);
+                        console.log(chalk.yellow('🔍 Debug HWID existente:'), debug);
+                        
                         await client.sendText(from, `❌ Este HWID ya está activo en el sistema
 
 Si crees que es un error, contacta soporte.`);
@@ -960,18 +873,28 @@ Si crees que es un error, contacta soporte.`);
                     if (result.success) {
                         registerTest(from, nombre);
                         
-                        const expireTime = moment(result.expires).format('HH:mm DD/MM/YYYY');
+                        // Mostrar hora exacta de expiración
+                        const expireMoment = moment(result.expires);
+                        const ahora = moment();
+                        const diffHoras = expireMoment.diff(ahora, 'hours', true);
+                        
+                        const expireTime = expireMoment.format('HH:mm DD/MM/YYYY');
+                        const ahoraTime = ahora.format('HH:mm DD/MM/YYYY');
                         
                         await client.sendText(from, `✅ PRUEBA ACTIVADA ${nombre}
 
 🔐 HWID: ${hwid}
+📅 Fecha actual: ${ahoraTime}
 ⏰ Expira: ${expireTime}
+⏳ Duración: ${diffHoras.toFixed(1)} horas
 ⚡ Tipo: PRUEBA (2 horas)
 
 📱 Abre la aplicación y ya puedes conectarte
-🔑 Usa tu HWID como contraseña`);
+
+`);
                         
-                        console.log(chalk.green(`✅ HWID test: ${hwid} - ${nombre} - Expira: ${result.expires}`));
+                        console.log(chalk.green(`✅ HWID test: ${hwid} - ${nombre}`));
+                        console.log(chalk.cyan(`📅 Ahora: ${ahoraTime} - Expira: ${expireTime} - Diferencia: ${diffHoras} horas`));
                     } else {
                         await client.sendText(from, `❌ Error: ${result.error}`);
                     }
@@ -1115,6 +1038,7 @@ Envía 1 para prueba gratis (2 horas)`);
                 
                 // ESPERANDO NOMBRE Y HWID DESPUÉS DE PAGO
                 else if (userState.state === 'awaiting_hwid') {
+                    // Si NO tenemos nombre guardado, lo que llega es el nombre
                     if (!userState.data.nombre) {
                         const nombre = message.body.trim();
                         
@@ -1123,6 +1047,7 @@ Envía 1 para prueba gratis (2 horas)`);
                             return;
                         }
                         
+                        // Guardar el nombre y pasar a esperar HWID
                         userState.data.nombre = nombre;
                         await setUserState(from, 'awaiting_hwid', userState.data);
                         
@@ -1134,11 +1059,12 @@ Formato: APP-E3E4D5CBB7636907
 📱 ¿CÓMO OBTENER TU HWID?
 1. Abre la aplicación
 2. Toca el botón de WhatsApp
-3. Envia el HWID`);
+3. Envía el HWID`);
                         
                         return;
                     }
                     
+                    // Si ya tenemos nombre, lo que llega es el HWID
                     const rawHwid = message.body;
                     const hwid = normalizeHWID(rawHwid);
                     const nombre = userState.data.nombre;
@@ -1152,6 +1078,7 @@ Envía el HWID nuevamente:`);
                         return;
                     }
                     
+                    // Verificar si HWID ya está activo
                     const active = await isHWIDActive(hwid);
                     if (active) {
                         await client.sendText(from, `❌ Este HWID ya está activo
@@ -1162,6 +1089,7 @@ Si es tuyo, contacta soporte.`);
                     
                     await client.sendText(from, '⏳ Activando tu HWID...');
                     
+                    // Activar HWID
                     const result = await registerHWID(
                         from, 
                         nombre,
@@ -1171,6 +1099,7 @@ Si es tuyo, contacta soporte.`);
                     );
                     
                     if (result.success) {
+                        // Actualizar pago con HWID y nombre
                         db.run(`UPDATE payments SET hwid = ?, nombre = ? WHERE payment_id = ?`,
                             [hwid, nombre, userState.data.payment_id]);
                         
@@ -1180,7 +1109,6 @@ Si es tuyo, contacta soporte.`);
 
 🔐 HWID: ${hwid}
 ⏰ Válido hasta: ${expireDate}
-🔑 Usa tu HWID como contraseña
 
 ¡Ya puedes usar la aplicación!`);
                         
@@ -1209,10 +1137,16 @@ Si es tuyo, contacta soporte.`);
             checkExpiringHWIDs();
         });
         
-        // ✅ LIMPIAR HWIDS EXPIRADOS CADA 15 MINUTOS
+        // ✅ LIMPIAR HWIDS EXPIRADOS - CORREGIDO
         cron.schedule('*/15 * * * *', async () => {
             console.log(chalk.yellow(`🧹 Limpiando HWIDs expirados...`));
-            await checkExpiringHWIDs();
+            
+            db.run(`
+                UPDATE hwid_users 
+                SET status = 0 
+                WHERE datetime(expires_at) < datetime('now', 'localtime') 
+                AND status = 1
+            `);
         });
         
         // ✅ LIMPIAR ESTADOS
@@ -1239,10 +1173,10 @@ process.on('SIGINT', async () => {
 });
 BOTEOF
 
-echo -e "${GREEN}✅ Bot HWID creado con agregado automático al sistema${NC}"
+echo -e "${GREEN}✅ Bot HWID CORREGIDO creado (pruebas 2 horas funcionales)${NC}"
 
 # ================================================
-# CREAR PANEL DE CONTROL PARA HWID
+# CREAR PANEL DE CONTROL
 # ================================================
 echo -e "\n${CYAN}🎛️  Creando panel de control HWID...${NC}"
 
@@ -1280,9 +1214,8 @@ test_mercadopago() {
 show_header() {
     clear
     echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
-    echo -e "${CYAN}║           🎛️  PANEL SSH BOT PRO - HWID EN SISTEMA            ║${NC}"
-    echo -e "${CYAN}║              🔐 HWID AGREGADO AUTOMÁTICAMENTE                ║${NC}"
-    echo -e "${CYAN}║              ⏱️  PRUEBA: 2 HORAS                            ║${NC}"
+    echo -e "${CYAN}║           🎛️  PANEL SSH BOT PRO - VERSIÓN CORREGIDA         ║${NC}"
+    echo -e "${CYAN}║              ⏱️  PRUEBAS 2 HORAS - ¡FUNCIONAN!              ║${NC}"
     echo -e "${CYAN}╚══════════════════════════════════════════════════════════════╝${NC}\n"
 }
 
@@ -1316,7 +1249,7 @@ while true; do
     echo -e "  Pagos: ${CYAN}$PENDING_PAYMENTS${NC} pend | ${GREEN}$APPROVED_PAYMENTS${NC} aprob"
     echo -e "  MercadoPago: $MP_STATUS"
     echo -e "  IP: $(get_val '.bot.server_ip')"
-    echo -e "  ⏱️  Prueba: ${YELLOW}2 HORAS${NC}"
+    echo -e "  ⏱️  Prueba: ${GREEN}2 HORAS - FUNCIONAL${NC}"
     echo -e ""
     
     echo -e "${YELLOW}💰 PRECIOS ACTUALES:${NC}"
@@ -1340,7 +1273,6 @@ while true; do
     echo -e "${CYAN}[11]${NC} 💳 Ver pagos"
     echo -e "${CYAN}[12]${NC} 🔍 Buscar HWID"
     echo -e "${CYAN}[13]${NC} 🧪 Ver tests hoy"
-    echo -e "${CYAN}[14]${NC} 🗑️  Eliminar HWID del sistema"
     echo -e "${CYAN}[0]${NC} 🚪  Salir"
     echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo -e ""
@@ -1378,6 +1310,7 @@ while true; do
             
             [[ -z "$DAYS" ]] && DAYS="30"
             
+            # Normalizar HWID
             HWID=$(echo "$HWID" | tr 'a-z' 'A-Z')
             if [[ ! "$HWID" =~ ^APP-[A-F0-9]{16}$ ]]; then
                 echo -e "\n${RED}❌ Formato HWID inválido${NC}"
@@ -1392,32 +1325,13 @@ while true; do
                 EXPIRE_DATE=$(date -d "+$DAYS days" +"%Y-%m-%d 23:59:59")
             fi
             
-            # Crear usuario del sistema
-            USERNAME="hwid_${HWID:4:8}"
-            USERNAME=$(echo "$USERNAME" | tr '[:upper:]' '[:lower:]')
-            
-            # Verificar si usuario ya existe
-            if ! id "$USERNAME" &>/dev/null; then
-                useradd -m -s /bin/false -d /home/$USERNAME -c "$NOMBRE - $HWID" "$USERNAME"
-                echo -e "${GREEN}✅ Usuario $USERNAME creado${NC}"
-            fi
-            
-            # Agregar HWID a archivo de autorización
-            echo "$HWID" >> /etc/ssh/hwid_auth/authorized_hwids
-            
-            # Configurar expiración
-            EXPIRE_DATE_ONLY=$(echo "$EXPIRE_DATE" | cut -d' ' -f1)
-            chage -E "$EXPIRE_DATE_ONLY" "$USERNAME"
-            
-            # Insertar en BD
-            sqlite3 "$DB" "INSERT INTO hwid_users (phone, nombre, hwid, tipo, expires_at, status, system_user) VALUES ('$PHONE', '$NOMBRE', '$HWID', '$TIPO', '$EXPIRE_DATE', 1, '$USERNAME')"
+            sqlite3 "$DB" "INSERT INTO hwid_users (phone, nombre, hwid, tipo, expires_at, status) VALUES ('$PHONE', '$NOMBRE', '$HWID', '$TIPO', '$EXPIRE_DATE', 1)"
             
             if [[ $? -eq 0 ]]; then
-                echo -e "\n${GREEN}✅ HWID REGISTRADO EN SISTEMA${NC}"
+                echo -e "\n${GREEN}✅ HWID REGISTRADO${NC}"
                 echo -e "📱 Teléfono: ${PHONE}"
                 echo -e "👤 Nombre: ${NOMBRE}"
                 echo -e "🔐 HWID: ${HWID}"
-                echo -e "👤 Usuario sistema: ${USERNAME}"
                 echo -e "⏰ Expira: ${EXPIRE_DATE}"
             else
                 echo -e "\n${RED}❌ Error (puede que el HWID ya exista)${NC}"
@@ -1428,7 +1342,7 @@ while true; do
             clear
             echo -e "${CYAN}👥 HWIDs ACTIVOS${NC}\n"
             
-            sqlite3 -column -header "$DB" "SELECT nombre, hwid, system_user, phone, tipo, expires_at FROM hwid_users WHERE status = 1 ORDER BY expires_at DESC LIMIT 20"
+            sqlite3 -column -header "$DB" "SELECT nombre, hwid, phone, tipo, expires_at FROM hwid_users WHERE status = 1 ORDER BY expires_at DESC LIMIT 20"
             echo -e "\n${YELLOW}Total activos: ${ACTIVE_HWID}${NC}"
             read -p "Presiona Enter..."
             ;;
@@ -1554,7 +1468,7 @@ while true; do
             read -p "Ingresa HWID, nombre o teléfono: " SEARCH
             
             echo -e "\n${YELLOW}Resultados:${NC}"
-            sqlite3 -column -header "$DB" "SELECT nombre, hwid, system_user, phone, tipo, expires_at, status FROM hwid_users WHERE hwid LIKE '%$SEARCH%' OR phone LIKE '%$SEARCH%' OR nombre LIKE '%$SEARCH%'"
+            sqlite3 -column -header "$DB" "SELECT nombre, hwid, phone, tipo, expires_at, status FROM hwid_users WHERE hwid LIKE '%$SEARCH%' OR phone LIKE '%$SEARCH%' OR nombre LIKE '%$SEARCH%'"
             
             read -p "\nPresiona Enter..."
             ;;
@@ -1565,36 +1479,6 @@ while true; do
             sqlite3 -column -header "$DB" "SELECT nombre, phone, created_at FROM daily_tests WHERE date = date('now') ORDER BY created_at DESC"
             
             read -p "\nPresiona Enter..."
-            ;;
-        14)
-            clear
-            echo -e "${CYAN}🗑️  ELIMINAR HWID DEL SISTEMA${NC}\n"
-            read -p "Ingresa HWID a eliminar: " HWID_DEL
-            
-            # Obtener información
-            INFO=$(sqlite3 "$DB" "SELECT system_user, nombre FROM hwid_users WHERE hwid='$HWID_DEL'")
-            if [[ -n "$INFO" ]]; then
-                USERNAME=$(echo "$INFO" | cut -d'|' -f1)
-                NOMBRE=$(echo "$INFO" | cut -d'|' -f2)
-                
-                echo -e "\n${YELLOW}Eliminando HWID: $HWID_DEL${NC}"
-                echo -e "Usuario: $USERNAME"
-                echo -e "Nombre: $NOMBRE"
-                
-                # Eliminar del archivo de autorización
-                sed -i "/^$HWID_DEL$/d" /etc/ssh/hwid_auth/authorized_hwids
-                
-                # Eliminar usuario del sistema
-                userdel -r "$USERNAME" 2>/dev/null
-                
-                # Eliminar de BD
-                sqlite3 "$DB" "DELETE FROM hwid_users WHERE hwid='$HWID_DEL'"
-                
-                echo -e "${GREEN}✅ HWID eliminado del sistema${NC}"
-            else
-                echo -e "${RED}❌ HWID no encontrado${NC}"
-            fi
-            read -p "Presiona Enter..."
             ;;
         0)
             echo -e "\n${GREEN}👋 Hasta pronto${NC}\n"
@@ -1629,13 +1513,12 @@ echo -e "${GREEN}${BOLD}"
 cat << "FINAL"
 ╔══════════════════════════════════════════════════════════════╗
 ║                                                              ║
-║          🎉 INSTALACIÓN COMPLETADA - HWID EN SISTEMA 🎉     ║
+║          🎉 INSTALACIÓN COMPLETADA - CORREGIDA 🎉          ║
 ║                                                              ║
-║       🔐 HWID AGREGADO AUTOMÁTICAMENTE AL SISTEMA          ║
-║       📱 PRIMERO NOMBRE, LUEGO HWID                        ║
+║       🔐 SISTEMA HWID - SIN USUARIO/CONTRASEÑA             ║
+║       ⏱️  PRUEBAS 2 HORAS - ¡AHORA FUNCIONAN!             ║
 ║       💰 MercadoPago SDK v2.x INTEGRADO                    ║
-║       💳 Pago automático con QR                            ║
-║       ⏱️  PRUEBA DE 2 HORAS                                ║
+║       📱 PRIMERO NOMBRE, LUEGO HWID                        ║
 ║       ⏰ NOTIFICACIONES DE VENCIMIENTO ACTIVAS              ║
 ║                                                              ║
 ╚══════════════════════════════════════════════════════════════╝
@@ -1643,15 +1526,14 @@ FINAL
 echo -e "${NC}"
 
 echo -e "${CYAN}══════════════════════════════════════════════════════════════${NC}"
-echo -e "${GREEN}✅ Sistema HWID instalado con AGREGADO AUTOMÁTICO${NC}"
-echo -e "${GREEN}✅ Los HWID se crean como usuarios en el sistema${NC}"
-echo -e "${GREEN}✅ Los clientes usan su HWID como contraseña${NC}"
-echo -e "${GREEN}✅ SSH configurado para aceptar HWID${NC}"
+echo -e "${GREEN}✅ Sistema HWID instalado - VERSIÓN CORREGIDA${NC}"
+echo -e "${GREEN}✅ ⏱️  PRUEBAS DE 2 HORAS - ¡FUNCIONALES!${NC}"
+echo -e "${GREEN}✅ SIN usuario/contraseña${NC}"
 echo -e "${GREEN}✅ FLUJO: Primero nombre, luego HWID${NC}"
 echo -e "${GREEN}✅ Formato HWID: APP-E3E4D5CBB7636907${NC}"
 echo -e "${GREEN}✅ MercadoPago SDK v2.x integrado${NC}"
-echo -e "${GREEN}✅ ⏱️  PRUEBA DE 2 HORAS${NC}"
-echo -e "${GREEN}✅ ⏰ NOTIFICACIONES DE VENCIMIENTO (cada hora)${NC}"
+echo -e "${GREEN}✅ Verificación automática de pagos${NC}"
+echo -e "${GREEN}✅ NOTIFICACIONES DE VENCIMIENTO (cada hora)${NC}"
 echo -e "${CYAN}══════════════════════════════════════════════════════════════${NC}\n"
 
 echo -e "${YELLOW}📋 COMANDOS PRINCIPALES:${NC}\n"
@@ -1660,26 +1542,23 @@ echo -e "  ${GREEN}pm2 logs sshbot-pro${NC} - Ver logs y QR"
 echo -e "  ${GREEN}pm2 restart sshbot-pro${NC} - Reiniciar"
 echo -e "\n"
 
-echo -e "${YELLOW}📱 CÓMO SE CONECTA EL CLIENTE:${NC}\n"
-echo -e "  1. Abre su aplicación VPN/SSH"
-echo -e "  2. Servidor: ${CYAN}$SERVER_IP${NC}"
-echo -e "  3. Usuario: (el que crea el sistema, no lo necesita saber)"
-echo -e "  4. Contraseña: ${CYAN}SU HWID${NC} (ej: APP-E3E4D5CBB7636907)"
-echo -e "  5. Puerto: ${CYAN}22${NC} (o el que configures)"
+echo -e "${YELLOW}📱 FLUJO DEL SISTEMA HWID:${NC}\n"
+echo -e "  1. Usuario paga o pide prueba"
+echo -e "  2. Bot pide: ${CYAN}\"Primero, dime tu nombre\"${NC}"
+echo -e "  3. Usuario envía nombre"
+echo -e "  4. Bot pide: ${CYAN}\"Ahora envía tu HWID\"${NC}"
+echo -e "  5. Usuario envía HWID"
+echo -e "  6. Sistema activa automáticamente"
 echo -e "\n"
+
+echo -e "${YELLOW}⏱️  PRUEBA GRATUITA: ${GREEN}2 HORAS - ¡YA FUNCIONA!${NC}\n"
 
 echo -e "${YELLOW}💡 FORMATO HWID VÁLIDO:${NC}"
 echo -e "  APP-E3E4D5CBB7636907"
 echo -e "  APP- + 16 caracteres hexadecimales"
 echo -e "\n"
 
-echo -e "${YELLOW}💰 CONFIGURAR MERCADOPAGO:${NC}\n"
-echo -e "  1. Ejecuta: ${GREEN}sshbot${NC}"
-echo -e "  2. Opción 7: Configurar MercadoPago"
-echo -e "  3. Pega tu Access Token de producción"
-echo -e "\n"
-
-echo -e "${GREEN}${BOLD}¡Sistema listo! Los HWID ahora se agregan automáticamente al sistema 🚀${NC}\n"
+echo -e "${GREEN}${BOLD}¡Sistema HWID CORREGIDO listo! Las pruebas de 2 horas ya funcionan correctamente 🚀${NC}\n"
 
 read -p "$(echo -e "${YELLOW}¿Ver logs ahora? (s/N): ${NC}")" -n 1 -r
 echo
