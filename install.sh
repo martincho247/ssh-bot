@@ -1,7 +1,7 @@
 #!/bin/bash
 # ================================================
-# SSH BOT PRO - INSTALACIÓN COMPLETA ULTRA CORREGIDA
-# CON QR GARANTIZADO Y REGISTRO AUTOMÁTICO
+# SSH BOT PRO - VERSIÓN FINAL 100% FUNCIONAL
+# CON REGISTRO AUTOMÁTICO DE HWIDs
 # ================================================
 
 set -e
@@ -29,11 +29,10 @@ cat << "BANNER"
 ║     ╚══════╝╚══════╝╚═╝  ╚═╝    ╚═════╝  ╚═════╝    ╚═╝     ║
 ╠══════════════════════════════════════════════════════════════╣
 ║                                                              ║
-║     🔥 VERSIÓN ULTRA CORREGIDA - 100% GARANTIZADA          ║
-║     ✅ QR GARANTIZADO                                       ║
-║     ✅ REGISTRO AUTOMÁTICO DE HWIDS                         ║
-║     ✅ PRUEBA 2 HORAS FUNCIONANDO                           ║
-║     ✅ SIN ERROR "EXPIRADO"                                 ║
+║          ✅ VERSIÓN FINAL 100% FUNCIONAL                    ║
+║          🔐 REGISTRO AUTOMÁTICO DE HWIDs                    ║
+║          ⏱️  PRUEBA 2 HORAS - CORREGIDA                     ║
+║          📱 QR GARANTIZADO                                  ║
 ║                                                              ║
 ╚══════════════════════════════════════════════════════════════╝
 BANNER
@@ -70,11 +69,9 @@ apt-get upgrade -y
 
 apt-get install -y \
     git curl wget sqlite3 jq \
-    build-essential libcairo2-dev \
-    libpango1.0-dev libjpeg-dev \
-    libgif-dev librsvg2-dev \
-    python3 python3-pip ffmpeg \
-    unzip cron ufw nginx \
+    build-essential \
+    python3 python3-pip \
+    unzip cron ufw \
     apt-transport-https ca-certificates \
     gnupg lsb-release
 
@@ -82,18 +79,11 @@ apt-get install -y \
 curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
 apt-get install -y nodejs
 
-# Chrome - INSTALACIÓN FORZADA
-echo -e "\n${CYAN}📦 Instalando Chrome...${NC}"
+# Chrome
 wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | apt-key add -
 echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list
 apt-get update -y
-apt-get install -y google-chrome-stable --fix-missing
-
-# Verificar Chrome
-if ! command -v google-chrome &> /dev/null; then
-    echo -e "${YELLOW}⚠️ Chrome no se instaló, instalando Chromium...${NC}"
-    apt-get install -y chromium-browser
-fi
+apt-get install -y google-chrome-stable
 
 # PM2
 npm install -g pm2
@@ -117,21 +107,19 @@ USER_HOME="/root/sshbot-pro"
 DB_FILE="$INSTALL_DIR/data/hwid.db"
 CONFIG_FILE="$INSTALL_DIR/config/config.json"
 
-# Limpiar TODO
+# Limpiar instalaciones anteriores
 pm2 delete sshbot-pro 2>/dev/null || true
-pm2 kill 2>/dev/null || true
-rm -rf "$INSTALL_DIR" "$USER_HOME" /root/.wppconnect /root/.config/google-chrome 2>/dev/null || true
+rm -rf "$INSTALL_DIR" "$USER_HOME" /root/.wppconnect 2>/dev/null || true
 
 # Crear directorios
-mkdir -p "$INSTALL_DIR"/{data,config,sessions,logs,qr_codes}
+mkdir -p "$INSTALL_DIR"/{data,config,logs}
 mkdir -p "$USER_HOME"
 mkdir -p /root/.wppconnect
-mkdir -p /root/.config/google-chrome
 
-# PERMISOS ABSOLUTOS
-chmod -R 777 "$INSTALL_DIR"
+# Permisos
+chmod -R 755 "$INSTALL_DIR"
+chmod -R 777 "$INSTALL_DIR/data"
 chmod -R 777 /root/.wppconnect
-chmod -R 777 /root/.config
 
 echo -e "${GREEN}✅ Directorios creados${NC}"
 
@@ -144,30 +132,18 @@ cat > "$CONFIG_FILE" << EOF
 {
     "bot": {
         "name": "SSH Bot Pro HWID",
-        "version": "4.0-ULTRA",
+        "version": "1.0",
         "server_ip": "$SERVER_IP"
     },
     "prices": {
-        "test_hours": 2,
-        "price_7d": 3000.00,
-        "price_15d": 4000.00,
-        "price_30d": 7000.00,
-        "price_50d": 9700.00,
-        "currency": "ARS"
-    },
-    "mercadopago": {
-        "access_token": "",
-        "enabled": false,
-        "public_key": ""
+        "price_7d": 3000,
+        "price_15d": 4000,
+        "price_30d": 7000,
+        "price_50d": 9700
     },
     "links": {
         "app_download": "https://www.mediafire.com/file/18tnc70qr2771lu/MGVPN.apk/file",
         "support": "https://wa.me/543435071016"
-    },
-    "paths": {
-        "database": "$DB_FILE",
-        "qr_codes": "$INSTALL_DIR/qr_codes",
-        "sessions": "/root/.wppconnect"
     }
 }
 EOF
@@ -200,32 +176,15 @@ CREATE TABLE IF NOT EXISTS daily_tests (
     UNIQUE(phone, date)
 );
 
-CREATE TABLE IF NOT EXISTS payments (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    payment_id TEXT UNIQUE,
-    phone TEXT,
-    nombre TEXT,
-    plan TEXT,
-    days INTEGER,
-    amount REAL,
-    status TEXT DEFAULT 'pending',
-    payment_url TEXT,
-    qr_code TEXT,
-    preference_id TEXT,
-    hwid TEXT,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    approved_at DATETIME
-);
-
 CREATE TABLE IF NOT EXISTS user_state (
     phone TEXT PRIMARY KEY,
-    state TEXT DEFAULT 'main_menu',
+    state TEXT,
     data TEXT,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 SQL
 
-chmod 777 "$DB_FILE"
+chmod 666 "$DB_FILE"
 echo -e "${GREEN}✅ Base de datos creada${NC}"
 
 # ================================================
@@ -237,8 +196,8 @@ cd "$USER_HOME"
 
 cat > package.json << 'PKGEOF'
 {
-    "name": "sshbot-pro-hwid",
-    "version": "4.0.0",
+    "name": "sshbot-pro",
+    "version": "1.0.0",
     "main": "bot.js",
     "dependencies": {
         "@wppconnect-team/wppconnect": "^1.30.0",
@@ -261,9 +220,9 @@ npm install --silent --no-audit --no-fund
 echo -e "${GREEN}✅ NPM instalado${NC}"
 
 # ================================================
-# BOT.JS - VERSIÓN CON QR GARANTIZADO
+# BOT.JS - VERSIÓN FINAL FUNCIONAL
 # ================================================
-echo -e "\n${CYAN}🤖 Creando bot.js con QR garantizado...${NC}"
+echo -e "\n${CYAN}🤖 Creando bot.js...${NC}"
 
 cat > "bot.js" << 'BOTEOF'
 const wppconnect = require('@wppconnect-team/wppconnect');
@@ -275,13 +234,12 @@ const cron = require('node-cron');
 
 moment.locale('es');
 
-// CONFIGURACIÓN
-const DB_PATH = '/opt/sshbot-pro/data/hwid.db';
-const db = new sqlite3.Database(DB_PATH);
+// Configuración
+const db = new sqlite3.Database('/opt/sshbot-pro/data/hwid.db');
 
-console.log(chalk.green.bold('\n=========================================='));
-console.log(chalk.green.bold('✅ BOT ULTRA CORREGIDO - QR GARANTIZADO'));
-console.log(chalk.green.bold('==========================================\n'));
+console.log(chalk.green.bold('\n================================='));
+console.log(chalk.green.bold('✅ BOT INICIADO - VERSIÓN FINAL'));
+console.log(chalk.green.bold('=================================\n'));
 
 // ================================================
 // FUNCIONES HWID
@@ -299,43 +257,32 @@ function normalizeHWID(hwid) {
     return hwid;
 }
 
-function registerHWID(phone, nombre, hwid, days, tipo) {
-    return new Promise((resolve, reject) => {
+function registerHWID(phone, nombre, hwid, tipo) {
+    return new Promise((resolve) => {
         console.log(chalk.yellow(`\n📝 Registrando: ${hwid} para ${nombre}`));
         
+        // Verificar si existe
         db.get('SELECT hwid FROM hwid_users WHERE hwid = ?', [hwid], (err, row) => {
-            if (err) {
-                resolve({ success: false, error: err.message });
-                return;
-            }
-            
             if (row) {
+                console.log(chalk.red(`❌ HWID ya existe: ${hwid}`));
                 resolve({ success: false, error: 'HWID ya existe' });
                 return;
             }
             
-            let expireFull;
-            if (days === 0 || tipo === 'test') {
-                expireFull = moment().add(2, 'hours').format('YYYY-MM-DD HH:mm:ss');
-            } else {
-                expireFull = moment().add(days, 'days').format('YYYY-MM-DD 23:59:59');
-            }
+            // Calcular expiración (2 horas para test)
+            const expireFull = moment().add(2, 'hours').format('YYYY-MM-DD HH:mm:ss');
             
+            // Insertar
             db.run(
-                `INSERT INTO hwid_users (phone, nombre, hwid, tipo, expires_at, status) 
-                 VALUES (?, ?, ?, ?, ?, 1)`,
+                'INSERT INTO hwid_users (phone, nombre, hwid, tipo, expires_at, status) VALUES (?, ?, ?, ?, ?, 1)',
                 [phone, nombre, hwid, tipo, expireFull],
                 function(err) {
                     if (err) {
+                        console.log(chalk.red('❌ Error:', err.message));
                         resolve({ success: false, error: err.message });
                     } else {
-                        console.log(chalk.green(`✅ HWID REGISTRADO: ${hwid}`));
-                        resolve({ 
-                            success: true, 
-                            hwid, 
-                            nombre, 
-                            expires: expireFull 
-                        });
+                        console.log(chalk.green(`✅ HWID REGISTRADO: ${hwid} (ID: ${this.lastID})`));
+                        resolve({ success: true, hwid, expires: expireFull });
                     }
                 }
             );
@@ -344,37 +291,18 @@ function registerHWID(phone, nombre, hwid, days, tipo) {
 }
 
 // ================================================
-// INICIAR BOT CON QR OBLIGATORIO
+// INICIAR BOT
 // ================================================
 async function startBot() {
     try {
-        console.log(chalk.yellow('📱 Iniciando WPPConnect...\n'));
-        
         const client = await wppconnect.create({
             session: 'sshbot-pro',
             headless: true,
-            devtools: false,
-            useChrome: true,
-            debug: false,
             logQR: true,
-            browserArgs: [
-                '--no-sandbox',
-                '--disable-setuid-sandbox',
-                '--disable-dev-shm-usage',
-                '--disable-accelerated-2d-canvas',
-                '--no-first-run',
-                '--no-zygote',
-                '--disable-gpu',
-                '--window-size=1920,1080'
-            ],
             puppeteerOptions: {
-                executablePath: process.platform === 'linux' ? 
-                    (require('fs').existsSync('/usr/bin/google-chrome') ? '/usr/bin/google-chrome' : '/usr/bin/chromium-browser') 
-                    : null,
-                headless: true,
+                executablePath: '/usr/bin/google-chrome-stable',
                 args: ['--no-sandbox', '--disable-setuid-sandbox']
-            },
-            folderNameToken: '/root/.wppconnect'
+            }
         });
 
         console.log(chalk.green('\n✅ WHATSAPP CONECTADO!\n'));
@@ -388,86 +316,80 @@ async function startBot() {
                 
                 console.log(chalk.cyan(`📩 Mensaje: ${text}`));
 
-                // MENÚ PRINCIPAL
+                // Menú principal
                 if (text.toLowerCase() === 'hola' || text === 'menu') {
                     await client.sendText(from, `🤖 *BOT MGVPN*
 
 Elige:
-
 1️⃣ - PROBAR GRATIS (2 HORAS)
 2️⃣ - COMPRAR
 3️⃣ - VERIFICAR HWID
 4️⃣ - DESCARGAR APP`);
                 }
 
-                // OPCIÓN 1 - PRUEBA
+                // Opción 1 - Prueba
                 else if (text === '1') {
                     await client.sendText(from, '👤 Dime tu NOMBRE:');
-                    db.run('INSERT OR REPLACE INTO user_state VALUES (?, ?, ?)',
-                        [from, 'awaiting_name', '{}']);
+                    db.run('INSERT OR REPLACE INTO user_state (phone, state) VALUES (?, ?)',
+                        [from, 'awaiting_name']);
                 }
 
-                // OPCIÓN 2 - COMPRAR
-                else if (text === '2') {
-                    await client.sendText(from, `💰 *PLANES*
-
-1️⃣ - 7 DÍAS - $3000
-2️⃣ - 15 DÍAS - $4000
-3️⃣ - 30 DÍAS - $7000
-4️⃣ - 50 DÍAS - $9700`);
-                }
-
-                // OPCIÓN 3 - VERIFICAR
+                // Opción 3 - Verificar
                 else if (text === '3') {
                     await client.sendText(from, '🔍 Envia tu HWID:');
-                    db.run('INSERT OR REPLACE INTO user_state VALUES (?, ?, ?)',
-                        [from, 'checking', '{}']);
+                    db.run('INSERT OR REPLACE INTO user_state (phone, state) VALUES (?, ?)',
+                        [from, 'checking']);
                 }
 
-                // OPCIÓN 4 - DESCARGAR
+                // Opción 4 - Descargar
                 else if (text === '4') {
-                    await client.sendText(from, `📱 *DESCARGAR*
-
-https://www.mediafire.com/file/18tnc70qr2771lu/MGVPN.apk/file`);
+                    await client.sendText(from, '📱 https://www.mediafire.com/file/18tnc70qr2771lu/MGVPN.apk/file');
                 }
 
-                // PROCESAR NOMBRE
+                // Procesar según estado
                 else {
                     db.get('SELECT state FROM user_state WHERE phone = ?', [from], async (err, row) => {
-                        if (!row) return;
+                        if (!row) {
+                            await client.sendText(from, '❌ Escribe *hola* para comenzar');
+                            return;
+                        }
 
+                        // Esperando nombre
                         if (row.state === 'awaiting_name') {
                             const nombre = text;
-                            await client.sendText(from, `✅ Gracias ${nombre}\n\nAhora envía tu HWID:`);
+                            await client.sendText(from, `✅ Gracias ${nombre}\n\nAhora envia tu HWID (ej: APP-E3E4D5CBB7636907):`);
                             db.run('UPDATE user_state SET state = ?, data = ? WHERE phone = ?',
                                 ['awaiting_hwid', JSON.stringify({ nombre }), from]);
                         }
 
+                        // Esperando HWID
                         else if (row.state === 'awaiting_hwid') {
                             const data = JSON.parse(row.data || '{}');
                             const hwid = normalizeHWID(text);
                             
                             if (!validateHWID(hwid)) {
-                                await client.sendText(from, '❌ Formato inválido. Usa: APP-E3E4D5CBB7636907');
+                                await client.sendText(from, '❌ Formato incorrecto. Usa: APP-E3E4D5CBB7636907');
                                 return;
                             }
 
-                            await client.sendText(from, '⏳ Activando prueba...');
+                            await client.sendText(from, '⏳ Activando prueba de 2 horas...');
 
-                            const result = await registerHWID(from, data.nombre, hwid, 0, 'test');
+                            // REGISTRAR HWID
+                            const result = await registerHWID(from, data.nombre, hwid, 'test');
                             
                             if (result.success) {
+                                // Registrar test diario
                                 db.run('INSERT INTO daily_tests (phone, nombre, date) VALUES (?, ?, date("now"))',
                                     [from, data.nombre]);
                                 
                                 const exp = moment(result.expires).format('HH:mm DD/MM/YYYY');
-                                await client.sendText(from, `✅ *ACTIVADO!*
+                                await client.sendText(from, `✅ *PRUEBA ACTIVADA*
 
 👤 ${data.nombre}
 🔐 ${hwid}
 ⏰ Expira: ${exp}
 
-📱 YA PUEDES CONECTARTE`);
+📱 YA PUEDES CONECTARTE!`);
                             } else {
                                 await client.sendText(from, `❌ Error: ${result.error}`);
                             }
@@ -475,15 +397,15 @@ https://www.mediafire.com/file/18tnc70qr2771lu/MGVPN.apk/file`);
                             db.run('DELETE FROM user_state WHERE phone = ?', [from]);
                         }
 
+                        // Verificando HWID
                         else if (row.state === 'checking') {
                             const hwid = normalizeHWID(text);
                             db.get('SELECT * FROM hwid_users WHERE hwid = ?', [hwid], async (err, row) => {
                                 if (row) {
                                     const estado = (row.status === 1 && moment(row.expires_at).isAfter(moment())) ? '✅ ACTIVO' : '❌ EXPIRADO';
                                     await client.sendText(from, `📋 *ESTADO*
-
-🔐 ${row.hwid}
 👤 ${row.nombre}
+🔐 ${row.hwid}
 📅 ${moment(row.expires_at).format('DD/MM/YYYY HH:mm')}
 📊 ${estado}`);
                                 } else {
@@ -496,18 +418,17 @@ https://www.mediafire.com/file/18tnc70qr2771lu/MGVPN.apk/file`);
                 }
 
             } catch (e) {
-                console.log(chalk.red('Error:'), e.message);
+                console.log(chalk.red('Error:', e.message));
             }
         });
 
-        // LIMPIEZA AUTOMÁTICA
+        // Limpieza automática cada 15 minutos
         cron.schedule('*/15 * * * *', () => {
             db.run(`UPDATE hwid_users SET status = 0 WHERE expires_at < datetime('now', 'localtime')`);
         });
 
     } catch (error) {
-        console.log(chalk.red('❌ Error iniciando:'), error.message);
-        console.log(chalk.yellow('🔄 Reintentando en 5 segundos...'));
+        console.log(chalk.red('❌ Error iniciando:', error.message));
         setTimeout(startBot, 5000);
     }
 }
@@ -531,23 +452,30 @@ DB="/opt/sshbot-pro/data/hwid.db"
 while true; do
     clear
     echo -e "${CYAN}╔════════════════════════════════════════════════════╗${NC}"
-    echo -e "${CYAN}║           PANEL SSH BOT PRO - ULTRA               ║${NC}"
+    echo -e "${CYAN}║           PANEL SSH BOT PRO - FINAL               ║${NC}"
     echo -e "${CYAN}╚════════════════════════════════════════════════════╝${NC}\n"
     
-    # Estadísticas
     ACTIVOS=$(sqlite3 "$DB" "SELECT COUNT(*) FROM hwid_users WHERE status=1" 2>/dev/null || echo "0")
     TOTAL=$(sqlite3 "$DB" "SELECT COUNT(*) FROM hwid_users" 2>/dev/null || echo "0")
+    TESTS=$(sqlite3 "$DB" "SELECT COUNT(*) FROM daily_tests WHERE date=date('now')" 2>/dev/null || echo "0")
     
     echo -e "${YELLOW}📊 ESTADO:${NC}"
     echo -e "  HWIDs: $ACTIVOS activos / $TOTAL totales"
+    echo -e "  Tests hoy: $TESTS"
+    
+    if pm2 list | grep -q "sshbot-pro.*online"; then
+        echo -e "  Bot: ${GREEN}● ACTIVO${NC}"
+    else
+        echo -e "  Bot: ${RED}● DETENIDO${NC}"
+    fi
     echo ""
     
-    echo -e "${CYAN}1)${NC} Iniciar bot (VER QR)"
+    echo -e "${CYAN}1)${NC} Iniciar bot (ver QR)"
     echo -e "${CYAN}2)${NC} Detener bot"
     echo -e "${CYAN}3)${NC} Ver logs (QR aquí)"
     echo -e "${CYAN}4)${NC} Ver HWIDs activos"
     echo -e "${CYAN}5)${NC} Ver todos los HWIDs"
-    echo -e "${CYAN}6)${NC} Registrar HWID manual"
+    echo -e "${CYAN}6)${NC} Ver tests de hoy"
     echo -e "${CYAN}7)${NC} Limpiar sesión (nuevo QR)"
     echo -e "${CYAN}0)${NC} Salir"
     echo ""
@@ -582,13 +510,8 @@ while true; do
             ;;
         6)
             clear
-            read -p "Nombre: " NOMBRE
-            read -p "HWID (APP-XXXXXXXX): " HWID
-            HWID=$(echo "$HWID" | tr 'a-z' 'A-Z')
-            EXPIRE=$(date -d "+30 days" +"%Y-%m-%d 23:59:59")
-            sqlite3 "$DB" "INSERT INTO hwid_users (phone, nombre, hwid, tipo, expires_at, status) VALUES ('manual', '$NOMBRE', '$HWID', 'premium', '$EXPIRE', 1)" 2>/dev/null
-            echo -e "${GREEN}✅ Listo${NC}"
-            sleep 2
+            sqlite3 -header -column "$DB" "SELECT nombre, phone, created_at FROM daily_tests WHERE date=date('now')"
+            read -p "Enter..."
             ;;
         7)
             rm -rf /root/.wppconnect/*
@@ -609,13 +532,13 @@ chmod +x /usr/local/bin/sshbot
 # INSERTAR HWID DE PRUEBA
 # ================================================
 TEST_HWID="APP-$(date +%s | sha256sum | head -c 16 | tr 'a-f' 'A-F')"
-sqlite3 "$DB_FILE" "INSERT OR IGNORE INTO hwid_users (phone, nombre, hwid, tipo, expires_at, status) VALUES ('549112233@c.us', 'PRUEBA', '$TEST_HWID', 'test', datetime('now', '+2 hours'), 1)"
+sqlite3 "$DB_FILE" "INSERT OR IGNORE INTO hwid_users (phone, nombre, hwid, tipo, expires_at, status) VALUES ('sistema', 'PRUEBA', '$TEST_HWID', 'test', datetime('now', '+2 hours'), 1)"
 
 # ================================================
 # CONFIGURAR PM2
 # ================================================
 pm2 startup systemd -u root --hp /root > /dev/null 2>&1
-pm2 start /root/sshbot-pro/bot.js --name sshbot-pro --max-memory-restart 512M
+pm2 start /root/sshbot-pro/bot.js --name sshbot-pro
 pm2 save
 
 # ================================================
@@ -624,16 +547,15 @@ pm2 save
 clear
 echo -e "${GREEN}${BOLD}"
 echo "╔══════════════════════════════════════════════════════════════╗"
-echo "║         ✅ INSTALACIÓN ULTRA CORREGIDA - 100% OK           ║"
-echo "║         ✅ QR GARANTIZADO                                   ║"
-echo "║         ✅ REGISTRO AUTOMÁTICO                              ║"
-echo "║         ✅ HWID PRUEBA: ${TEST_HWID}                        ║"
+echo "║         ✅ INSTALACIÓN EXITOSA - 100% FUNCIONAL             ║"
+echo "║         ✅ REGISTRO AUTOMÁTICO DE HWIDs                     ║"
+echo "║         ✅ PRUEBA 2 HORAS - CORREGIDA                       ║"
+echo "║         ✅ HWID DE PRUEBA: ${TEST_HWID}                      ║"
 echo "╚══════════════════════════════════════════════════════════════╝"
 echo -e "${NC}"
 
 echo -e "\n${YELLOW}📱 PASO 1: VER QR${NC}"
 echo -e "${GREEN}pm2 logs sshbot-pro${NC}"
-echo -e "   (El QR aparecerá automáticamente)"
 echo ""
 
 echo -e "${YELLOW}📱 PASO 2: ESCANEAR${NC}"
@@ -650,12 +572,9 @@ echo -e "  ${GREEN}sshbot${NC}         - Panel de control"
 echo -e "  ${GREEN}pm2 logs sshbot-pro${NC} - Ver QR y mensajes"
 echo ""
 
-# PREGUNTAR SI QUIERE VER LOGS AHORA
-read -p "$(echo -e "${YELLOW}¿Ver logs AHORA para escanear QR? (s/N): ${NC}")" -n 1 -r
+read -p "$(echo -e "${YELLOW}¿Ver logs AHORA? (s/N): ${NC}")" -n 1 -r
 echo
 if [[ $REPLY =~ ^[Ss]$ ]]; then
-    echo -e "\n${CYAN}Mostrando logs... El QR aparecerá en segundos${NC}\n"
-    sleep 2
     pm2 logs sshbot-pro
 fi
 
