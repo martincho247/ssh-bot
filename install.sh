@@ -668,10 +668,10 @@ async function initializeBot() {
 
 Elija una opción:
 
-🧾 1 - CREAR PRUEBA (2 HORAS GRATIS)
-💰 2 - COMPRAR USUARIO SSH
-🔄 3 - RENOVAR USUARIO SSH
-📱 4 - DESCARGAR APLICACIÓN`);
+ 1️⃣ - CREAR PRUEBA (2 HORAS GRATIS)
+ 2️⃣ - COMPRAR USUARIO SSH
+ 3️⃣ - RENOVAR USUARIO SSH
+ 4️⃣ - DESCARGAR APLICACIÓN`);
                 }
                 
                 // OPCIÓN 1: CREAR PRUEBA
@@ -725,9 +725,9 @@ Elija una opción:
                     await client.sendText(from, `🌐 PLANES SSH PREMIUM !
 
 Elija una opción:
-🗓 1 - PLANES DIARIOS
-🗓 2 - PLANES MENSUALES
-⬅️ 0 - VOLVER`);
+ 1️⃣ - PLANES DIARIOS
+ 2️⃣ - PLANES MENSUALES
+ 0️⃣ - VOLVER`);
                 }
                 
                 // SUBMENÚ DE COMPRAS
@@ -739,11 +739,11 @@ Elija una opción:
                         await client.sendText(from, `🌐 PLANES DIARIOS SSH
 
 Elija un plan:
-🗓 1 - 7 DIAS - $${config.prices.price_7d}
+ 1️⃣ - 7 DIAS - $${config.prices.price_7d}
 
-🗓 2 - 15 DIAS - $${config.prices.price_15d}
+ 2️⃣ - 15 DIAS - $${config.prices.price_15d}
 
-⬅️ 0 - VOLVER`);
+ 0️⃣ - VOLVER`);
                     }
                     else if (text === '2') {
                         // 🌐 PLANES MENSUALES
@@ -752,11 +752,11 @@ Elija un plan:
                         await client.sendText(from, `🌐 PLANES MENSUALES SSH
 
 Elija un plan:
-🗓 1 - 30 DIAS - $${config.prices.price_30d}
+ 1️⃣ - 30 DIAS - $${config.prices.price_30d}
 
-🗓 2 - 50 DIAS - $${config.prices.price_50d}
+ 2️⃣ - 50 DIAS - $${config.prices.price_50d}
 
-⬅️ 0 - VOLVER`);
+ 0️⃣ - VOLVER`);
                     }
                     else if (text === '0') {
                         await setUserState(from, 'main_menu');
@@ -764,10 +764,10 @@ Elija un plan:
 
 Elija una opción:
 
-🧾 1 - CREAR PRUEBA (2 HORAS GRATIS)
-💰 2 - COMPRAR USUARIO SSH
-🔄 3 - RENOVAR USUARIO SSH
-📱 4 - DESCARGAR APLICACIÓN`);
+ 1️⃣ - CREAR PRUEBA (2 HORAS GRATIS)
+ 2️⃣ - COMPRAR USUARIO SSH
+ 3️⃣ - RENOVAR USUARIO SSH
+ 4️⃣ - DESCARGAR APLICACIÓN`);
                     }
                 }
                 
@@ -844,9 +844,9 @@ ${config.links.support}`);
                         await client.sendText(from, `🌐 PLANES SSH PREMIUM !
 
 Elija una opción:
-🗓 1 - PLANES DIARIOS
-🗓 2 - PLANES MENSUALES
-⬅️ 0 - VOLVER`);
+ 1️⃣ - PLANES DIARIOS
+ 2️⃣ - PLANES MENSUALES
+ 0️⃣ - VOLVER`);
                     }
                 }
                 
