@@ -152,7 +152,7 @@ cat > "$CONFIG_FILE" << EOF
         "price_7d": 3000.00,
         "price_15d": 4000.00,
         "price_30d": 7000.00,
-        "price_50d": 9700.00,
+        "price_50d": 10000.00,
         "currency": "ARS"
     },
     "mercadopago": {
@@ -165,7 +165,7 @@ cat > "$CONFIG_FILE" << EOF
         "times": [24, 12, 6, 1]
     },
     "links": {
-        "app_download": "https://www.mediafire.com/file/p8kgthxbsid7xws/MAJ/DNI_AND_FIL",
+        "app_download": "https://www.mediafire.com/file/tvt0vpmyfg3xqhj/mgvpn.apk/file",
         "support": "https://wa.me/543435071016"
     },
     "paths": {
