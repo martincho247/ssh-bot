@@ -923,9 +923,9 @@ ${config.links.support}`);
                         await client.sendText(from, `🌐 PLANES SSH PREMIUM !
 
 Elija una opción:
-🗓 1 - PLANES DIARIOS
-🗓 2 - PLANES MENSUALES
-⬅️ 0 - VOLVER`);
+ 1️⃣ - PLANES DIARIOS
+ 2️⃣ - PLANES MENSUALES
+ 0️⃣ - VOLVER`);
                     }
                 }
                 
