@@ -571,11 +571,6 @@ async function checkPendingPayments() {
 ⏰ VÁLIDO HASTA: ${expireDate}
 🔌 CONEXIÓN: 1 dispositivo
 
-📱 INSTALACIÓN:
-1. Abre el link Descarga el APK
-2. Abre el apk Click en "Más detalles"
-3. Click en "Instalar de todas formas"
-4. Configura con tus credenciales
 
 🎊 ¡Disfruta del servicio premium!`;
                             
@@ -668,7 +663,7 @@ async function initializeBot() {
 
 Elija una opción:
 
- 1️⃣ - CREAR PRUEBA (2 HORAS GRATIS)
+ 1️⃣ - CREAR PRUEBA (2 HORAS)
  2️⃣ - COMPRAR USUARIO SSH
  3️⃣ - RENOVAR USUARIO SSH
  4️⃣ - DESCARGAR APLICACIÓN`);
