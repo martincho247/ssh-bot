@@ -659,7 +659,7 @@ async function initializeBot() {
                 if (['menu', 'hola', 'start', 'hi', 'volver', '0'].includes(text)) {
                     await setUserState(from, 'main_menu');
                     
-                    await client.sendText(from, `HOLA BIENVENIDO BOT MGVPN 🚀
+                    await client.sendText(from, `HOLA BIENVENIDO BOT MGVPN 🇦🇷
 
 Elija una opción:
 
