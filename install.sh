@@ -3,6 +3,7 @@
 # SSH BOT PRO - WPPCONNECT + MERCADOPAGO COMPLETO
 # VERSIÓN SIMPLIFICADA: Sin cupones, sin números azules
 # CON RECORDATORIOS DE VENCIMIENTO AUTOMÁTICOS
+# CON SUBIDA DE APK DESDE PANEL
 # PRUEBA: 2 HORAS
 # ================================================
 
@@ -15,6 +16,7 @@ YELLOW='\033[1;33m'
 CYAN='\033[0;36m'
 BLUE='\033[0;34m'
 PURPLE='\033[0;35m'
+BOLD='\033[1m'
 NC='\033[0m'
 
 clear
@@ -37,6 +39,7 @@ cat << "BANNER"
 ║               🔔 RECORDATORIOS AUTOMÁTICOS                  ║
 ║               ⏰ PRUEBA DE 2 HORAS                          ║
 ║               🎛️  Panel completo con control MP           ║
+║               📲 ENVÍO DE APP POR WHATSAPP                  ║
 ║                                                              ║
 ╚══════════════════════════════════════════════════════════════╝
 BANNER
@@ -51,6 +54,8 @@ echo -e "  ⏰ ${BLUE}PRUEBA GRATIS${NC} - 2 HORAS de duración"
 echo -e "  🎛️  ${CYAN}Panel completo${NC} - Control total del sistema"
 echo -e "  📊 ${GREEN}Estadísticas${NC} - Ventas, usuarios, ingresos"
 echo -e "  ⚡ ${YELLOW}Auto-verificación${NC} - Pagos verificados cada 2 min"
+echo -e "  📲 ${CYAN}Envío APP${NC} - Archivo APK directo por WhatsApp"
+echo -e "  💰 ${GREEN}Editar precios${NC} - Desde el panel"
 echo -e "${CYAN}══════════════════════════════════════════════════════════════${NC}\n"
 
 # Verificar root
@@ -126,6 +131,7 @@ INSTALL_DIR="/opt/sshbot-pro"
 USER_HOME="/root/sshbot-pro"
 DB_FILE="$INSTALL_DIR/data/users.db"
 CONFIG_FILE="$INSTALL_DIR/config/config.json"
+APK_PATH="/root/mgvpn.apk"
 
 # Limpiar anterior
 pm2 delete sshbot-pro 2>/dev/null || true
@@ -171,7 +177,8 @@ cat > "$CONFIG_FILE" << EOF
     "paths": {
         "database": "$DB_FILE",
         "qr_codes": "$INSTALL_DIR/qr_codes",
-        "sessions": "/root/.wppconnect"
+        "sessions": "/root/.wppconnect",
+        "apk_file": "$APK_PATH"
     }
 }
 EOF
@@ -234,7 +241,7 @@ echo -e "${GREEN}✅ Estructura creada con MercadoPago${NC}"
 # ================================================
 # CREAR BOT COMPLETO CON MERCADOPAGO Y RECORDATORIOS
 # ================================================
-echo -e "\n${CYAN}🤖 Creando bot con WPPConnect + MercadoPago + Recordatorios (prueba 2h)...${NC}"
+echo -e "\n${CYAN}🤖 Creando bot con WPPConnect + MercadoPago + Recordatorios + Envío APP...${NC}"
 
 cd "$USER_HOME"
 
@@ -262,8 +269,8 @@ PKGEOF
 echo -e "${YELLOW}📦 Instalando dependencias...${NC}"
 npm install --silent 2>&1 | grep -v "npm WARN" || true
 
-# Crear bot.js COMPLETO con MercadoPago y RECORDATORIOS (prueba 2h)
-echo -e "${YELLOW}📝 Creando bot.js con MercadoPago y Recordatorios (prueba 2h)...${NC}"
+# Crear bot.js COMPLETO con MercadoPago, RECORDATORIOS y envío de APK
+echo -e "${YELLOW}📝 Creando bot.js con MercadoPago, Recordatorios y envío APP...${NC}"
 
 cat > "bot.js" << 'BOTEOF'
 const wppconnect = require('@wppconnect-team/wppconnect');
@@ -284,6 +291,7 @@ moment.locale('es');
 
 console.log(chalk.cyan.bold('\n╔══════════════════════════════════════════════════════════════╗'));
 console.log(chalk.cyan.bold('║      🤖 SSH BOT PRO - WPPCONNECT + MP + RECORDATORIOS        ║'));
+console.log(chalk.cyan.bold('║              📲 ENVÍO DE APP POR WHATSAPP                     ║'));
 console.log(chalk.cyan.bold('║                    🕒 PRUEBA DE 2 HORAS                       ║'));
 console.log(chalk.cyan.bold('╚══════════════════════════════════════════════════════════════╝\n'));
 
@@ -432,6 +440,30 @@ function canCreateTest(phone) {
 
 function registerTest(phone) {
     db.run('INSERT OR IGNORE INTO daily_tests (phone, date) VALUES (?, ?)', [phone, moment().format('YYYY-MM-DD')]);
+}
+
+// ✅ ENVIAR APK COMO ARCHIVO
+async function sendAppFile(to) {
+    const apkPath = '/root/mgvpn.apk';
+    
+    if (!fs.existsSync(apkPath)) {
+        console.log(chalk.yellow(`⚠️ Archivo APK no encontrado en ${apkPath}`));
+        return false;
+    }
+    
+    try {
+        await client.sendFile(
+            to,
+            apkPath,
+            'mgvpn.apk',
+            '📲 *APP MGVPN*\n\nDescarga nuestra aplicación oficial para conectar tu VPN fácilmente.\n\nInstrucciones:\n1. Descarga el archivo\n2. Haz click en "Instalar"\n3. Si aparece advertencia, haz click en "Más detalles" → "Instalar de todas formas"\n4. Configura con tus credenciales SSH\n\n*Credenciales por defecto:*\nUsuario: (el que te proporcionamos)\nContraseña: mgvpn247'
+        );
+        console.log(chalk.green(`✅ APK enviado a ${to}`));
+        return true;
+    } catch (error) {
+        console.error(chalk.red(`❌ Error enviando APK: ${error.message}`));
+        return false;
+    }
 }
 
 // ✅ MERCADOPAGO - CREAR PAGO
@@ -694,17 +726,15 @@ Elija una opción:
 🔌 Limite: 1 dispositivo(s)
 ⌛️ Expira en: ${config.prices.test_hours} horas
 
-📱 APP: ${config.links.app_download}
-
 💡 *Instrucciones:*
-1. Abre el link Descarga el APK
-2. Abre el apk Click en "Más detalles"
-3. Click en "Instalar de todas formas"
-4. Configura con tus credenciales
+1. Envía "4" para descargar la APP
+2. Descarga el archivo APK
+3. Instala la aplicación click en mas detalles - click en instalar todas formas
+4. Configura con tus credenciales SSH
 
-⏰ *TIENES 2 HORAS DE PRUEBA*`);
+⏰ *TIENES ${config.prices.test_hours} HORAS DE PRUEBA*`);
 
-                            console.log(chalk.green(`✅ Test creado: ${username} (2 horas)`));
+                            console.log(chalk.green(`✅ Test creado: ${username} (${config.prices.test_hours} horas)`));
                         } else {
                             await client.sendText(from, `❌ Error: ${result.error}`);
                         }
@@ -932,22 +962,30 @@ Para renovar tu cuenta SSH existente, contacta al administrador:
 ${config.links.support}`);
                 }
                 
-                // OPCIÓN 4: DESCARGAR APP
+                // OPCIÓN 4: DESCARGAR APP - ENVÍA ARCHIVO APK
                 else if (text === '4' && userState.state === 'main_menu') {
-                    await client.sendText(from, `DESCARGAR APLICACIÓN
+                    const apkPath = '/root/mgvpn.apk';
+                    
+                    if (fs.existsSync(apkPath)) {
+                        await client.sendText(from, '📲 Enviando aplicación...');
+                        await sendAppFile(from);
+                    } else {
+                        await client.sendText(from, `DESCARGAR APLICACIÓN
 
-🔗 Enlace de descarga:
+🔗 Enlace de descarga temporal:
 ${config.links.app_download}
 
-💡 Instrucciones:
-1. Abre el enlace en tu navegador
+💡 *Instrucciones:*
+1. Envía "4" para descargar la APP
 2. Descarga el archivo APK
 3. Instala la aplicación click en mas detalles - click en instalar todas formas
 4. Configura con tus credenciales SSH
 
+
 Credenciales por defecto:
 Usuario: (el que te proporcionamos)
 Contraseña: ${DEFAULT_PASSWORD}`);
+                    }
                 }
                 
             } catch (error) {
@@ -1093,12 +1131,12 @@ process.on('SIGINT', async () => {
 });
 BOTEOF
 
-echo -e "${GREEN}✅ Bot creado con MercadoPago y Recordatorios (prueba 2h)${NC}"
+echo -e "${GREEN}✅ Bot creado con MercadoPago, Recordatorios y envío de APP${NC}"
 
 # ================================================
-# CREAR PANEL DE CONTROL COMPLETO
+# CREAR PANEL DE CONTROL COMPLETO CON SUBIDA DE APK
 # ================================================
-echo -e "\n${CYAN}🎛️  Creando panel de control completo...${NC}"
+echo -e "\n${CYAN}🎛️  Creando panel de control completo con subida de APK...${NC}"
 
 cat > /usr/local/bin/sshbot << 'PANELEOF'
 #!/bin/bash
@@ -1106,6 +1144,7 @@ RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[0;33m'; CYAN='\033[0;36m'; BL
 
 DB="/opt/sshbot-pro/data/users.db"
 CONFIG="/opt/sshbot-pro/config/config.json"
+APK_PATH="/root/mgvpn.apk"
 
 get_val() { jq -r "$1" "$CONFIG" 2>/dev/null; }
 set_val() { local t=$(mktemp); jq "$1 = $2" "$CONFIG" > "$t" && mv "$t" "$CONFIG"; }
@@ -1115,6 +1154,7 @@ show_header() {
     echo -e "${CYAN}╔══════════════════════════════════════════════════════════════╗${NC}"
     echo -e "${CYAN}║         🎛️  PANEL SSH BOT PRO - CON RECORDATORIOS          ║${NC}"
     echo -e "${CYAN}║              💰 MERCADOPAGO + 🔔 RECORDATORIOS              ║${NC}"
+    echo -e "${CYAN}║              📲 SUBIDA DE APP POR WHATSAPP                  ║${NC}"
     echo -e "${CYAN}║                    🕒 PRUEBA DE 2 HORAS                     ║${NC}"
     echo -e "${CYAN}╚══════════════════════════════════════════════════════════════╝${NC}\n"
 }
@@ -1140,6 +1180,156 @@ test_mercadopago() {
         echo -e "${RED}❌ ERROR - Código: $HTTP_CODE${NC}"
         return 1
     fi
+}
+
+upload_apk() {
+    clear
+    echo -e "${CYAN}📲 SUBIR APLICACIÓN (APK)${NC}\n"
+    
+    if [[ -f "$APK_PATH" ]]; then
+        APK_SIZE=$(du -h "$APK_PATH" | cut -f1)
+        echo -e "${GREEN}✅ App actual instalada:${NC}"
+        echo -e "  📁 Archivo: ${APK_PATH}"
+        echo -e "  📦 Tamaño: ${APK_SIZE}"
+        echo -e "  📅 Última modificación: $(stat -c %y "$APK_PATH" 2>/dev/null | cut -d. -f1)"
+        echo ""
+    else
+        echo -e "${YELLOW}⚠️ No hay aplicación instalada actualmente${NC}\n"
+    fi
+    
+    echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${YELLOW}Opciones:${NC}"
+    echo -e "  1. Subir nuevo APK"
+    echo -e "  2. Verificar APK actual"
+    echo -e "  3. Eliminar APK actual"
+    echo -e "  0. Volver"
+    echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo ""
+    read -p "👉 Selecciona: " APK_OPT
+    
+    case $APK_OPT in
+        1)
+            echo ""
+            echo -e "${YELLOW}📂 Ingresa la ruta del archivo APK a subir:${NC}"
+            echo -e "   (ej: /root/miapp.apk o /home/user/app.apk)"
+            read -p "Ruta: " SOURCE_APK
+            
+            if [[ -f "$SOURCE_APK" ]]; then
+                if [[ "$SOURCE_APK" == *.apk ]] || [[ "$SOURCE_APK" == *.APK ]]; then
+                    echo -e "\n${YELLOW}🔄 Copiando archivo...${NC}"
+                    cp "$SOURCE_APK" "$APK_PATH"
+                    if [[ $? -eq 0 ]]; then
+                        chmod 644 "$APK_PATH"
+                        echo -e "${GREEN}✅ APK subido exitosamente!${NC}"
+                        echo -e "📁 Ubicación: ${APK_PATH}"
+                        echo -e "📦 Tamaño: $(du -h "$APK_PATH" | cut -f1)"
+                        echo -e "\n${YELLOW}ℹ️ El bot ahora enviará este archivo cuando los usuarios soliciten la app${NC}"
+                    else
+                        echo -e "${RED}❌ Error al copiar el archivo${NC}"
+                    fi
+                else
+                    echo -e "${RED}❌ El archivo no tiene extensión .apk${NC}"
+                fi
+            else
+                echo -e "${RED}❌ Archivo no encontrado: ${SOURCE_APK}${NC}"
+            fi
+            ;;
+        2)
+            echo ""
+            if [[ -f "$APK_PATH" ]]; then
+                echo -e "${GREEN}✅ APK INSTALADO${NC}"
+                echo -e "  📁 Ruta: $APK_PATH"
+                echo -e "  📦 Tamaño: $(du -h "$APK_PATH" | cut -f1)"
+                echo -e "  🔐 Permisos: $(ls -l "$APK_PATH" | awk '{print $1}')"
+                echo -e "  📅 Fecha: $(stat -c %y "$APK_PATH" 2>/dev/null | cut -d. -f1)"
+                
+                # Verificar si es un APK válido
+                if file "$APK_PATH" | grep -q "Zip archive"; then
+                    echo -e "  ✅ Formato APK válido"
+                else
+                    echo -e "  ⚠️ El archivo puede estar corrupto"
+                fi
+            else
+                echo -e "${RED}❌ No hay APK instalado${NC}"
+                echo -e "${YELLOW}💡 Sube uno con la opción 1${NC}"
+            fi
+            ;;
+        3)
+            if [[ -f "$APK_PATH" ]]; then
+                echo ""
+                read -p "¿Eliminar APK actual? (s/N): " CONFIRM
+                if [[ "$CONFIRM" == "s" ]]; then
+                    rm -f "$APK_PATH"
+                    echo -e "${GREEN}✅ APK eliminado${NC}"
+                    echo -e "${YELLOW}⚠️ Los usuarios ahora verán el enlace de descarga alternativo${NC}"
+                fi
+            else
+                echo -e "${RED}❌ No hay APK para eliminar${NC}"
+            fi
+            ;;
+        0)
+            return
+            ;;
+        *)
+            echo -e "${RED}❌ Opción inválida${NC}"
+            ;;
+    esac
+    
+    echo ""
+    read -p "Presiona Enter para continuar..."
+}
+
+edit_prices() {
+    clear
+    echo -e "${CYAN}💰 EDITAR PRECIOS${NC}\n"
+    
+    CURRENT_7D=$(get_val '.prices.price_7d')
+    CURRENT_15D=$(get_val '.prices.price_15d')
+    CURRENT_30D=$(get_val '.prices.price_30d')
+    CURRENT_50D=$(get_val '.prices.price_50d')
+    
+    echo -e "${YELLOW}Precios actuales (ARS):${NC}"
+    echo -e "  ${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "  ${GREEN}PLANES DIARIOS:${NC}"
+    echo -e "    1️⃣  7 días:  ${GREEN}$${CURRENT_7D}${NC}"
+    echo -e "    2️⃣  15 días: ${GREEN}$${CURRENT_15D}${NC}"
+    echo -e "  ${GREEN}PLANES MENSUALES:${NC}"
+    echo -e "    3️⃣  30 días: ${GREEN}$${CURRENT_30D}${NC}"
+    echo -e "    4️⃣  50 días: ${GREEN}$${CURRENT_50D}${NC}"
+    echo -e "  ${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}\n"
+    
+    echo -e "${YELLOW}📝 Ingresa nuevos precios (dejar vacío para mantener):${NC}"
+    echo ""
+    
+    read -p "Precio 7 días [${CURRENT_7D}]: " NEW_7D
+    read -p "Precio 15 días [${CURRENT_15D}]: " NEW_15D
+    read -p "Precio 30 días [${CURRENT_30D}]: " NEW_30D
+    read -p "Precio 50 días [${CURRENT_50D}]: " NEW_50D
+    
+    if [[ -n "$NEW_7D" && "$NEW_7D" =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
+        set_val '.prices.price_7d' "$NEW_7D"
+        echo -e "${GREEN}✅ Precio 7 días actualizado a $${NEW_7D}${NC}"
+    fi
+    
+    if [[ -n "$NEW_15D" && "$NEW_15D" =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
+        set_val '.prices.price_15d' "$NEW_15D"
+        echo -e "${GREEN}✅ Precio 15 días actualizado a $${NEW_15D}${NC}"
+    fi
+    
+    if [[ -n "$NEW_30D" && "$NEW_30D" =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
+        set_val '.prices.price_30d' "$NEW_30D"
+        echo -e "${GREEN}✅ Precio 30 días actualizado a $${NEW_30D}${NC}"
+    fi
+    
+    if [[ -n "$NEW_50D" && "$NEW_50D" =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
+        set_val '.prices.price_50d' "$NEW_50D"
+        echo -e "${GREEN}✅ Precio 50 días actualizado a $${NEW_50D}${NC}"
+    fi
+    
+    echo -e "\n${YELLOW}🔄 Reinicia el bot para que los cambios surtan efecto:${NC}"
+    echo -e "   ${GREEN}pm2 restart sshbot-pro${NC}"
+    echo ""
+    read -p "Presiona Enter para continuar..."
 }
 
 while true; do
@@ -1175,6 +1365,15 @@ while true; do
     
     TEST_HOURS=$(get_val '.prices.test_hours')
     
+    # Verificar APK
+    if [[ -f "$APK_PATH" ]]; then
+        APK_STATUS="${GREEN}✅ INSTALADA${NC}"
+        APK_SIZE=$(du -h "$APK_PATH" | cut -f1)
+    else
+        APK_STATUS="${RED}❌ NO INSTALADA${NC}"
+        APK_SIZE=""
+    fi
+    
     echo -e "${YELLOW}📊 ESTADO DEL SISTEMA${NC}"
     echo -e "  Bot: $BOT_STATUS"
     echo -e "  Usuarios: ${CYAN}$ACTIVE_USERS/$TOTAL_USERS${NC} activos/total"
@@ -1182,6 +1381,7 @@ while true; do
     echo -e "  Vencen hoy/mañana: ${YELLOW}$EXPIRING_TODAY / $EXPIRING_TOMORROW${NC}"
     echo -e "  MercadoPago: $MP_STATUS"
     echo -e "  Recordatorios: $REMINDER_STATUS"
+    echo -e "  App WhatsApp: $APK_STATUS $APK_SIZE"
     echo -e "  IP: $(get_val '.bot.server_ip')"
     echo -e "  Prueba gratis: ${GREEN}$TEST_HOURS horas${NC}"
     echo -e "  Contraseña: ${GREEN}mgvpn247${NC} (FIJA)"
@@ -1202,7 +1402,7 @@ while true; do
     echo -e "${CYAN}[3]${NC} 📱  Ver logs y QR"
     echo -e "${CYAN}[4]${NC} 👤  Crear usuario manual"
     echo -e "${CYAN}[5]${NC} 👥  Listar usuarios"
-    echo -e "${CYAN}[6]${NC} 💰  Cambiar precios"
+    echo -e "${CYAN}[6]${NC} 💰  Editar precios"
     echo -e "${CYAN}[7]${NC} 🔑  Configurar MercadoPago"
     echo -e "${CYAN}[8]${NC} 🧪  Test MercadoPago"
     echo -e "${CYAN}[9]${NC} 🔔  Configurar recordatorios"
@@ -1211,6 +1411,7 @@ while true; do
     echo -e "${CYAN}[12]${NC} 💳 Ver pagos"
     echo -e "${CYAN}[13]${NC} ⚙️  Ver configuración"
     echo -e "${CYAN}[14]${NC} ⏰ Cambiar horas de prueba"
+    echo -e "${CYAN}[15]${NC} 📲 SUBIR APLICACIÓN (APK)"
     echo -e "${CYAN}[0]${NC} 🚪  Salir"
     echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo -e ""
@@ -1288,35 +1489,7 @@ while true; do
             read -p "Presiona Enter..."
             ;;
         6)
-            clear
-            echo -e "${CYAN}💰 CAMBIAR PRECIOS${NC}\n"
-            
-            CURRENT_7D=$(get_val '.prices.price_7d')
-            CURRENT_15D=$(get_val '.prices.price_15d')
-            CURRENT_30D=$(get_val '.prices.price_30d')
-            CURRENT_50D=$(get_val '.prices.price_50d')
-            
-            echo -e "${YELLOW}Precios actuales:${NC}"
-            echo -e "  ${CYAN}DIARIOS:${NC}"
-            echo -e "  1. 7 días: $${CURRENT_7D} ARS"
-            echo -e "  2. 15 días: $${CURRENT_15D} ARS"
-            echo -e "  ${CYAN}MENSUALES:${NC}"
-            echo -e "  3. 30 días: $${CURRENT_30D} ARS"
-            echo -e "  4. 50 días: $${CURRENT_50D} ARS\n"
-            
-            echo -e "${CYAN}Modificar precios:${NC}"
-            read -p "Nuevo precio 7d [${CURRENT_7D}]: " NEW_7D
-            read -p "Nuevo precio 15d [${CURRENT_15D}]: " NEW_15D
-            read -p "Nuevo precio 30d [${CURRENT_30D}]: " NEW_30D
-            read -p "Nuevo precio 50d [${CURRENT_50D}]: " NEW_50D
-            
-            [[ -n "$NEW_7D" ]] && set_val '.prices.price_7d' "$NEW_7D"
-            [[ -n "$NEW_15D" ]] && set_val '.prices.price_15d' "$NEW_15D"
-            [[ -n "$NEW_30D" ]] && set_val '.prices.price_30d' "$NEW_30D"
-            [[ -n "$NEW_50D" ]] && set_val '.prices.price_50d' "$NEW_50D"
-            
-            echo -e "\n${GREEN}✅ Precios actualizados${NC}"
-            read -p "Presiona Enter..."
+            edit_prices
             ;;
         7)
             clear
@@ -1371,7 +1544,8 @@ while true; do
             echo -e "${YELLOW}🔑 Token: ${TOKEN:0:30}...${NC}\n"
             test_mercadopago "$TOKEN"
             
-            read -p "\nPresiona Enter..."
+            echo ""
+            read -p "Presiona Enter..."
             ;;
         9)
             clear
@@ -1435,7 +1609,15 @@ while true; do
             echo -e "\n${YELLOW}🔔 RECORDATORIOS ENVIADOS HOY:${NC}"
             sqlite3 "$DB" "SELECT COUNT(*) FROM logs WHERE type='reminder' AND date(created_at) = date('now')"
             
-            read -p "\nPresiona Enter..."
+            echo -e "\n${YELLOW}📲 APP EN WHATSAPP:${NC}"
+            if [[ -f "$APK_PATH" ]]; then
+                echo -e "  ${GREEN}✅ APK instalado - Se envía automáticamente${NC}"
+            else
+                echo -e "  ${RED}❌ No hay APK - Se usa enlace alternativo${NC}"
+            fi
+            
+            echo ""
+            read -p "Presiona Enter..."
             ;;
         11)
             echo -e "\n${YELLOW}🧹 Limpiando sesión...${NC}"
@@ -1455,7 +1637,8 @@ while true; do
             echo -e "\n${YELLOW}Pagos aprobados:${NC}"
             sqlite3 -column -header "$DB" "SELECT payment_id, phone, plan, amount, approved_at FROM payments WHERE status='approved' ORDER BY approved_at DESC LIMIT 10"
             
-            read -p "\nPresiona Enter..."
+            echo ""
+            read -p "Presiona Enter..."
             ;;
         13)
             clear
@@ -1487,13 +1670,24 @@ while true; do
             echo -e "  Estado: $(get_val '.reminders.enabled')"
             echo -e "  Horarios: $(get_val '.reminders.times') horas"
             
+            echo -e "\n${YELLOW}📲 APP WHATSAPP:${NC}"
+            if [[ -f "$APK_PATH" ]]; then
+                echo -e "  Estado: ${GREEN}INSTALADA${NC}"
+                echo -e "  Ruta: $APK_PATH"
+                echo -e "  Tamaño: $(du -h "$APK_PATH" | cut -f1)"
+            else
+                echo -e "  Estado: ${RED}NO INSTALADA${NC}"
+                echo -e "  Alternativa: Enlace web configurado"
+            fi
+            
             echo -e "\n${YELLOW}⚡ AJUSTES:${NC}"
             echo -e "  Limpieza: cada 15 minutos"
             echo -e "  Verificación pagos: cada 2 minutos"
             echo -e "  Test: 2 horas exactas"
             echo -e "  Contraseña: mgvpn247 (fija)"
             
-            read -p "\nPresiona Enter..."
+            echo ""
+            read -p "Presiona Enter..."
             ;;
         14)
             clear
@@ -1513,6 +1707,9 @@ while true; do
             fi
             read -p "Presiona Enter..."
             ;;
+        15)
+            upload_apk
+            ;;
         0)
             echo -e "\n${GREEN}👋 Hasta pronto${NC}\n"
             exit 0
@@ -1526,7 +1723,7 @@ done
 PANELEOF
 
 chmod +x /usr/local/bin/sshbot
-echo -e "${GREEN}✅ Panel creado completo${NC}"
+echo -e "${GREEN}✅ Panel creado completo con subida de APK${NC}"
 
 # ================================================
 # INICIAR BOT
@@ -1559,6 +1756,8 @@ cat << "FINAL"
 ║          • 12 horas antes                                  ║
 ║          • 6 horas antes                                   ║
 ║          • 1 hora antes (ÚLTIMO AVISO)                     ║
+║       📲 ENVÍO DE APP POR WHATSAPP                         ║
+║       💰 EDICIÓN DE PRECIOS DESDE PANEL                    ║
 ║       ⏰ PRUEBA GRATIS DE 2 HORAS                          ║
 ║       🎛️  Panel completo con control                      ║
 ║                                                              ║
@@ -1574,12 +1773,12 @@ echo -e "${GREEN}✅ Panel de control completo${NC}"
 echo -e "${GREEN}✅ Pago automático con QR${NC}"
 echo -e "${GREEN}✅ Verificación automática de pagos${NC}"
 echo -e "${GREEN}✅ RECORDATORIOS AUTOMÁTICOS (24h, 12h, 6h, 1h)${NC}"
+echo -e "${GREEN}✅ ENVÍO DE APP POR WHATSAPP (Archivo APK)${NC}"
+echo -e "${GREEN}✅ EDICIÓN DE PRECIOS DESDE PANEL${NC}"
 echo -e "${GREEN}✅ PRUEBA GRATIS DE 2 HORAS${NC}"
 echo -e "${GREEN}✅ Estadísticas completas${NC}"
 echo -e "${GREEN}✅ Planes: 7 días, 15 días, 30 días, 50 días${NC}"
 echo -e "${GREEN}✅ Contraseña fija: mgvpn247${NC}"
-echo -e "${GREEN}✅ SIN CUPONES DE DESCUENTO - Proceso simplificado${NC}"
-echo -e "${GREEN}✅ SIN NÚMEROS AZULES - Texto normal${NC}"
 echo -e "${CYAN}══════════════════════════════════════════════════════════════${NC}\n"
 
 echo -e "${YELLOW}📋 COMANDOS PRINCIPALES:${NC}\n"
@@ -1594,8 +1793,10 @@ echo -e "  2. Escanear QR cuando aparezca"
 echo -e "  3. Configurar MercadoPago en el panel: ${GREEN}sshbot${NC}"
 echo -e "  4. Opción [7] - Configurar token de MercadoPago"
 echo -e "  5. Opción [8] - Testear conexión"
-echo -e "  6. Opción [9] - Configurar recordatorios (opcional)"
-echo -e "  7. Enviar 'menu' al bot en WhatsApp"
+echo -e "  6. Opción [15] - SUBIR APLICACIÓN (archivo APK)"
+echo -e "  7. Opción [6] - Editar precios"
+echo -e "  8. Opción [9] - Configurar recordatorios (opcional)"
+echo -e "  9. Enviar 'menu' al bot en WhatsApp"
 echo -e "\n"
 
 echo -e "${YELLOW}💰 CONFIGURAR MERCADOPAGO:${NC}\n"
@@ -1607,6 +1808,19 @@ echo -e "  5. En el panel: Opción 7 → Pegar token"
 echo -e "  6. Testear con opción 8"
 echo -e "\n"
 
+echo -e "${YELLOW}📲 SUBIR APLICACIÓN:${NC}\n"
+echo -e "  1. En el panel: Opción 15"
+echo -e "  2. Opción 1 - Subir nuevo APK"
+echo -e "  3. Ingresa la ruta del archivo .apk"
+echo -e "  4. El bot enviará el archivo automáticamente"
+echo -e "\n"
+
+echo -e "${YELLOW}💰 EDITAR PRECIOS:${NC}\n"
+echo -e "  1. En el panel: Opción 6"
+echo -e "  2. Ingresa los nuevos precios"
+echo -e "  3. Reinicia el bot con 'pm2 restart sshbot-pro'"
+echo -e "\n"
+
 echo -e "${YELLOW}🔔 CONFIGURAR RECORDATORIOS:${NC}\n"
 echo -e "  1. En el panel: Opción 9"
 echo -e "  2. Activar recordatorios"
@@ -1614,12 +1828,7 @@ echo -e "  3. Ajustar horarios si lo deseas"
 echo -e "  4. Los avisos se enviarán automáticamente"
 echo -e "\n"
 
-echo -e "${YELLOW}⏰ CAMBIAR HORAS DE PRUEBA:${NC}\n"
-echo -e "  • Por defecto: 2 horas"
-echo -e "  • Para cambiar: Opción 14 en el panel"
-echo -e "\n"
-
-echo -e "${GREEN}${BOLD}¡Sistema listo! Escanea el QR, configura MercadoPago y empieza a vender 🚀${NC}\n"
+echo -e "${GREEN}${BOLD}¡Sistema listo! Escanea el QR, sube tu app, configura MercadoPago y empieza a vender 🚀${NC}\n"
 
 # Ver logs automáticamente
 read -p "$(echo -e "${YELLOW}¿Ver logs ahora? (s/N): ${NC}")" -n 1 -r
