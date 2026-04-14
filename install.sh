@@ -163,7 +163,7 @@ cat > "$CONFIG_FILE" << EOF
         "test_hours": 2,
         "price_7d": 3000.00,
         "price_15d": 4000.00,
-        "price_30d": 7000.00,
+        "price_30d": 7500.00,
         "price_50d": 10000.00,
         "currency": "ARS"
     },
@@ -498,7 +498,7 @@ async function sendAppFile(to) {
             to,
             apkPath,
             'mgvpn.apk',
-            '📲 *APP MGVPN*\n\nDescarga nuestra aplicación oficial para conectar tu VPN fácilmente.\n\n*Credenciales por defecto:*\nUsuario: (el que te proporcionamos)\nContraseña: mgvpn247'
+            '📲 *APP MGVPN*\n\ninstala la aplicación si te sale el cartel dale en mas detalles - instalar de todas formas'
         );
         console.log(chalk.green(`✅ APK enviado a ${to}`));
         return true;
