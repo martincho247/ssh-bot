@@ -711,7 +711,7 @@ async function initializeBot() {
                 // MENÚ PRINCIPAL
                 if (['menu', 'hola', 'start', 'hi', 'volver', '0'].includes(text)) {
                     await setUserState(from, 'main_menu');
-                    await client.sendText(from, `HOLA BIENVENIDO BOT MGVPN IP🇦🇷
+                    await client.sendText(from, `HOLA BIENVENIDO BOT MGVPN IP 🇦🇷
 
 Elija una opción:
 
@@ -754,8 +754,8 @@ Elija una opción:
                     await client.sendText(from, `🌐 PLANES SSH PREMIUM
 
 Elija una opción:
- 1️⃣ - PLANES DIARIOS (7, 15 días)
- 2️⃣ - PLANES MENSUALES (30, 50 días)
+ 1️⃣ - PLANES DIARIOS 
+ 2️⃣ - PLANES MENSUALES
  0️⃣ - VOLVER`);
                 }
                 
@@ -779,7 +779,7 @@ Elija una opción:
                     }
                     else if (text === '0') {
                         await setUserState(from, 'main_menu');
-                        await client.sendText(from, `HOLA BIENVENIDO BOT MGVPN IP🇦🇷
+                        await client.sendText(from, `HOLA BIENVENIDO BOT MGVPN IP 🇦🇷
 
 Elija una opción:
 
