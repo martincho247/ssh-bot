@@ -1,7 +1,7 @@
 #!/bin/bash
 # ================================================
-# SSH BOT PRO - INSTALADOR COMPLETO
-# CON LÍMITE DE 1 CONEXIÓN + BLOQUEO/PANEL
+# SSH BOT PRO - INSTALADOR COMPLETO FUNCIONANDO
+# LÍMITE DE 1 CONEXIÓN POR USUARIO
 # ================================================
 
 set -e
@@ -31,13 +31,13 @@ cat << "BANNER"
 ║                                                              ║
 ║          🤖 SSH BOT PRO - WPPCONNECT + MERCADOPAGO          ║
 ║               🔒 LÍMITE DE 1 CONEXIÓN POR USUARIO           ║
-║               🚫 BLOQUEO/DESBLOQUEO DESDE PANEL             ║
 ║               📱 WhatsApp API FUNCIONANDO                   ║
-║               💰 MercadoPago SDK v2.x INTEGRADO            ║
+║               💰 MercadoPago SDK v2.x INTEGRADO             ║
 ║               🔔 RECORDATORIOS AUTOMÁTICOS                  ║
 ║               🔄 RENOVACIÓN DE USUARIOS                     ║
 ║               📋 VER MIS USUARIOS                           ║
 ║               ⏰ PRUEBA DE 2 HORAS                          ║
+║               🚫 BLOQUEO/DESBLOQUEO DESDE PANEL             ║
 ║                                                              ║
 ╚══════════════════════════════════════════════════════════════╝
 BANNER
@@ -252,64 +252,46 @@ CREATE TABLE IF NOT EXISTS connection_logs (
 );
 SQL
 
-echo -e "${GREEN}✅ Estructura creada con bloqueo de usuarios${NC}"
+echo -e "${GREEN}✅ Estructura creada${NC}"
 
 # ================================================
-# CREAR SCRIPT DE LÍMITE DE CONEXIONES
+# CREAR SCRIPT DE LÍMITE DE CONEXIONES FUNCIONANDO
 # ================================================
 echo -e "\n${CYAN}🔒 Creando sistema de límite de 1 conexión...${NC}"
 
 cat > /usr/local/bin/ssh-limit.sh << 'SCRIPT_LIMIT'
 #!/bin/bash
 # SSH Connection Limit - 1 conexión por usuario
-# Con bloqueo desde panel
-
-BLOCK_DB="/opt/sshbot-pro/data/blocked_users.db"
-MAX_CONNECTIONS=1
-
-# Verificar si usuario está bloqueado
-is_blocked() {
-    local user="$1"
-    local blocked=$(sqlite3 "$BLOCK_DB" "SELECT COUNT(*) FROM blocked_users WHERE username='$user'" 2>/dev/null)
-    [[ "$blocked" == "1" ]]
-}
-
-# Registrar intento de conexión
-log_attempt() {
-    local user="$1"
-    local action="$2"
-    sqlite3 "$BLOCK_DB" "INSERT INTO connection_logs (username, action) VALUES ('$user', '$action')" 2>/dev/null
-}
 
 USERNAME="$PAM_USER"
+MAX_CONNECTIONS=1
+BLOCK_DB="/opt/sshbot-pro/data/blocked_users.db"
 
-# Verificar si el usuario existe en el sistema
-if ! id "$USERNAME" &>/dev/null; then
+# Si no hay usuario, permitir
+if [ -z "$USERNAME" ]; then
     exit 0
 fi
 
-# Verificar bloqueo
-if is_blocked "$USERNAME"; then
-    echo "❌ USUARIO BLOQUEADO POR ADMINISTRADOR"
-    echo "Contacta al soporte para desbloquear: https://wa.me/543435071016"
-    log_attempt "$USERNAME" "blocked_attempt"
-    exit 1
+# Verificar si usuario está bloqueado
+if [ -f "$BLOCK_DB" ]; then
+    BLOCKED=$(sqlite3 "$BLOCK_DB" "SELECT COUNT(*) FROM blocked_users WHERE username='$USERNAME'" 2>/dev/null)
+    if [ "$BLOCKED" = "1" ]; then
+        echo "❌ USUARIO BLOQUEADO POR ADMINISTRADOR"
+        exit 1
+    fi
 fi
 
 # Contar conexiones activas del usuario
 CURRENT_CONNECTIONS=$(who | awk '{print $1}' | grep -c "^${USERNAME}$" 2>/dev/null || echo "0")
 
-# Verificar límite
+# Aplicar límite
 if [ "$CURRENT_CONNECTIONS" -ge "$MAX_CONNECTIONS" ]; then
     echo "❌ LÍMITE DE CONEXIONES EXCEDIDO"
     echo "Máximo permitido: $MAX_CONNECTIONS conexión simultánea"
     echo "Cierra otras conexiones activas e intenta nuevamente"
-    log_attempt "$USERNAME" "limit_exceeded"
     exit 1
 fi
 
-# Conexión permitida
-log_attempt "$USERNAME" "connected"
 exit 0
 SCRIPT_LIMIT
 
@@ -317,26 +299,26 @@ chmod +x /usr/local/bin/ssh-limit.sh
 
 # Configurar PAM
 if ! grep -q "ssh-limit.sh" /etc/pam.d/sshd; then
-    echo "session optional pam_exec.so /usr/local/bin/ssh-limit.sh" >> /etc/pam.d/sshd
+    echo "session required pam_exec.so /usr/local/bin/ssh-limit.sh" >> /etc/pam.d/sshd
 fi
 
-# Configurar SSH para límite
-if ! grep -q "MaxSessions" /etc/ssh/sshd_config; then
+# Configurar SSH
+if ! grep -q "MaxSessions 1" /etc/ssh/sshd_config; then
     echo "MaxSessions 1" >> /etc/ssh/sshd_config
     echo "MaxStartups 1:1:1" >> /etc/ssh/sshd_config
-    systemctl restart sshd
 fi
 
-echo -e "${GREEN}✅ Sistema de límite de conexiones activado${NC}"
+systemctl restart sshd
+
+echo -e "${GREEN}✅ Sistema de límite de 1 conexión activado${NC}"
 
 # ================================================
 # CREAR BOT COMPLETO
 # ================================================
-echo -e "\n${CYAN}🤖 Creando bot con límite de conexiones...${NC}"
+echo -e "\n${CYAN}🤖 Creando bot...${NC}"
 
 cd "$USER_HOME"
 
-# package.json
 cat > package.json << 'PKGEOF'
 {
     "name": "sshbot-pro",
@@ -360,10 +342,8 @@ PKGEOF
 echo -e "${YELLOW}📦 Instalando dependencias...${NC}"
 npm install --silent 2>&1 | grep -v "npm WARN" || true
 
-# Crear bot.js COMPLETO
 cat > "bot.js" << 'BOTEOF'
 const wppconnect = require('@wppconnect-team/wppconnect');
-const qrcode = require('qrcode-terminal');
 const QRCode = require('qrcode');
 const moment = require('moment');
 const sqlite3 = require('sqlite3').verbose();
@@ -372,14 +352,13 @@ const util = require('util');
 const chalk = require('chalk');
 const cron = require('node-cron');
 const fs = require('fs');
-const path = require('path');
 const axios = require('axios');
 
 const execPromise = util.promisify(exec);
 moment.locale('es');
 
 console.log(chalk.cyan.bold('\n╔══════════════════════════════════════════════════════════════╗'));
-console.log(chalk.cyan.bold('║      🤖 SSH BOT PRO - LÍMITE 1 CONEXIÓN + BLOQUEO          ║'));
+console.log(chalk.cyan.bold('║      🤖 SSH BOT PRO - LÍMITE 1 CONEXIÓN                   ║'));
 console.log(chalk.cyan.bold('╚══════════════════════════════════════════════════════════════╝\n'));
 
 let config = require('/opt/sshbot-pro/config/config.json');
@@ -558,14 +537,14 @@ async function checkPendingPayments() {
                             const result = await renewSSHUser(payment.phone, payment.renewal_username, payment.days);
                             if (result.success) {
                                 db.run(`UPDATE payments SET status = 'approved', approved_at = CURRENT_TIMESTAMP WHERE payment_id = ?`, [payment.payment_id]);
-                                if (client) await client.sendText(payment.phone, `✅ RENOVACIÓN CONFIRMADA\n\nUsuario: ${result.username}\n+${payment.days} días\nNueva expiración: ${moment(result.newExpiry).format('DD/MM/YYYY HH:mm')}`);
+                                if (client) await client.sendText(payment.phone, `✅ RENOVACIÓN CONFIRMADA\n\nUsuario: ${result.username}\n+${payment.days} días`);
                             }
                         } else {
                             const username = generatePremiumUsername();
                             const result = await createSSHUser(payment.phone, username, payment.days);
                             if (result.success) {
                                 db.run(`UPDATE payments SET status = 'approved', approved_at = CURRENT_TIMESTAMP WHERE payment_id = ?`, [payment.payment_id]);
-                                if (client) await client.sendText(payment.phone, `✅ PAGO CONFIRMADO\n\nUsuario: ${username}\nContraseña: ${DEFAULT_PASSWORD}\nVálido: ${moment().add(payment.days, 'days').format('DD/MM/YYYY')}`);
+                                if (client) await client.sendText(payment.phone, `✅ PAGO CONFIRMADO\n\nUsuario: ${username}\nContraseña: ${DEFAULT_PASSWORD}\nVálido: ${moment().add(payment.days, 'days').format('DD/MM/YYYY')}\n\n🔒 1 conexión simultánea`);
                             }
                         }
                     }
@@ -595,13 +574,12 @@ async function initializeBot() {
             const from = message.from;
             const userState = await getUserState(from);
             
-            // Comando misusuarios
             if (text === 'misusuarios' || text === 'mis usuarios') {
                 db.all(`SELECT username, expires_at FROM users WHERE phone = ? AND status = 1`, [from], async (err, rows) => {
                     if (!rows || rows.length === 0) {
                         await client.sendText(from, '📋 No tienes usuarios activos.');
                     } else {
-                        let response = '📋 *TUS USUARIOS ACTIVOS*\n\n';
+                        let response = '📋 *TUS USUARIOS ACTIVOS*\n\n🔒 *1 conexión máxima*\n\n';
                         for (const row of rows) {
                             response += `👤 *${row.username}*\n⏰ Expira: ${moment(row.expires_at).format('DD/MM/YYYY HH:mm')}\n━━━━━━━━━━━━━━━━\n`;
                         }
@@ -611,7 +589,6 @@ async function initializeBot() {
                 return;
             }
             
-            // Menú principal
             if (['menu', 'hola', 'start', 'volver', '0'].includes(text)) {
                 await setUserState(from, 'main_menu');
                 await client.sendText(from, `🤖 *SSH BOT PRO*
@@ -627,7 +604,6 @@ Elija una opción:
 🔒 *Límite: 1 conexión por usuario*`);
             }
             
-            // Opción 1: Prueba
             else if (text === '1' && userState.state === 'main_menu') {
                 if (!(await canCreateTest(from))) {
                     await client.sendText(from, '⚠️ YA USASTE TU PRUEBA HOY\nVuelve mañana');
@@ -638,13 +614,12 @@ Elija una opción:
                 const result = await createSSHUser(from, username, 0);
                 if (result.success) {
                     registerTest(from);
-                    await client.sendText(from, `✅ PRUEBA CREADA\n\nUsuario: ${username}\nContraseña: ${DEFAULT_PASSWORD}\n⏰ Expira en: ${config.prices.test_hours} horas\n\n🔒 1 conexión simultánea`);
+                    await client.sendText(from, `✅ PRUEBA CREADA\n\n👤 Usuario: ${username}\n🔐 Contraseña: ${DEFAULT_PASSWORD}\n⏰ Expira en: ${config.prices.test_hours} horas\n\n🔒 1 conexión simultánea`);
                 } else {
                     await client.sendText(from, `❌ Error: ${result.error}`);
                 }
             }
             
-            // Opción 2: Comprar
             else if (text === '2' && userState.state === 'main_menu') {
                 await setUserState(from, 'buying_ssh');
                 await client.sendText(from, `💳 *PLANES SSH*
@@ -671,7 +646,7 @@ Elija una opción:
                     if (mpEnabled) {
                         const payment = await createMercadoPagoPayment(from, plan.days, plan.price, `${plan.days} DÍAS`);
                         if (payment.success) {
-                            await client.sendText(from, `💳 *PAGO MERCADOPAGO*\n\nMonto: $${payment.amount}\nLink: ${payment.paymentUrl}\n\n⏰ Válido 24 horas`);
+                            await client.sendText(from, `💳 *PAGO MERCADOPAGO*\n\nMonto: $${payment.amount}\n🔗 Link: ${payment.paymentUrl}\n\n⏰ Válido 24 horas\n🔒 1 conexión simultánea`);
                             if (fs.existsSync(payment.qrPath)) {
                                 await client.sendImage(from, payment.qrPath, 'qr.jpg', `Escanea para pagar - $${payment.amount}`);
                             }
@@ -685,10 +660,9 @@ Elija una opción:
                 }
             }
             
-            // Opción 3: Renovar
             else if (text === '3' && userState.state === 'main_menu') {
                 await setUserState(from, 'renewing_ssh');
-                await client.sendText(from, `🔄 RENOVAR USUARIO\n\nEscribe tu nombre de usuario (ej: user1234)\n0 - Cancelar`);
+                await client.sendText(from, `🔄 RENOVAR USUARIO\n\nEscribe tu nombre de usuario\n0 - Cancelar`);
             }
             
             else if (userState.state === 'renewing_ssh') {
@@ -724,7 +698,7 @@ Elija una opción:
                     if (mpEnabled) {
                         const payment = await createMercadoPagoPayment(from, plan.days, plan.price, `RENOVAR ${plan.days} DÍAS`, true, username);
                         if (payment.success) {
-                            await client.sendText(from, `🔄 RENOVACIÓN\n\nUsuario: ${username}\nPlan: ${plan.days} días\nMonto: $${payment.amount}\nLink: ${payment.paymentUrl}`);
+                            await client.sendText(from, `🔄 RENOVACIÓN\n\nUsuario: ${username}\nPlan: ${plan.days} días\nMonto: $${payment.amount}\n🔗 Link: ${payment.paymentUrl}`);
                         } else {
                             await client.sendText(from, `❌ Error: ${payment.error}`);
                         }
@@ -735,16 +709,14 @@ Elija una opción:
                 }
             }
             
-            // Opción 4: Descargar APP
             else if (text === '4' && userState.state === 'main_menu') {
                 if (fs.existsSync('/root/mgvpn.apk')) {
                     await sendAppFile(from);
                 } else {
-                    await client.sendText(from, `📲 DESCARGAR APP\n\nLink: ${config.links.app_download}\nContraseña: ${DEFAULT_PASSWORD}`);
+                    await client.sendText(from, `📲 DESCARGAR APP\n\n🔗 Link: ${config.links.app_download}\n🔐 Contraseña: ${DEFAULT_PASSWORD}`);
                 }
             }
             
-            // Opción 5: Mis usuarios
             else if (text === '5' && userState.state === 'main_menu') {
                 db.all(`SELECT username, expires_at FROM users WHERE phone = ? AND status = 1`, [from], async (err, rows) => {
                     if (!rows || rows.length === 0) {
@@ -760,10 +732,8 @@ Elija una opción:
             }
         });
         
-        // Verificar pagos cada 2 minutos
         cron.schedule('*/2 * * * *', () => checkPendingPayments());
         
-        // Limpiar usuarios expirados
         cron.schedule('*/15 * * * *', async () => {
             const now = moment().format('YYYY-MM-DD HH:mm:ss');
             db.all('SELECT username FROM users WHERE expires_at < ? AND status = 1', [now], async (err, rows) => {
@@ -777,7 +747,6 @@ Elija una opción:
             });
         });
         
-        // Recordatorios
         cron.schedule('0 * * * *', async () => {
             if (!config.reminders.enabled) return;
             for (const hours of config.reminders.times) {
@@ -801,12 +770,12 @@ Elija una opción:
 initializeBot();
 BOTEOF
 
-echo -e "${GREEN}✅ Bot creado con límite de conexiones${NC}"
+echo -e "${GREEN}✅ Bot creado${NC}"
 
 # ================================================
-# CREAR PANEL DE CONTROL COMPLETO
+# CREAR PANEL DE CONTROL
 # ================================================
-echo -e "\n${CYAN}🎛️  Creando panel de control con gestión de bloqueos...${NC}"
+echo -e "\n${CYAN}🎛️  Creando panel de control...${NC}"
 
 cat > /usr/local/bin/sshbot << 'PANELEOF'
 #!/bin/bash
@@ -828,52 +797,7 @@ show_header() {
     echo -e "${CYAN}╚══════════════════════════════════════════════════════════════╝${NC}\n"
 }
 
-list_blocked_users() {
-    echo -e "${YELLOW}🔒 USUARIOS BLOQUEADOS:${NC}\n"
-    sqlite3 -column -header "$BLOCK_DB" "SELECT username, blocked_at, reason FROM blocked_users ORDER BY blocked_at DESC" 2>/dev/null
-    if [ $? -ne 0 ] || [ $(sqlite3 "$BLOCK_DB" "SELECT COUNT(*) FROM blocked_users" 2>/dev/null) -eq 0 ]; then
-        echo -e "${GREEN}✅ No hay usuarios bloqueados${NC}"
-    fi
-}
-
-block_user() {
-    echo -e "\n${YELLOW}🚫 BLOQUEAR USUARIO${NC}"
-    list_active_users
-    read -p "Nombre de usuario a bloquear: " username
-    if [ -z "$username" ]; then
-        echo -e "${RED}❌ Nombre inválido${NC}"
-        return
-    fi
-    read -p "Motivo del bloqueo: " reason
-    sqlite3 "$BLOCK_DB" "INSERT OR REPLACE INTO blocked_users (username, blocked_at, reason) VALUES ('$username', datetime('now'), '$reason')" 2>/dev/null
-    # Matar conexiones activas
-    pkill -u "$username" 2>/dev/null
-    echo -e "${GREEN}✅ Usuario $username BLOQUEADO${NC}"
-}
-
-unblock_user() {
-    echo -e "\n${GREEN}🔓 DESBLOQUEAR USUARIO${NC}"
-    list_blocked_users
-    read -p "Nombre de usuario a desbloquear: " username
-    if [ -z "$username" ]; then
-        echo -e "${RED}❌ Nombre inválido${NC}"
-        return
-    fi
-    sqlite3 "$BLOCK_DB" "DELETE FROM blocked_users WHERE username='$username'" 2>/dev/null
-    echo -e "${GREEN}✅ Usuario $username DESBLOQUEADO${NC}"
-}
-
-list_active_users() {
-    echo -e "\n${CYAN}📋 USUARIOS ACTIVOS EN EL SISTEMA:${NC}\n"
-    sqlite3 -column -header "$DB" "SELECT username, phone, tipo, expires_at FROM users WHERE status=1 ORDER BY expires_at" 2>/dev/null
-}
-
-view_connection_logs() {
-    echo -e "\n${CYAN}📊 REGISTRO DE CONEXIONES:${NC}\n"
-    sqlite3 -column -header "$BLOCK_DB" "SELECT username, action, connection_time FROM connection_logs ORDER BY connection_time DESC LIMIT 30" 2>/dev/null
-}
-
-show_menu() {
+while true; do
     show_header
     
     TOTAL=$(sqlite3 "$DB" "SELECT COUNT(*) FROM users" 2>/dev/null || echo "0")
@@ -891,13 +815,9 @@ show_menu() {
     
     echo -e "${CYAN}[1] Iniciar bot        [2] Detener bot        [3] Logs"
     echo -e "${CYAN}[4] Configurar MP      [5] Editar precios     [6] Subir APK"
-    echo -e "${CYAN}[7] Ver usuarios       [8] Estadísticas       [9] GESTIÓN BLOQUEOS"
-    echo -e "${CYAN}[10] Conexiones logs   [0] Salir${NC}"
+    echo -e "${CYAN}[7] Ver usuarios       [8] Estadísticas       [9] Bloquear/Desbloquear"
+    echo -e "${CYAN}[0] Salir${NC}"
     echo ""
-}
-
-while true; do
-    show_menu
     read -p "👉 Selecciona: " OPT
     
     case $OPT in
@@ -942,7 +862,8 @@ while true; do
             read -p "Enter...";;
         7)
             clear
-            list_active_users
+            echo -e "${CYAN}📋 USUARIOS ACTIVOS:${NC}\n"
+            sqlite3 -column -header "$DB" "SELECT username, phone, tipo, expires_at FROM users WHERE status=1 ORDER BY expires_at" 2>/dev/null
             read -p "Enter...";;
         8)
             clear
@@ -966,22 +887,45 @@ while true; do
                 echo -e "${CYAN}[2] Bloquear usuario"
                 echo -e "${CYAN}[3] Desbloquear usuario"
                 echo -e "${CYAN}[4] Ver usuarios activos"
-                echo -e "${CYAN}[0] Volver al menú principal${NC}"
+                echo -e "${CYAN}[0] Volver${NC}"
                 echo ""
                 read -p "👉 Opción: " BLOCK_OPT
                 case $BLOCK_OPT in
-                    1) clear; list_blocked_users; read -p "Enter...";;
-                    2) block_user; read -p "Enter...";;
-                    3) unblock_user; read -p "Enter...";;
-                    4) clear; list_active_users; read -p "Enter...";;
+                    1)
+                        echo -e "\n${YELLOW}🔒 USUARIOS BLOQUEADOS:${NC}\n"
+                        sqlite3 -column -header "$BLOCK_DB" "SELECT username, blocked_at, reason FROM blocked_users ORDER BY blocked_at DESC" 2>/dev/null
+                        if [ $(sqlite3 "$BLOCK_DB" "SELECT COUNT(*) FROM blocked_users" 2>/dev/null) -eq 0 ]; then
+                            echo -e "${GREEN}✅ No hay usuarios bloqueados${NC}"
+                        fi
+                        read -p "Enter...";;
+                    2)
+                        echo -e "\n${CYAN}📋 USUARIOS ACTIVOS:${NC}\n"
+                        sqlite3 -column -header "$DB" "SELECT username FROM users WHERE status=1" 2>/dev/null
+                        read -p "Nombre de usuario a bloquear: " username
+                        if [ -n "$username" ]; then
+                            read -p "Motivo: " reason
+                            sqlite3 "$BLOCK_DB" "INSERT OR REPLACE INTO blocked_users (username, blocked_at, reason) VALUES ('$username', datetime('now'), '$reason')" 2>/dev/null
+                            pkill -u "$username" 2>/dev/null
+                            echo -e "${GREEN}✅ Usuario $username BLOQUEADO${NC}"
+                        fi
+                        read -p "Enter...";;
+                    3)
+                        echo -e "\n${YELLOW}🔒 USUARIOS BLOQUEADOS:${NC}\n"
+                        sqlite3 -column -header "$BLOCK_DB" "SELECT username FROM blocked_users" 2>/dev/null
+                        read -p "Nombre de usuario a desbloquear: " username
+                        if [ -n "$username" ]; then
+                            sqlite3 "$BLOCK_DB" "DELETE FROM blocked_users WHERE username='$username'" 2>/dev/null
+                            echo -e "${GREEN}✅ Usuario $username DESBLOQUEADO${NC}"
+                        fi
+                        read -p "Enter...";;
+                    4)
+                        echo -e "\n${CYAN}📋 USUARIOS ACTIVOS:${NC}\n"
+                        sqlite3 -column -header "$DB" "SELECT username, phone, tipo, expires_at FROM users WHERE status=1 ORDER BY expires_at" 2>/dev/null
+                        read -p "Enter...";;
                     0) break;;
                 esac
             done
             ;;
-        10)
-            clear
-            view_connection_logs
-            read -p "Enter...";;
         0) echo -e "\n${GREEN}👋 Hasta luego${NC}"; exit 0;;
     esac
 done
@@ -1009,7 +953,7 @@ echo -e "${GREEN}${BOLD}"
 cat << "FINAL"
 ╔══════════════════════════════════════════════════════════════╗
 ║                                                              ║
-║          🎉 INSTALACIÓN COMPLETADA - CORREGIDA 🎉           ║
+║          🎉 INSTALACIÓN COMPLETADA - FUNCIONANDO 🎉         ║
 ║                                                              ║
 ║       🔒 LÍMITE DE 1 CONEXIÓN POR USUARIO ACTIVADO         ║
 ║       🚫 BLOQUEO/DESBLOQUEO DESDE PANEL                    ║
@@ -1025,8 +969,8 @@ echo -e "${NC}"
 
 echo -e "${GREEN}✅ Instalación completa${NC}"
 echo -e ""
-echo -e "${YELLOW}📋 COMANDOS PRINCIPALES:${NC}"
-echo -e "  ${GREEN}sshbot${NC}         - Panel de control completo"
+echo -e "${YELLOW}📋 COMANDOS:${NC}"
+echo -e "  ${GREEN}sshbot${NC}         - Panel de control"
 echo -e "  ${GREEN}pm2 logs sshbot-pro${NC} - Ver QR y logs"
 echo -e ""
 echo -e "${YELLOW}🚀 PRIMEROS PASOS:${NC}"
@@ -1035,12 +979,6 @@ echo -e "  2. Escanear QR con WhatsApp"
 echo -e "  3. ${GREEN}sshbot${NC} - Configurar MercadoPago (opción 4)"
 echo -e "  4. Subir APK (opción 6)"
 echo -e "  5. Enviar 'menu' al bot"
-echo -e ""
-echo -e "${YELLOW}🔒 GESTIÓN DE BLOQUEOS:${NC}"
-echo -e "  ${GREEN}sshbot${NC} → Opción 9 → Gestión de bloqueos"
-echo -e "  - Ver bloqueados"
-echo -e "  - Bloquear usuario (mata conexiones activas)"
-echo -e "  - Desbloquear usuario"
 echo -e ""
 
 read -p "$(echo -e "${YELLOW}¿Ver logs ahora? (s/N): ${NC}")" -n 1 -r
